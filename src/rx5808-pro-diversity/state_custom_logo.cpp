@@ -24,16 +24,18 @@ void CustomLogoStateHandler::onEnter() {
 void CustomLogoStateHandler::onUpdate() {
 
     Ui::clear();
-    
-    Ui::drawBitmap(
-        0,
-        0,
-        EepromSettings.customLogo,
-        SCREEN_WIDTH,
-        SCREEN_HEIGHT,
-        WHITE
-    );
 
+    #ifdef FENIX_QUADVERSITY
+        Ui::drawBitmap(
+            0,
+            0,
+            EepromSettings.customLogo,
+            SCREEN_WIDTH,
+            SCREEN_HEIGHT,
+            WHITE
+        );
+    #endif
+    
     Ui::drawCircle(x, y, 3, WHITE, BLACK);
     
     Ui::needUpdate();
@@ -58,11 +60,15 @@ void CustomLogoStateHandler::onButtonChange(
       button == Button::MODE_PRESSED
      ) {
           uint16_t byteIndex = (128*y+x)/8;
-          byte byteToChange = EepromSettings.customLogo[byteIndex];
+          #ifdef FENIX_QUADVERSITY
+              byte byteToChange = EepromSettings.customLogo[byteIndex];
+          #endif
           uint8_t bitToChange = 7 - (128*y+x) % 8;
 
-          EepromSettings.customLogo[byteIndex] = bitWrite(byteToChange, bitToChange, !bitRead(byteToChange, bitToChange));
-      
+          #ifdef FENIX_QUADVERSITY
+              EepromSettings.customLogo[byteIndex] = bitWrite(byteToChange, bitToChange, !bitRead(byteToChange, bitToChange));
+          #endif
+          
           EepromSettings.markDirty();
         }
   else if (

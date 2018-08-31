@@ -196,7 +196,9 @@ void StateMachine::SettingsStateHandler::onUpdateDraw() {
             break;
             
             case 10:    // CUSTOMLOGO
-              StateMachine::switchState(StateMachine::State::CUSTOMLOGO);
+              #ifdef FENIX_QUADVERSITY
+                  StateMachine::switchState(StateMachine::State::CUSTOMLOGO);
+              #endif
             break;
             
         }    
@@ -265,7 +267,11 @@ void StateMachine::SettingsStateHandler::onButtonChange(
                 case (4):    // Save Screen
                   EepromSettings.saveScreenOn--; 
                   if (EepromSettings.saveScreenOn == 255) {
-                    EepromSettings.saveScreenOn = 4;
+                    #ifdef FENIX_QUADVERSITY
+                        EepromSettings.saveScreenOn = 4;
+                    #else
+                        EepromSettings.saveScreenOn = 3;
+                    #endif
                   }                        
                 break;
                 
@@ -331,7 +337,11 @@ void StateMachine::SettingsStateHandler::onButtonChange(
                 
                 case (4):    // Save Screen
                     EepromSettings.saveScreenOn++;
-                    if (EepromSettings.saveScreenOn == 5) {
+                    #ifdef FENIX_QUADVERSITY
+                        if (EepromSettings.saveScreenOn == 5) {
+                    #else
+                        if (EepromSettings.saveScreenOn == 4) {
+                    #endif
                       EepromSettings.saveScreenOn = 0;
                     }                
                 break;

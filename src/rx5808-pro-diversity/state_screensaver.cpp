@@ -68,16 +68,18 @@ void StateMachine::ScreensaverStateHandler::onInitialDraw() {
                 WHITE
             );
           break;
-        case 4:
-            Ui::drawBitmap(
-                0,
-                0,
-                EepromSettings.customLogo,
-                SCREEN_WIDTH,
-                SCREEN_HEIGHT,
-                WHITE
-            );
-          break;    
+        #ifdef FENIX_QUADVERSITY  
+            case 4:
+                Ui::drawBitmap(
+                    0,
+                    0,
+                    EepromSettings.customLogo,
+                    SCREEN_WIDTH,
+                    SCREEN_HEIGHT,
+                    WHITE
+                );
+              break; 
+        #endif         
       }
       
     } else {

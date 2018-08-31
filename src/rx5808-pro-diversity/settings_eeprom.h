@@ -56,8 +56,10 @@ struct EepromSettings {
     uint8_t rssiHysteresis;
     uint16_t rssiHysteresisPeriod;
 
-    unsigned char customLogo[128*64/8];
-
+    #ifdef FENIX_QUADVERSITY
+       unsigned char customLogo[128*64/8];
+    #endif
+    
     void update();
 
     void load();
@@ -113,8 +115,9 @@ PROGMEM const struct {
     uint8_t rssiHysteresis = 2;
     uint16_t rssiHysteresisPeriod = 5;
 
-    unsigned char customLogo[128*64/8] = {0};
-    
+    #ifdef FENIX_QUADVERSITY
+        unsigned char customLogo[128*64/8] = {0};
+    #endif
 } EepromDefaults;
 
 
