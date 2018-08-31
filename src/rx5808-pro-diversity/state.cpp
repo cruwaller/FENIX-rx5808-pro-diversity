@@ -2,16 +2,25 @@
 
 #include "state.h"
 
+#include "state_home.h"
+#include "state_home_simple.h"
+#include "state_home_stats.h"
 #include "state_screensaver.h"
 #include "state_search.h"
 #include "state_bandscan.h"
 #include "state_menu.h"
 #include "state_settings.h"
+#include "state_settings_internal.h"
 #include "state_settings_rssi.h"
+#include "state_spectator.h"
+#include "state_favourites.h"
+#include "state_finder.h"
+#include "state_custom_logo.h"
+#include "state_laptimer.h"
 
 #include "ui.h"
 #include "buttons.h"
-
+#include "settings_eeprom.h"
 #include "timer.h"
 
 
@@ -20,14 +29,24 @@ void *operator new(size_t size, void *ptr){
 }
 
 #define MAX(a, b) (a > b ? a : b)
+
 #define STATE_BUFFER_SIZE \
+    MAX(sizeof(HomeStateHandler), \
+    MAX(sizeof(HomeSimpleStateHandler), \
+    MAX(sizeof(HomeStatsStateHandler), \
     MAX(sizeof(ScreensaverStateHandler), \
     MAX(sizeof(SearchStateHandler), \
     MAX(sizeof(BandScanStateHandler), \
     MAX(sizeof(MenuStateHandler), \
     MAX(sizeof(SettingsStateHandler), \
-        sizeof(SettingsRssiStateHandler) \
-    )))))
+    MAX(sizeof(SettingsInternalStateHandler), \
+    MAX(sizeof(SettingsRssiStateHandler), \
+    MAX(sizeof(SpectatorStateHandler), \
+    MAX(sizeof(FavouritesStateHandler), \
+    MAX(sizeof(FinderStateHandler), \
+    MAX(sizeof(LaptimerStateHandler), \
+        sizeof(CustomLogoStateHandler) \        
+    ))))))))))))))
 ;
 
 namespace StateMachine {
@@ -46,6 +65,7 @@ namespace StateMachine {
     }
 
     void update() {
+  
         if (currentHandler) {
             currentHandler->onUpdate();
 
@@ -81,6 +101,12 @@ namespace StateMachine {
             currentHandler->onEnter();
             currentHandler->onInitialDraw();
         }
+
+        if (newState != State::SCREENSAVER) {
+            EepromSettings.lastKnownState = newState;
+            EepromSettings.markDirty();          
+        }
+    
     }
 
     static StateHandler *getStateHandler(State state) {
@@ -90,12 +116,21 @@ namespace StateMachine {
                 break;
 
         switch (state) {
-            STATE_FACTORY(State::SEARCH, SearchStateHandler);
+            STATE_FACTORY(State::HOME, HomeStateHandler);
+            STATE_FACTORY(State::HOME_SIMPLE, HomeSimpleStateHandler);
+            STATE_FACTORY(State::HOME_STATS, HomeStatsStateHandler);
             STATE_FACTORY(State::SCREENSAVER, ScreensaverStateHandler);
+            STATE_FACTORY(State::SEARCH, SearchStateHandler);
             STATE_FACTORY(State::BANDSCAN, BandScanStateHandler);
             STATE_FACTORY(State::MENU, MenuStateHandler);
             STATE_FACTORY(State::SETTINGS, SettingsStateHandler);
+            STATE_FACTORY(State::SETTINGS_INTERNAL, SettingsInternalStateHandler);
             STATE_FACTORY(State::SETTINGS_RSSI, SettingsRssiStateHandler);
+            STATE_FACTORY(State::SPECTATOR, SpectatorStateHandler);
+            STATE_FACTORY(State::FAVOURITES, FavouritesStateHandler);
+            STATE_FACTORY(State::FINDER, FinderStateHandler);
+            STATE_FACTORY(State::LAPTIMER, LaptimerStateHandler);
+            STATE_FACTORY(State::CUSTOMLOGO, CustomLogoStateHandler);
 
             default:
                 return nullptr;

@@ -5,6 +5,7 @@
 #include "state.h"
 #include "timer.h"
 #include "settings.h"
+#include "bitmaps.h"
 
 
 namespace StateMachine {

@@ -1,4 +1,4 @@
-/*
+  /*
  * Setings file by Shea Ivey
 
 The MIT License (MIT)
@@ -33,20 +33,21 @@ SOFTWARE.
 // === EEPROM ==================================================================
 
 // This should be incremented after every EEPROM change.
-#define EEPROM_MAGIC 0x00000009
+// Version Number format v00.01
+#define VERSION_NUMBER 0001
 
 // === Receiver Modules =========================================================
 
 #ifdef RX5808
     // rx5808 module need >20ms to tune.
     // 25 ms will do a 40 channel scan in 1 second.
-    #define MIN_TUNE_TIME 25
+//    #define MIN_TUNE_TIME 30 // 25
 #endif
 
 #ifdef RX5880
     // rx5880 module needs >30ms to tune.
     // 35 ms will do a 40 channel scan in 1.4 seconds.
-    #define MIN_TUNE_TIME 35
+//    #define MIN_TUNE_TIME 35
 #endif
 
 // === Display Modules =========================================================
@@ -62,12 +63,6 @@ SOFTWARE.
 #define OLED_FRAMERATE 1000 / 25
 
 // === Misc ====================================================================
-
-#ifdef USE_VOLTAGE_MONITORING
-    #define VBAT_SMOOTH 8
-    #define VBAT_PRESCALER 16
-#endif
-
-#define EEPROM_SAVE_TIME 5000
+#define EEPROM_SAVE_TIME 1000
 
 #endif // file_defined

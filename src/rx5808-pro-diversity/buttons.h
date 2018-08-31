@@ -5,14 +5,18 @@
 #include <stdint.h>
 
 
-#define BUTTON_HOOKS_MAX 4
+#define BUTTON_HOOKS_MAX 8
 
 
 enum class Button : uint8_t {
-    UP,
-    DOWN,
-    MODE,
-    SAVE,
+    UP_PRESSED,
+    DOWN_PRESSED,
+    MODE_PRESSED,
+    RIGHT_PRESSED,
+    LEFT_PRESSED,
+    FATSHARK_EB0,
+    FATSHARK_EB1,
+    FATSHARK_EB2,
     COUNT
 };
 #define BUTTON_COUNT static_cast<uint8_t>(Button::COUNT)
@@ -20,7 +24,9 @@ enum class Button : uint8_t {
 
 namespace Buttons {
     enum class PressType : uint8_t {
+        CLICK,
         SHORT,
+        DOUBLECLICK,
         LONG,
         HOLDING
     };

@@ -13,6 +13,7 @@ static inline void sendRegister(uint8_t address, uint32_t data);
 
 #define SPI_ADDRESS_SYNTH_A 0x01
 #define SPI_ADDRESS_POWER 0x0A
+#define SPI_ADDRESS_STATE 0x0F
 
 
 namespace ReceiverSpi {
@@ -44,6 +45,10 @@ namespace ReceiverSpi {
 
     void setPowerDownRegister(uint32_t value) {
         sendRegister(SPI_ADDRESS_POWER, value);
+    }
+
+    void setStateRegister(uint32_t value) {
+        sendRegister(SPI_ADDRESS_STATE, value);
     }
 }
 
@@ -84,6 +89,13 @@ static inline void sendBit(uint8_t value) {
 }
 
 static inline void sendSlaveSelect(uint8_t value) {
-    digitalWrite(PIN_SPI_SLAVE_SELECT, value);
+    #ifdef FENIX_QUADVERSITY
+      digitalWrite(PIN_SPI_SLAVE_SELECT, value);
+    #endif
+    
+    #ifdef REALACC_RX5808_PRO_PLUS_OSD
+      digitalWrite(PIN_SPI_SLAVE_SELECT_A, value);
+      digitalWrite(PIN_SPI_SLAVE_SELECT_B, value);
+    #endif
     delayMicroseconds(1);
 }

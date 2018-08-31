@@ -19,6 +19,7 @@ namespace StateMachine {
 
             InternalState internalState = InternalState::WAIT_FOR_LOW;
             uint8_t currentSweep = 0;
+            uint8_t bestChannel = 0; 
 
 
         public:

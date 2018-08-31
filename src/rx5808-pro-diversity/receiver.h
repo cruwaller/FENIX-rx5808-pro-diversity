@@ -4,29 +4,24 @@
 
 #include <stdint.h>
 #include "settings.h"
+#include "settings_eeprom.h"
 
 
 #define RECEIVER_LAST_DELAY 50
-#define RECEIVER_LAST_DATA_SIZE 24
+#define RECEIVER_LAST_DATA_SIZE 64
 
 
 namespace Receiver {
+
     enum class ReceiverId : uint8_t {
         A
-        #ifdef USE_DIVERSITY
-            ,
-            B
-        #endif
+        ,
+        B
+        ,
+        C
+        ,
+        D
     };
-
-    #ifdef USE_DIVERSITY
-        enum class DiversityMode : uint8_t {
-            AUTO,
-            FORCE_A,
-            FORCE_B
-        };
-    #endif
-
 
     extern ReceiverId activeReceiver;
     extern uint8_t activeChannel;
@@ -34,26 +29,34 @@ namespace Receiver {
     extern uint8_t rssiA;
     extern uint16_t rssiARaw;
     extern uint8_t rssiALast[RECEIVER_LAST_DATA_SIZE];
-    #ifdef USE_DIVERSITY
-        extern uint8_t rssiB;
-        extern uint16_t rssiBRaw;
-        extern uint8_t rssiBLast[RECEIVER_LAST_DATA_SIZE];
-    #endif
+    extern uint8_t rssiB;
+    extern uint16_t rssiBRaw;
+    extern uint8_t rssiBLast[RECEIVER_LAST_DATA_SIZE];
+    extern uint8_t rssiC;
+    extern uint16_t rssiCRaw;
+    extern uint8_t rssiCLast[RECEIVER_LAST_DATA_SIZE];
+    extern uint8_t rssiD;
+    extern uint16_t rssiDRaw;
+    extern uint8_t rssiDLast[RECEIVER_LAST_DATA_SIZE];
+    
+    extern uint16_t previousSwitchTime;
+    extern uint16_t antennaAOnTime;
+    extern uint16_t antennaBOnTime;
+    extern uint16_t antennaCOnTime;
+    extern uint16_t antennaDOnTime;
 
     void setChannel(uint8_t channel);
+    void setChannelByFreq(uint16_t freq);
     uint16_t updateRssi();
     void setActiveReceiver(ReceiverId receiver = ReceiverId::A);
-    #ifdef USE_DIVERSITY
-        void setDiversityMode(uint8_t mode);
-        void switchDiversity();
-    #endif
+
+    void antenaOnTime();
+    
+    void switchDiversity();
 
     bool isRssiStable();
-
 
     void setup();
     void update();
 }
-
-
 #endif

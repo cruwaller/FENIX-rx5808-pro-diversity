@@ -1,5 +1,6 @@
 #include <string.h>
-#include <EEPROM.h>
+#include "extEEPROM.h"
+#include <Wire.h>
 
 #include "settings.h"
 #include "settings_internal.h"
@@ -11,6 +12,19 @@
 static Timer saveTimer = Timer(EEPROM_SAVE_TIME);
 static bool isDirty = false;
 
+#ifdef FENIX_QUADVERSITY
+// 3 added for testing
+//    extEEPROM EEPROM(kbits_2, 1, 1);    // AT24C02 // WORKING
+    extEEPROM EEPROM(kbits_16, 1, 8);   // AT24C16 // WORKING
+//    extEEPROM EEPROM(kbits_32, 1, 32);  // AT24C32 // NOT TESTED
+//    extEEPROM EEPROM(kbits_64, 1, 32);  // AT24C64 // WORKING
+#endif
+#ifdef REALACC_RX5808_PRO_PLUS_OSD
+    extEEPROM EEPROM(kbits_2, 1, 1);    // AT24C02
+#endif
+
+TwoWire Wire2(2);
+byte i2cStat = EEPROM.begin(extEEPROM::twiClock100kHz,  &Wire2); 
 
 struct EepromSettings EepromSettings;
 
@@ -27,20 +41,19 @@ void EepromSettings::update() {
 }
 
 void EepromSettings::load() {
-    EEPROM.get(0, *this);
+  EEPROM.read(0, (byte *)this, sizeof(EepromSettings));
 
-    if (this->magic != EEPROM_MAGIC)
+    if (this->versionNumber != VERSION_NUMBER)
         this->initDefaults();
 }
 
 void EepromSettings::save() {
-    EEPROM.put(0, *this);
+  byte i2cStat = EEPROM.write(0, (byte *)this, sizeof(EepromSettings));
 }
 
 void EepromSettings::markDirty() {
     isDirty = true;
 }
-
 
 void EepromSettings::initDefaults() {
     memcpy_P(this, &EepromDefaults, sizeof(EepromDefaults));

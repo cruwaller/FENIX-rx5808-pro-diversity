@@ -5,19 +5,19 @@
 #include "settings.h"
 
 
-#ifdef USE_LBAND
-    #define CHANNELS_SIZE 48
-#else
-    #define CHANNELS_SIZE 40
-#endif
+#define CHANNELS_SIZE 72
 
 
 namespace Channels {
     const uint16_t getSynthRegisterB(uint8_t index);
+    const uint16_t getSynthRegisterBFreq(uint16_t freq);
     const uint16_t getFrequency(uint8_t index);
     const char *getName(uint8_t index);
     const uint8_t getOrderedIndex(uint8_t index);
     const uint8_t getOrderedIndexFromIndex(uint8_t index);
+    
+    const uint16_t getCenterFreq(uint16_t freq);
+    const uint8_t getClosestChannel(uint16_t freq);
 }
 
 

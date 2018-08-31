@@ -1,4 +1,4 @@
-#include <avr/pgmspace.h>
+//#include <avr/pgmspace.h>
 
 #include "state_bandscan.h"
 
@@ -14,8 +14,10 @@
 
 
 void StateMachine::BandScanStateHandler::onEnter() {
-    orderedChanelIndex = 0;
     lastChannelIndex = Receiver::activeChannel;
+    
+    orderedChanelIndex = 0;
+    Receiver::setChannel(Channels::getOrderedIndex(orderedChanelIndex));
 }
 
 void StateMachine::BandScanStateHandler::onExit() {
@@ -27,20 +29,17 @@ void StateMachine::BandScanStateHandler::onUpdate() {
     if (!Receiver::isRssiStable())
         return;
 
-    #ifdef USE_DIVERSITY
+    if (!EepromSettings.quadversity) {
         rssiData[orderedChanelIndex] = (Receiver::rssiA + Receiver::rssiB) / 2;
-    #else
-        rssiData[orderedChanelIndex] = Receiver::rssiA;
-    #endif
+    }
+    if (EepromSettings.quadversity) {
+        rssiData[orderedChanelIndex] = ((Receiver::rssiA + Receiver::rssiB)/2 + (Receiver::rssiC + Receiver::rssiD)/2) / 2;
+    }
 
     orderedChanelIndex = (orderedChanelIndex + 1) % (CHANNELS_SIZE);
     Receiver::setChannel(Channels::getOrderedIndex(orderedChanelIndex));
 
     Ui::needUpdate();
-
-    if (orderedChanelIndex == 0) {
-
-    }
 }
 
 #define BORDER_LEFT_X 0
@@ -72,71 +71,28 @@ void StateMachine::BandScanStateHandler::onUpdate() {
 #define PROGRESS_W (BORDER_PROGRESS_RIGHT_X - PROGRESS_X - 1)
 #define PROGRESS_H (SCREEN_HEIGHT - PROGRESS_Y) - 2
 
-#define GRAPH_X (BORDER_LEFT_X + 1)
+#define GRAPH_X 0
 #define GRAPH_Y 0
-#define GRAPH_W (BORDER_RIGHT_X - GRAPH_X)
+#define GRAPH_W SCREEN_WIDTH - 1
 #define GRAPH_H BORDER_BOTTOM_Y
 
 
 void StateMachine::BandScanStateHandler::onInitialDraw() {
     Ui::clear();
 
-    Ui::display.drawFastVLine(
-        BORDER_LEFT_X,
-        BORDER_LEFT_Y,
-        BORDER_LEFT_H,
-        WHITE
-    );
-
-    Ui::display.drawFastVLine(
-        BORDER_RIGHT_X,
-        BORDER_RIGHT_Y,
-        BORDER_RIGHT_H,
-        WHITE
-    );
-
-    Ui::display.drawFastHLine(
-        BORDER_BOTTOM_X,
-        BORDER_BOTTOM_Y,
-        BORDER_BOTTOM_W,
-        WHITE
-    );
-
-    Ui::display.drawFastHLine(
-        BORDER_PROGRESS_LEFT_X,
-        SCREEN_HEIGHT - 1,
-        BORDER_PROGRESS_RIGHT_X - BORDER_PROGRESS_LEFT_X,
-        WHITE
-    );
-
-    Ui::display.drawFastVLine(
-        BORDER_PROGRESS_LEFT_X,
-        BORDER_PROGRESS_Y,
-        BORDER_PROGRESS_H,
-        WHITE
-    );
-
-    Ui::display.drawFastVLine(
-        BORDER_PROGRESS_RIGHT_X,
-        BORDER_PROGRESS_Y,
-        BORDER_PROGRESS_H,
-        WHITE
-    );
-
-    Ui::display.setTextSize(1);
-    Ui::display.setTextColor(WHITE);
-    Ui::display.setCursor(CHANNEL_TEXT_LOW_X, CHANNEL_TEXT_LOW_Y);
+    Ui::setTextSize(1);
+    Ui::setTextColor(WHITE);
+    Ui::setCursor(CHANNEL_TEXT_LOW_X, CHANNEL_TEXT_LOW_Y);
     Ui::display.print(Channels::getFrequency(Channels::getOrderedIndex(0)));
 
-    Ui::display.setCursor(CHANNEL_TEXT_HIGH_X, CHANNEL_TEXT_HIGH_Y);
-    Ui::display.print(
-        Channels::getFrequency(Channels::getOrderedIndex(CHANNELS_SIZE - 1)));
+    Ui::setCursor(CHANNEL_TEXT_HIGH_X, CHANNEL_TEXT_HIGH_Y);
+    Ui::display.print(Channels::getFrequency(Channels::getOrderedIndex(CHANNELS_SIZE - 1)));
 
     Ui::needDisplay();
 }
 
 void StateMachine::BandScanStateHandler::onUpdateDraw() {
-    Ui::drawGraph(
+    Ui::drawSolidGraph(
         rssiData,
         CHANNELS_SIZE,
         100,
@@ -144,29 +100,6 @@ void StateMachine::BandScanStateHandler::onUpdateDraw() {
         GRAPH_Y,
         GRAPH_W,
         GRAPH_H
-    );
-
-    Ui::display.drawFastHLine(
-        BORDER_BOTTOM_X,
-        BORDER_BOTTOM_Y,
-        BORDER_BOTTOM_W,
-        WHITE
-    );
-
-    Ui::clearRect(
-        PROGRESS_X,
-        PROGRESS_Y,
-        PROGRESS_W,
-        PROGRESS_H
-    );
-
-    uint8_t progressW = orderedChanelIndex * PROGRESS_W / CHANNELS_SIZE + 1;
-    Ui::display.fillRect(
-        PROGRESS_X,
-        PROGRESS_Y,
-        progressW,
-        PROGRESS_H,
-        WHITE
     );
 
     Ui::needDisplay();
