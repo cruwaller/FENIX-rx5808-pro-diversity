@@ -96,14 +96,14 @@ SOFTWARE.
     #define PIN_SPI_SLAVE_SELECT PB13  // 26 // CH2
     #define PIN_SPI_CLOCK PB14         // 27 // CH3
     
-    #define PIN_RSSI_A PA2 // 12
-    #define PIN_LED_A PB1 // 18
-    #define PIN_RSSI_B PA3 // 13
-    #define PIN_LED_B PB0 // 19
-    #define PIN_RSSI_C PA4 // 15 ORIGINAL
-    #define PIN_LED_C PC14 // 2
-    #define PIN_RSSI_D PA6 // 16
-    #define PIN_LED_D PC13 // 3
+    #define PIN_RSSI_A PA3 // 13
+    #define PIN_LED_A PB1 // 19
+    #define PIN_RSSI_B PA2 // 12
+    #define PIN_LED_B PB0 // 18
+    #define PIN_RSSI_C PA6 // 16
+    #define PIN_LED_C PC14 // 3
+    #define PIN_RSSI_D PA4 // 15
+    #define PIN_LED_D PC13 // 2
     
     #define PIN_VBAT PA0 // 10
     
