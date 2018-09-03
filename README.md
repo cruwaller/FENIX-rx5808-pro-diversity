@@ -1,24 +1,6 @@
-#### QUADVERSITY
-
-The Quadversity fork has added the below features.
-
-- 4 Rx diversity
-- TVout
-- Switching of TVout directly to goggles/screen via an additional 4066
-
-Updated schematic for quadversity with TVout functionality.
-
-![quadversity schematic](docs/img/rx5808-pro-diversity-schematic-quadversity.jpg)
-
-# ![Logo](media/logo.png)
-
-[![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/rx5808-pro-diversity/)
-
-This project is a fork of [rx5808-pro](https://code.google.com/p/rx5808-pro/) with support for diversity and much more.
-
-Manufactured version of this project can be found at [La Forge FPV](http://www.laforgefpv.com)
-
-The code is also backward compatible with the original rx5808-pro schematic minus diversity, dip switch mode and TV_Out. For details on updating click [here](/docs/diy-arduino-nano.md).
+<p align="center">
+    <a href="https://www.youtube.com/watch?v=5w54D7yBwR8"><img src="https://i.ytimg.com/vi/5w54D7yBwR8/hqdefault.jpg"></a>
+</p>
 
 # Table of Contents
 1. [Releases](#releases)
@@ -31,80 +13,101 @@ The code is also backward compatible with the original rx5808-pro schematic minu
 
 
 # Releases
-The latest release can be found here. [Latest Releases](https://github.com/sheaivey/rx5808-pro-diversity/releases)
+The latest release can be found here. [Latest Releases](https://github.com/JyeSmith/FENIX-rx5808-pro-diversity/releases)
 
 # Features
-- **User control** - 3 Button navigation, up, down, select.
-- **Manual Mode** - Set channel manual
-- **Search Mode** - Search next channel based on RSSI
-- **Band Scanner** - Print spectrum of all 48 channels
-- **Auto Save** - Saves settings after a few seconds of inactivity.
+- **2 and 4 Antenna Diversity** - Supports Quadversity.
+- **In Goggle Menu** - No need to remove your goggles.  Everything shown on the OLED can be shown in your goggles.
+- **User Control** - 3 (or 5) Button navigation, mode, up, down (left, right).
+- **Home Page** - Set channel manually. 3 Home layouts to select from.
+- **Favourites Page** - Setup 8 of your favourite channels.
+- **Search Mode** - Search channels based on RSSI.
+- **Spectrum** - Print spectrum of all 72 channels.
+- **Spectator Mode** - Scans for active channels.
+- **Finder Mode** - Visual and audible indication of RSSI.
+- **Screen Saver** - Choice of screensaver logo.
+- **Settings Menu** - Customise functionality.
+- **Adv Settings Menu** - Tweak internal settings while in the field.
+- **State Memory** - Boots into state you powered down in.
+- **Auto Save** - Saves settings after a second of inactivity.
 - **Beeper** - Acoustic feedback on important actions
 - **RSSI Graph** - Running history of RSSI readings.
-- **Diversity** - Receiver select and monitor.
-- **Led Status** - Power, button pressed, active antenna.
-- **Race Band & L-Band** - Total of 48 supported channels.
-- **Backward Compatibility** - Use this code with your existing setup.
+- **LEDs** - Status and active antenna.
+- **Race Band & L-Band** - Total of 72 supported channels.
 - **OLED Display** - Use a 128x64 OLED.
-- **Setup Menu** - Creating changing settings (RSSI Calibration).
+- **Voltage Monitoring/Alarm**
 
 # Overview
-Please watch the following video giving a detailed overview of the latest v2.0 release.
 
-<p align="center">
-    <a href="https://www.youtube.com/watch?v=PRY-XF2qSRU"><img src="https://img.youtube.com/vi/PRY-XF2qSRU/0.jpg"></a>
-</p>
+**Quadversity**
+- This firmware support 2 and 4 antenna diversity depending on your hardware.
 
-1. **Auto Scan** - Scans all bands until a signal with good signal strength is found.
-2. **Manual Mode** - Will hold on a manually selected channel.
-3. **Band Scanner** - Scans all bands and presents them with a signal strength bar graph.
-5. **Settings Menu** - Saves last used channel and mode for next power cycle. This is also where you enter RSSI calibration mode.
-    1. **Calibrate RSSI** - Calibrate the min and max RSSI values.
+**In Goggle Menu**
+- A long (~1s) down press at anytime will display the OLED screen graphics in the goggles.
 
+**Centering Function**
+- A single mode press (long mode press while in Home on Realacc module) on most menu pages will start the centering function.  This will quickly sweep the current frequency peak and set the receivers to the center frequency of the peak.  Great to use with a not so perfect VTx or if you are on a close but not correct band/channel e.g. A4 when you should be on F4.  A bullseye will be displayed when centered.
+
+**Home Page**
+- Mode - The following depends on your hardware.  Short press will change band or Center.  Long press will Center.
+- Up - Change channel.
+- Down - Change channel.
+- Left - Change band.
+- Right - Change band.
+
+3 different Home screen layout can be selected from within the settings page.
+
+**Favourites Page**
+- Mode - Short press Center.  Long press to highlight slot and change channel.
+- Up - Change channel.
+- Down - Change channel.
+
+**Search**
+- Mode - Short press Center.  Long press opens menu to select auto or manual search, and change search order from frequency to channel order.
+- Up - Search up.
+- Down - Search down.
+
+**Spectrum**
+No interaction.
+
+**Spectator Mode**
+- Mode - Short press Center.  Long press to search for active channels.
+- Up - Change channel.
+- Down - Change channel.
+
+**Finder Mode**
+- Mode - Change antenna(s) used.
+
+**Calibration**
+Follow on screen instructions.  Post calibration you will enter the Home page on the channel with the highest RSSI
+
+**Setting**
+- Mode - Short press to enter option. Short press again to exit option.
+- Up - Change option.
+- Down - Change option.
 
 #### Initial Setup
-When powering on for the first time it is best to calibrate your RSSI modules. No two modules have the same RSSI min and max readings. To calibrate follow these steps below. You can repeat this process as many times as needed.
+If calibration has not been performed, or the module has been changed between 2 and 4 antenna diversity, the module will boot into the calibration screen.  Once performed the module will boot into the state it was powered down in.
 
-1. Go to the settings menu and follow the calibrate RSSI steps on the screen.
+Calibration can be redone again at anytime.
 
 # Hardware
-#### Manufactured
-If you are not looking to build your own hardware you can purchase manufactured versions from the following companies.
 
-1. **[La Forge FPV](http://www.laforgefpv.com/vrx-pro)** - VRX-PRO
-  - Designed by Shea Ivey
-  - All Current Hardware versions.
-2. Realacc - rx5808-pro-diversity
-  - All current hardware versions.
-3. FuriousFPV - True-D
-  - V2.0 and earlier
-
-#### DIY
-
-This project is centered around the RX5808 5.8GHz receiver module which can be found at a number of online stores. The original rx5808-pro schematic has been modified to incorporate the diversity setup. Additional LEDs have also been added to show the active receiver.
-
-![diversity simple schematic](docs/img/rx5808-pro-diversity-schematic-simple.jpg)
-
-For more information on specific hardware implementations:
-
-1. [DIY Simple - Arduino Nano](/docs/diy-arduino-nano.md)
-1. [DIY Intermediate - Custom Board (T-Box)](/docs/diy-through-hole-board.md)
-2. [DIY Advanced - Custom Board](/docs/diy-custom-board.md)
-1. [OLED Version - Arduino Nano](/docs/oled-arduino-nano.md)
-3. [rx5808 SPI modification](/docs/rx5808-spi-mod.md)
-6. [Voltage Monitoring](/docs/voltage-monitoring.md)
+- **Realacc-RX5808-PRO-PLUS-OSD**
 
 # Firmware
 The firmware is constantly being improved please refer to the release history for more detailed information on improvements.
-[Release History](https://github.com/sheaivey/rx5808-pro-diversity/releases)
+[Release History](https://github.com/JyeSmith/FENIX-rx5808-pro-diversity/releases)
 
 # Contributing
 Any contributions are welcome!
 
-Please follow [CONTRIBUTING.md](CONTRIBUTING.md) for standard practices regarding this repo.
-
+Please see the [wiki](https://github.com/JyeSmith/FENIX-rx5808-pro-diversity/wiki/Contributing) on how to setup the development environment.
 
 ## Recognition
+
+This code is a forked from [sheaivey/rx5808-pro-diversity](https://github.com/sheaivey/rx5808-pro-diversity) and wouldn't be possible without the awesome work of the following contributors.
+
 - SPI driver based on fs_skyrf_58g-main.c Written by Simon Chambers
 - TVOUT by Myles Metzel
 - Scanner by Johann Hermen (der-Frickler.net)
@@ -122,6 +125,3 @@ Please follow [CONTRIBUTING.md](CONTRIBUTING.md) for standard practices regardin
 # License
 ## Code
 The code is distrubuted under the [MIT license](LICENSE.md).
-
-## Logo
-The logo is distributed under the [Creative Commons Attribution 4.0 International](http://creativecommons.org/licenses/by/4.0/) license.
