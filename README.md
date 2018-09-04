@@ -57,29 +57,43 @@ The latest release can be found here. [Latest Releases](https://github.com/JyeSm
 
 3 different Home screen layout can be selected from within the settings page.
 
+# ![home_simple](docs/img/screenshots/home_simple.jpg) # ![home_default](docs/img/screenshots/home_default.jpg) # ![home_stats](docs/img/screenshots/home_stats.jpg)
+
 **Favourites Page**
 - Mode - Short press Center.  Long press to highlight slot and change channel.
 - Up - Change channel.
 - Down - Change channel.
+
+# ![favourites](docs/img/screenshots/favourites.jpg)
 
 **Search**
 - Mode - Short press Center.  Long press opens menu to select auto or manual search, and change search order from frequency to channel order.
 - Up - Search up.
 - Down - Search down.
 
+# ![search](docs/img/screenshots/search.jpg)
+
 **Spectrum**
 No interaction.
+
+# ![spectrum](docs/img/screenshots/spectrum.jpg)
 
 **Spectator Mode**
 - Mode - Short press Center.  Long press to search for active channels.
 - Up - Change channel.
 - Down - Change channel.
 
+# ![spectator_scanning](docs/img/screenshots/spectator_scanning.jpg) # ![spectator](docs/img/screenshots/spectator.jpg)
+
 **Finder Mode**
 - Mode - Change antenna(s) used.
 
+# ![finder](docs/img/screenshots/finder.jpg)
+
 **Calibration**
 Follow on screen instructions.  Post calibration you will enter the Home page on the channel with the highest RSSI
+
+# ![calibration_1](docs/img/screenshots/calibration_1.jpg) # ![calibration_2](docs/img/screenshots/calibration_2.jpg) # ![calibration_3](docs/img/screenshots/calibration_3.jpg)
 
 **Setting**
 - Mode - Short press to enter option. Short press again to exit option.
