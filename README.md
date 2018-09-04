@@ -4,16 +4,20 @@
 
 # Table of Contents
 1. [Releases](#releases)
-2. [Features](#features)
-3. [Overview](#overview)
-4. [Hardware](#hardware)
-5. [Firmware](#firmware)
-6. [Contributing](#contributing)
-7. [License](#license)
-
+2. [Installing](#installing)
+3. [Features](#features)
+4. [Overview](#overview)
+5. [Hardware](#hardware)
+6. [Firmware](#firmware)
+7. [Contributing](#contributing)
+8. [License](#license)
 
 # Releases
 The latest release can be found here. [Latest Releases](https://github.com/JyeSmith/FENIX-rx5808-pro-diversity/releases)
+
+# Installing
+
+Installation guide can be found on the [wiki](https://github.com/JyeSmith/FENIX-rx5808-pro-diversity/wiki/Installing).
 
 # Features
 - **2 and 4 Antenna Diversity** - Supports Quadversity.
