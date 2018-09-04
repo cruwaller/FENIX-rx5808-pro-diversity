@@ -4,7 +4,7 @@
 
 extern const unsigned char logo[];
 extern const unsigned char logoBetaflight[];
-extern const unsigned char logoRotorRiot[];
+extern const unsigned char logoDb[];
 extern const unsigned char bootlogo[];
 
 extern const unsigned char homeIcon[];

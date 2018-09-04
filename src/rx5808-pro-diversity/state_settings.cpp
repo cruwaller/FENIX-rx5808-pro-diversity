@@ -156,7 +156,7 @@ void StateMachine::SettingsStateHandler::onUpdateDraw() {
                   Ui::display.print(PSTR2("Betaflight "));
               }
               if (EepromSettings.saveScreenOn == 3) {
-                  Ui::display.print(PSTR2(" RotorRiot "));
+                  Ui::display.print(PSTR2("  Random   "));
               }
               if (EepromSettings.saveScreenOn == 4) {
                   Ui::display.print(PSTR2("  Custom   "));

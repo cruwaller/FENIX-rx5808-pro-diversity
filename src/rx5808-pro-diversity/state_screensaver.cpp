@@ -62,7 +62,7 @@ void StateMachine::ScreensaverStateHandler::onInitialDraw() {
             Ui::drawBitmap(
                 0,
                 0,
-                logoRotorRiot,
+                logoDb,
                 SCREEN_WIDTH,
                 SCREEN_HEIGHT,
                 WHITE
