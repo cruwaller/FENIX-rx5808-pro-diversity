@@ -88,12 +88,16 @@ void FavouritesStateHandler::onButtonChange(
             );
           } 
           if ( changeingChannel ) {
-              EepromSettings.favouriteChannels[favouritesSelectedChannel] += 8;
-              if ( EepromSettings.favouriteChannels[favouritesSelectedChannel] > CHANNELS_SIZE - 1 ) {
-                EepromSettings.favouriteChannels[favouritesSelectedChannel] -= CHANNELS_SIZE;
-              }
-              Receiver::setChannel(EepromSettings.favouriteChannels[favouritesSelectedChannel]);
-              EepromSettings.markDirty();
+              #ifdef FENIX_QUADVERSITY  
+              
+              #else
+                  EepromSettings.favouriteChannels[favouritesSelectedChannel] += 8;
+                  if ( EepromSettings.favouriteChannels[favouritesSelectedChannel] > CHANNELS_SIZE - 1 ) {
+                    EepromSettings.favouriteChannels[favouritesSelectedChannel] -= CHANNELS_SIZE;
+                  }
+                  Receiver::setChannel(EepromSettings.favouriteChannels[favouritesSelectedChannel]);
+                  EepromSettings.markDirty();
+              #endif  
           }
         }
   else if (
@@ -139,6 +143,36 @@ void FavouritesStateHandler::onButtonChange(
               EepromSettings.favouriteChannels[favouritesSelectedChannel]++;
               if ( EepromSettings.favouriteChannels[favouritesSelectedChannel] > CHANNELS_SIZE - 1 ) {
                 EepromSettings.favouriteChannels[favouritesSelectedChannel] = 0;
+              }
+              Receiver::setChannel(EepromSettings.favouriteChannels[favouritesSelectedChannel]);
+              EepromSettings.markDirty();
+          }
+        }
+  else if (
+      pressType == Buttons::PressType::SHORT &&
+      button == Button::LEFT_PRESSED
+     ) {          
+          if ( !changeingChannel ) {
+          }      
+          if ( changeingChannel ) {
+              EepromSettings.favouriteChannels[favouritesSelectedChannel] -= 8;
+              if ( EepromSettings.favouriteChannels[favouritesSelectedChannel] > CHANNELS_SIZE - 1) {
+                EepromSettings.favouriteChannels[favouritesSelectedChannel] += CHANNELS_SIZE;
+              }
+              Receiver::setChannel(EepromSettings.favouriteChannels[favouritesSelectedChannel]);
+              EepromSettings.markDirty();
+          }
+        }
+  else if (
+      pressType == Buttons::PressType::SHORT &&
+      button == Button::RIGHT_PRESSED
+     ) {          
+          if ( !changeingChannel ) {
+          }      
+          if ( changeingChannel ) {
+              EepromSettings.favouriteChannels[favouritesSelectedChannel] += 8;
+              if ( EepromSettings.favouriteChannels[favouritesSelectedChannel] > CHANNELS_SIZE - 1 ) {
+                EepromSettings.favouriteChannels[favouritesSelectedChannel] -= CHANNELS_SIZE;
               }
               Receiver::setChannel(EepromSettings.favouriteChannels[favouritesSelectedChannel]);
               EepromSettings.markDirty();
