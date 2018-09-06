@@ -112,6 +112,7 @@ Calibration can be redone again at anytime.
 # Hardware
 
 - **Realacc-RX5808-PRO-PLUS-OSD**
+- **Eachine PRO58 RX Diversity** <u>UNTESTED</u> The Realacc hex should work (with and without the resistor mod) since the pinouts are the same. Please report back if you have this module and able to test.
 
 # Firmware
 The firmware is constantly being improved please refer to the release history for more detailed information on improvements.
