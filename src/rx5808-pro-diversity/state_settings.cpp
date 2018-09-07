@@ -156,9 +156,12 @@ void StateMachine::SettingsStateHandler::onUpdateDraw() {
                   Ui::display.print(PSTR2("Betaflight "));
               }
               if (EepromSettings.saveScreenOn == 3) {
-                  Ui::display.print(PSTR2("  Random   "));
+                  Ui::display.print(PSTR2(" RotorRiot "));
               }
               if (EepromSettings.saveScreenOn == 4) {
+                  Ui::display.print(PSTR2("  Random   "));
+              }
+              if (EepromSettings.saveScreenOn == 5) {
                   Ui::display.print(PSTR2("  Custom   "));
               }
             break;
@@ -268,9 +271,9 @@ void StateMachine::SettingsStateHandler::onButtonChange(
                   EepromSettings.saveScreenOn--; 
                   if (EepromSettings.saveScreenOn == 255) {
                     #ifdef FENIX_QUADVERSITY
-                        EepromSettings.saveScreenOn = 4;
+                        EepromSettings.saveScreenOn = 5;
                     #else
-                        EepromSettings.saveScreenOn = 3;
+                        EepromSettings.saveScreenOn = 4;
                     #endif
                   }                        
                 break;
@@ -338,9 +341,9 @@ void StateMachine::SettingsStateHandler::onButtonChange(
                 case (4):    // Save Screen
                     EepromSettings.saveScreenOn++;
                     #ifdef FENIX_QUADVERSITY
-                        if (EepromSettings.saveScreenOn == 5) {
+                        if (EepromSettings.saveScreenOn == 6) {
                     #else
-                        if (EepromSettings.saveScreenOn == 4) {
+                        if (EepromSettings.saveScreenOn == 5) {
                     #endif
                       EepromSettings.saveScreenOn = 0;
                     }                

@@ -62,6 +62,16 @@ void StateMachine::ScreensaverStateHandler::onInitialDraw() {
             Ui::drawBitmap(
                 0,
                 0,
+                logoRotorRiot,
+                SCREEN_WIDTH,
+                SCREEN_HEIGHT,
+                WHITE
+            );
+          break;
+        case 4:
+            Ui::drawBitmap(
+                0,
+                0,
                 logoDb,
                 SCREEN_WIDTH,
                 SCREEN_HEIGHT,
@@ -69,7 +79,7 @@ void StateMachine::ScreensaverStateHandler::onInitialDraw() {
             );
           break;
         #ifdef FENIX_QUADVERSITY  
-            case 4:
+            case 5:
                 Ui::drawBitmap(
                     0,
                     0,
