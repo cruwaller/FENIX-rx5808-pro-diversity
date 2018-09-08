@@ -13,7 +13,7 @@
 int8_t selectedInternalMenuItem = 0;
 bool showChangeInternalMenuOptions = false;
 
-int8_t factoryReset = 0;
+uint8_t factoryReset = 0;
 
 uint8_t menuInternalItems = 7; // Number of items in settingsInternalMenu[]
 char* settingsInternalMenu[]={ 
@@ -186,7 +186,7 @@ void StateMachine::SettingsInternalStateHandler::onButtonChange(
                 
                 case (0):    // Factry Reset 
                     factoryReset--;
-                    if (factoryReset == 255) {
+                    if (factoryReset > 5) {
                       factoryReset = 5;
                     }                         
                 break;
