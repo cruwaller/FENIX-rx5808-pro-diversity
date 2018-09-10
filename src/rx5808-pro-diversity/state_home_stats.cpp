@@ -12,6 +12,7 @@
 #include "ui.h"
 #include "pstr_helper.h"
 #include "voltage.h"
+#include "temperature.h"
 
 using StateMachine::HomeStatsStateHandler;
 
@@ -46,21 +47,35 @@ void HomeStatsStateHandler::onUpdateDraw() {
     if (!centred) {
         Ui::clearRect(0, 39, 43, 9);
     }
+    
+    // Temperature
+    Ui::clearRect(0, 52, 21, 7);
+    Ui::setCursor(0, 52);
+    Ui::setTextSize(1);
+    Ui::display.print((uint8_t)Temperature::temperature);
+    Ui::display.print(PSTR2("C"));        
 
     // Voltage 
     #ifdef FENIX_QUADVERSITY  
-        Ui::clearRect(0, 49, 60, 14);
-        Ui::setTextSize(2);
+        Ui::clearRect(28, 52, 18, 7);
+        Ui::setTextSize(1);
         Ui::setTextColor(WHITE);
-        Ui::setCursor(0, 49);
+        Ui::setCursor(28, 52);
         Ui::display.print(Voltage::voltage); 
         Ui::display.print(PSTR2("."));        
         Ui::display.print(Voltage::voltageDec);
         Ui::setTextSize(1);
         Ui::display.print(PSTR2("V"));
+//        Ui::clearRect(0, 49, 60, 14);
+//        Ui::setTextSize(2);
+//        Ui::setTextColor(WHITE);
+//        Ui::setCursor(0, 49);
+//        Ui::display.print(Voltage::voltage); 
+//        Ui::display.print(PSTR2("."));        
+//        Ui::display.print(Voltage::voltageDec);
+//        Ui::setTextSize(1);
+//        Ui::display.print(PSTR2("V"));
     #endif
-
-
 
     Ui::clearRect(60, 0, 67, 64);
 
@@ -122,7 +137,7 @@ void HomeStatsStateHandler::onUpdateDraw() {
         Ui::setCursor(101,52);
         Ui::display.print( (100 * Receiver::antennaDOnTime) / (millis() / 1000) );
     }
-      
+    
     Ui::needDisplay();
 }
 

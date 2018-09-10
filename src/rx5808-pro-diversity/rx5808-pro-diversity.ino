@@ -47,6 +47,7 @@
 #include "bitmaps.h"
 #include "osd_switching.h"
 #include "voltage.h"
+#include "temperature.h"
 
 static void globalMenuButtonHandler(
   Button button,
@@ -213,6 +214,7 @@ void loop() {
       Ui::update();
       EepromSettings.update();
   }
+  Temperature::update();
   
   if (EepromSettings.saveScreenOn) {
     if (
