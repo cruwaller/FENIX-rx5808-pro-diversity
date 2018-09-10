@@ -214,7 +214,7 @@ SOFTWARE.
 //#define RSSI_SEEK_TRESHOLD 50
 
 // Scan loops for setup run.
-#define RSSI_SETUP_RUN 1 //3
+#define RSSI_SETUP_RUN 3
 
 // === Misc ====================================================================
 
