@@ -116,13 +116,13 @@ static void updateButton(
 //            break;
 //          }
 //        }
-        if (isDoubleClick) {
-          runChangeFuncs(button, PressType::DOUBLECLICK);
-          delay(200); // Delay to prevent additional SHORT press after double click
-        } else {
+//        if (isDoubleClick) {
+//          runChangeFuncs(button, PressType::DOUBLECLICK);
+//          delay(200); // Delay to prevent additional SHORT press after double click
+//        } else {
           runChangeFuncs(button, PressType::SHORT);
-        }
-      } else if (duration < 1000) {
+//        }
+      } else if (duration < 1500) {
         runChangeFuncs(button, PressType::LONG);
       }
         
@@ -132,7 +132,7 @@ static void updateButton(
   if (state.pressed) {
     uint32_t duration = millis() - state.changeTime;
 
-    if (duration >= 1000)
+    if (duration >= 1500)
       runChangeFuncs(button, PressType::HOLDING);
   }
 }
