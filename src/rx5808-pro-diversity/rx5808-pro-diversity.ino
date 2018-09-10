@@ -117,7 +117,11 @@ void setup()
     }
   }
 
-//   Switch to initial state.
+  // Has to be last setup() otherwise channel may not be set.
+  // RX possibly not botting quick enough if setup() is called earler.
+  Receiver::setup(); 
+  
+  // Switch to initial state.
   StateMachine::switchState(EepromSettings.lastKnownState);  
   if (!EepromSettings.isCalibrated) {
       StateMachine::switchState(StateMachine::State::SETTINGS_RSSI);
@@ -127,10 +131,6 @@ void setup()
   #ifdef FENIX_QUADVERSITY
     digitalWrite(PIN_LED, HIGH);  // ON
   #endif
-
-  // Has to be last setup() otherwise channel may not be set.
-  // RX possibly not botting quick enough if setup() is called earler.
-  Receiver::setup(); 
 }
 
 void setupPins() {

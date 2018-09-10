@@ -17,7 +17,7 @@ static void writeSerialData();
 
 namespace Receiver {
     ReceiverId activeReceiver = ReceiverId::A;
-    uint8_t activeChannel = 0;
+    uint8_t activeChannel = EepromSettings.startChannel;
 
     uint8_t rssiA = 0;
     uint16_t rssiARaw = 0;
