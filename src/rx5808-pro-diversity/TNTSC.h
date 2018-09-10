@@ -16,8 +16,11 @@
 
 #include <Arduino.h>
 
-#if F_CPU == 72000000L
-	#define SC_112x108  0 // 112x108
+#if F_CPU == 120000000L
+  #define SC_160x108  0 // 160x108
+    #define SC_DEFAULT  SC_160x108
+#elif F_CPU == 72000000L
+  #define SC_112x108  0 // 112x108
 	#define SC_224x108  1 // 224x108
 	#define SC_224x216  2 // 224x216
 	#define SC_448x108  3 // 448x108

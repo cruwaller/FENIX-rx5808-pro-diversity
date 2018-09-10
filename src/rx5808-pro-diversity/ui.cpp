@@ -38,7 +38,14 @@ namespace Ui {
           update(); 
         #endif
         
-        TV.begin(SC_448x108); // tone will not work until begin is called.
+        // tone will not work until begin is called.
+        #if F_CPU == 120000000L
+            TV.begin(SC_160x108); // 120 MHz
+        #elif F_CPU == 72000000L
+            TV.begin(SC_448x108); // 72 MHz
+        #elif F_CPU == 48000000L
+            TV.begin(SC_256x192); // 48 MHz
+        #endif
         TV.end();    
     }
 
@@ -48,7 +55,13 @@ namespace Ui {
         
         display.ssd1306_command(SSD1306_DISPLAYOFF);  
         
-        TV.begin(SC_448x108);
+        #if F_CPU == 120000000L
+            TV.begin(SC_160x108); // 120 MHz
+        #elif F_CPU == 72000000L
+            TV.begin(SC_448x108); // 72 MHz
+        #elif F_CPU == 48000000L
+            TV.begin(SC_256x192); // 48 MHz
+        #endif
 
         Ui::sdToTtvout(); 
         
@@ -76,7 +89,15 @@ namespace Ui {
       for(int y=0; y<64; y++) {
         for(int x=0; x<128; x++) {            
           bool colour = display.getPixel(x,y);
-          TV.draw_rect(32+x*3, 22+y, 3, 1, colour, colour);       
+          
+          #if F_CPU == 120000000L
+              TV.draw_rect(16+x, 22+y, 1, 1, colour, colour);  // 120 MHz
+          #elif F_CPU == 72000000L
+              TV.draw_rect(32+x*3, 22+y, 3, 1, colour, colour); // 72 MHz
+          #elif F_CPU == 48000000L
+              TV.draw_rect(x*2, y*3, 2, 3, colour, colour); // 48 MHz
+          #endif
+              
         }
       }      
     }

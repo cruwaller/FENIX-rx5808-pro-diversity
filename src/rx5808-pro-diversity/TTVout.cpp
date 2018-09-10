@@ -793,8 +793,10 @@ void TTVout::tone(uint16_t freq, uint16_t duration) {
     noTone();
   } else {
     uint32_t f =1000000/(uint16_t)freq;
-#if F_CPU == 72000000L
-  	Timer4.setPrescaleFactor(72); // システムクロックを1/72に分周
+#if F_CPU == 120000000L
+   Timer4.setPrescaleFactor(120); // システムクロックを1/120に分周
+#elif F_CPU == 72000000L
+    Timer4.setPrescaleFactor(72); // システムクロックを1/72に分周
 #elif  F_CPU == 48000000L
   	Timer4.setPrescaleFactor(48); // システムクロックを1/48に分周
 #endif

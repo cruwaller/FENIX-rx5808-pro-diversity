@@ -45,7 +45,12 @@ typedef struct  {
   uint32_t spiDiv;  // SPIクロック分周
 } SCREEN_SETUP;
 
-#if F_CPU == 72000000L
+#if F_CPU == 120000000L
+#define NTSC_TIMER_DIV 5 // システムクロック分周 1/5
+const SCREEN_SETUP screen_type[] __FLASH__ {
+  { 160,  108, 216, 20, 1, SPI_CLOCK_DIV32 }, // 160x108
+};
+#elif F_CPU == 72000000L
 #define NTSC_TIMER_DIV 3 // システムクロック分周 1/3
 const SCREEN_SETUP screen_type[] __FLASH__ {
   { 112, 108, 216, 14, 1, SPI_CLOCK_DIV32 }, // 112x108
