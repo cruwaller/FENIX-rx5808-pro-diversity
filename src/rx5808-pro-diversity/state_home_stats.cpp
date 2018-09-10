@@ -66,15 +66,6 @@ void HomeStatsStateHandler::onUpdateDraw() {
         Ui::display.print(Voltage::voltageDec);
         Ui::setTextSize(1);
         Ui::display.print(PSTR2("V"));
-//        Ui::clearRect(0, 49, 60, 14);
-//        Ui::setTextSize(2);
-//        Ui::setTextColor(WHITE);
-//        Ui::setCursor(0, 49);
-//        Ui::display.print(Voltage::voltage); 
-//        Ui::display.print(PSTR2("."));        
-//        Ui::display.print(Voltage::voltageDec);
-//        Ui::setTextSize(1);
-//        Ui::display.print(PSTR2("V"));
     #endif
 
     Ui::clearRect(60, 0, 67, 64);
