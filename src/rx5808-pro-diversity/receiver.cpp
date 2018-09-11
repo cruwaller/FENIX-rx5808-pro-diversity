@@ -2,7 +2,7 @@
 //#include <avr/pgmspace.h>
 
 #include "settings.h"
-#include "settings_eeprom.h"
+#include "settings_eeprom.h"rssiHysteresis
 #include "receiver.h"
 #include "receiver_spi.h"
 #include "channels.h"
@@ -42,11 +42,9 @@ namespace Receiver {
     uint16_t antennaDOnTime = 0;
     
     ReceiverId diversityTargetReceiver = activeReceiver;
-//    Timer diversityHysteresisTimer = Timer(EepromSettings.rssiHysteresisPeriod);
-    Timer diversityHysteresisTimer = Timer(5);
+    static Timer diversityHysteresisTimer = Timer(5); // default value and is replce by value stored in eeprom during setup
 
-//    static Timer rssiStableTimer = Timer(EepromSettings.rssiMinTuneTime);
-    static Timer rssiStableTimer = Timer(30);
+    static Timer rssiStableTimer = Timer(30); // default value and is replce by value stored in eeprom during setup
     static Timer rssiLogTimer = Timer(RECEIVER_LAST_DELAY);
 
     void setChannel(uint8_t channel)
@@ -300,6 +298,8 @@ namespace Receiver {
         #endif
         setChannel(EepromSettings.startChannel);
         setActiveReceiver(ReceiverId::A);
+        diversityHysteresisTimer = Timer(EepromSettings.rssiHysteresisPeriod);    
+        rssiStableTimer = Timer(EepromSettings.rssiMinTuneTime);    
     }
 
     void update() {

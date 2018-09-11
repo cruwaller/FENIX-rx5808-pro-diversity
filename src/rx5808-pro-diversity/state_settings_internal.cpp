@@ -157,11 +157,11 @@ void StateMachine::SettingsInternalStateHandler::onButtonChange(
           if (showChangeInternalMenuOptions) {
               showChangeInternalMenuOptions = false;
               if (factoryReset == 3) {
-                EepromSettings.initDefaults();
-                factoryReset = 0;
-              }  else {
-                EepromSettings.markDirty();    
+                EepromSettings.initDefaults(); 
               }
+              EepromSettings.save();    
+              delay(250); // wait for eeprom to finish writing
+              nvic_sys_reset();
           } else {
               showChangeInternalMenuOptions = true;        
           }
