@@ -54,6 +54,8 @@ SOFTWARE.
 //
 // =============================================================================
 
+//#define DISABLE_OLED
+
 #define OLED_128x64_ADAFRUIT_SCREENS
 
 // Enable this if your screen is upside down.

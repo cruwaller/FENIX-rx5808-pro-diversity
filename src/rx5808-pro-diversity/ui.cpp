@@ -29,7 +29,9 @@ namespace Ui {
         
           Wire.setClock(400000);
 
-          display.begin(SSD1306_SWITCHCAPVCC, 0x3C); 
+          #ifndef DISABLE_OLED
+            display.begin(SSD1306_SWITCHCAPVCC, 0x3C); 
+          #endif
           display.setTextColor(WHITE);
           display.setTextSize(1);
           display.setTextWrap(false);  
@@ -53,7 +55,9 @@ namespace Ui {
 
         ReceiverSpi::setPowerDownRegister(0b01010000110000010011);
         
-        display.ssd1306_command(SSD1306_DISPLAYOFF);  
+        #ifndef DISABLE_OLED
+          display.ssd1306_command(SSD1306_DISPLAYOFF);  
+        #endif
         
         #if F_CPU == 120000000L
             TV.begin(SC_160x108); // 120 MHz
@@ -77,8 +81,10 @@ namespace Ui {
         TV.end();    
         
         if (EepromSettings.useOledScreen) {
-          display.ssd1306_command(SSD1306_DISPLAYON);
-          display.display();          
+          #ifndef DISABLE_OLED
+            display.ssd1306_command(SSD1306_DISPLAYON);
+            display.display();  
+          #endif        
         }
          
         isTvOn = false;
@@ -118,9 +124,13 @@ namespace Ui {
                     Ui::sdToTtvout();
                   } else {        
                     if (EepromSettings.useOledScreen) { 
-                      display.display();          
+                      #ifndef DISABLE_OLED
+                        display.display();          
+                      #endif
                     } else {
-                      display.ssd1306_command(SSD1306_DISPLAYOFF);
+                      #ifndef DISABLE_OLED
+                        display.ssd1306_command(SSD1306_DISPLAYOFF);
+                      #endif
                     }
                   }
                   
