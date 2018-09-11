@@ -56,7 +56,7 @@ struct EepromSettings {
     uint8_t rssiHysteresis;
     uint16_t rssiHysteresisPeriod;
 
-    #ifdef FENIX_QUADVERSITY
+    #ifndef EEPROM_AT24C02
        unsigned char customLogo[128*64/8];
     #endif
     
@@ -115,7 +115,7 @@ PROGMEM const struct {
     uint8_t rssiHysteresis = 2;
     uint16_t rssiHysteresisPeriod = 5;
 
-    #ifdef FENIX_QUADVERSITY
+    #ifndef EEPROM_AT24C02
         unsigned char customLogo[128*64/8] = {0};
     #endif
 } EepromDefaults;

@@ -78,7 +78,7 @@ void StateMachine::ScreensaverStateHandler::onInitialDraw() {
                 WHITE
             );
           break;
-        #ifdef FENIX_QUADVERSITY  
+        #ifndef EEPROM_AT24C02  
             case 5:
                 Ui::drawBitmap(
                     0,

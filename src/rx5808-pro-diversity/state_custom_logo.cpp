@@ -25,7 +25,7 @@ void CustomLogoStateHandler::onUpdate() {
 
     Ui::clear();
 
-    #ifdef FENIX_QUADVERSITY
+    #ifndef EEPROM_AT24C02
         Ui::drawBitmap(
             0,
             0,
@@ -60,12 +60,12 @@ void CustomLogoStateHandler::onButtonChange(
       button == Button::MODE_PRESSED
      ) {
           uint16_t byteIndex = (128*y+x)/8;
-          #ifdef FENIX_QUADVERSITY
+          #ifndef EEPROM_AT24C02
               byte byteToChange = EepromSettings.customLogo[byteIndex];
           #endif
           uint8_t bitToChange = 7 - (128*y+x) % 8;
 
-          #ifdef FENIX_QUADVERSITY
+          #ifndef EEPROM_AT24C02
               EepromSettings.customLogo[byteIndex] = bitWrite(byteToChange, bitToChange, !bitRead(byteToChange, bitToChange));
           #endif
           

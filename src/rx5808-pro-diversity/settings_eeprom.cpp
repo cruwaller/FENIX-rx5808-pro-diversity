@@ -12,15 +12,17 @@
 static Timer saveTimer = Timer(EEPROM_SAVE_TIME);
 static bool isDirty = false;
 
-#ifdef FENIX_QUADVERSITY
-// 3 added for testing
-//    extEEPROM EEPROM(kbits_2, 1, 1);    // AT24C02 // WORKING
-    extEEPROM EEPROM(kbits_16, 1, 8);   // AT24C16 // WORKING
-//    extEEPROM EEPROM(kbits_32, 1, 32);  // AT24C32 // NOT TESTED
-//    extEEPROM EEPROM(kbits_64, 1, 32);  // AT24C64 // WORKING
+#ifdef EEPROM_AT24C02
+    extEEPROM EEPROM(kbits_2, 1, 1);
 #endif
-#ifdef REALACC_RX5808_PRO_PLUS_OSD
-    extEEPROM EEPROM(kbits_2, 1, 1);    // AT24C02
+#ifdef EEPROM_AT24C16
+    extEEPROM EEPROM(kbits_16, 1, 8);
+#endif
+#ifdef EEPROM_AT24C32
+    extEEPROM EEPROM(kbits_32, 1, 32);
+#endif
+#ifdef EEPROM_AT24C64
+    extEEPROM EEPROM(kbits_64, 1, 32);
 #endif
 
 TwoWire Wire2(2);
