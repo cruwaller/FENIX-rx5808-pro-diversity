@@ -60,6 +60,7 @@ void setup()
   EepromSettings.load();
 
   setupPins();
+  Temperature::setup();
 
   StateMachine::setup();
   Ui::setup(); 

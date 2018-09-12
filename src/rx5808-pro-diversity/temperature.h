@@ -5,6 +5,7 @@ namespace Temperature {
     
     extern float temperature;
     
+    void setup();
     void update();
 }
 

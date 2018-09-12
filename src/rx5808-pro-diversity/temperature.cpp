@@ -3,17 +3,17 @@
 namespace Temperature {
   
     float temperature = 0;
-      
-    void update() {
-      
+
+    void setup() {
         adc_reg_map *regs = ADC1->regs;
         regs->CR2 |= ADC_CR2_TSVREFE;    
-        regs->SMPR1 |=  (0b111 << 18);  // sample rate temperature
-        regs->SMPR1 |=  (0b111 << 21);  // sample rate vrefint
-        adc_calibrate(ADC1);
-        
-        float vdd = 1.20 * 4096.0 / adc_read(ADC1, 17);
-        float currentTemp = (1.43 - (vdd / 4096.0 * adc_read(ADC1, 16))) / 0.0043 + 25.0;
+        regs->SMPR1 = (0b111 << (3 * 6));
+    }
+      
+    void update() {
+        uint16_t result = adc_read(ADC1, 16);        
+        float Vsense = (3300.0*result)/4096;        
+        float currentTemp = ((1430.0-Vsense)/4.3) + 25.0; 
 
         if (temperature == 0) {
             temperature = currentTemp;
