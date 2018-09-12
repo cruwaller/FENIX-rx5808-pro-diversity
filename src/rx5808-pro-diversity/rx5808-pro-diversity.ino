@@ -222,8 +222,8 @@ void loop() {
       StateMachine::currentState != StateMachine::State::SCREENSAVER
       && StateMachine::currentState != StateMachine::State::BANDSCAN
       && StateMachine::currentState != StateMachine::State::FINDER
-      && (millis() - Buttons::lastChangeTime) >
-      (SCREENSAVER_TIMEOUT * 1000)
+      && !Ui::isTvOn
+      && (millis() - Buttons::lastChangeTime) > (SCREENSAVER_TIMEOUT * 1000)
     ) {
       StateMachine::switchState(StateMachine::State::SCREENSAVER);
     }    
