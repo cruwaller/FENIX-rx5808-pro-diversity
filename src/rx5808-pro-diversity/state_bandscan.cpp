@@ -30,10 +30,10 @@ void StateMachine::BandScanStateHandler::onUpdate() {
         return;
 
     if (!EepromSettings.quadversity) {
-        rssiData[orderedChanelIndex] = (Receiver::rssiA + Receiver::rssiB) / 2;
+        rssiData[orderedChanelIndex] = max(Receiver::rssiA, Receiver::rssiB);
     }
     if (EepromSettings.quadversity) {
-        rssiData[orderedChanelIndex] = ((Receiver::rssiA + Receiver::rssiB)/2 + (Receiver::rssiC + Receiver::rssiD)/2) / 2;
+        rssiData[orderedChanelIndex] = max(Receiver::rssiA, max(Receiver::rssiB, max(Receiver::rssiC, Receiver::rssiD)));
     }
 
     orderedChanelIndex = (orderedChanelIndex + 1) % (CHANNELS_SIZE);
