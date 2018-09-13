@@ -94,7 +94,12 @@ namespace Ui {
     void sdToTtvout() {      
       for(int y=0; y<64; y++) {
         for(int x=0; x<128; x++) {            
-          bool colour = display.getPixel(x,y);
+          bool colour;
+          if (EepromSettings.invertDisplay) {
+              colour = !display.getPixel(x,y);
+          } else {
+              colour = display.getPixel(x,y);
+          }
           
           #if F_CPU == 120000000L
               TV.draw_rect(16+x, 22+y, 1, 1, colour, colour);  // 120 MHz

@@ -47,6 +47,7 @@ struct EepromSettings {
     uint8_t useFastBoot;
     uint8_t selectedHomePage;
     uint8_t buttonBeep;
+    uint8_t invertDisplay;
 
     // Internal settings
     uint8_t spectatorFreqScanStep;
@@ -106,6 +107,7 @@ PROGMEM const struct {
     uint8_t useFastBoot = false;
     uint8_t selectedHomePage = 0;
     uint8_t buttonBeep = true;
+    uint8_t invertDisplay = false;
 
     // Internal settings
     uint8_t spectatorFreqScanStep = 5;

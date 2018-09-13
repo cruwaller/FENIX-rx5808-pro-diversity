@@ -33,8 +33,8 @@ SOFTWARE.
 //
 // =============================================================================
 
-//#define FENIX_QUADVERSITY
-#define REALACC_RX5808_PRO_PLUS_OSD
+#define FENIX_QUADVERSITY
+//#define REALACC_RX5808_PRO_PLUS_OSD
 
 // === EEPROM ==================================================================
 //
@@ -42,10 +42,10 @@ SOFTWARE.
 //
 // =============================================================================
 
-#define EEPROM_AT24C02 // WORKING
+//#define EEPROM_AT24C02 // WORKING
 //#define EEPROM_AT24C16 // WORKING
 //#define EEPROM_AT24C32 // NOT TESTED
-//#define EEPROM_AT24C64 // WORKING
+#define EEPROM_AT24C64 // WORKING
 
 // === Display Module ==========================================================
 //
