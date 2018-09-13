@@ -13,7 +13,7 @@
 int8_t selectedMenuItem = 0;
 bool showChangeMenuOptions = false;
 
-uint8_t menuItems = 12; // Number of items in settingsMenu[]
+uint8_t menuItems = 13; // Number of items in settingsMenu[]
 char* settingsMenu[]={ 
     "Quadversity",
     "Home Page", //defaut, simple, stats
@@ -27,6 +27,7 @@ char* settingsMenu[]={
     "Button Beep",
     "Draw Logo",
     "Invert Display",
+    "Rotate OLED",
     };
 
 void StateMachine::SettingsStateHandler::onEnter() {
@@ -213,6 +214,14 @@ void StateMachine::SettingsStateHandler::onUpdateDraw() {
               }
             break;
             
+            case 12:    // Rotate OLED
+              if (EepromSettings.rotateOled) {
+                  Ui::display.print(PSTR2("  Rotated  "));
+              } else {
+                  Ui::display.print(PSTR2("  Normal   "));
+              }
+            break;
+            
         }    
     }
         
@@ -313,6 +322,10 @@ void StateMachine::SettingsStateHandler::onButtonChange(
                   EepromSettings.invertDisplay = !EepromSettings.invertDisplay;               
                 break;
                 
+                case (12):    // Rotate OLED
+                  EepromSettings.rotateOled = !EepromSettings.rotateOled;               
+                break;
+                
             }  
           }
         }
@@ -386,6 +399,10 @@ void StateMachine::SettingsStateHandler::onButtonChange(
                 
                 case (11):    // Invert Display
                   EepromSettings.invertDisplay = !EepromSettings.invertDisplay;               
+                break;
+                
+                case (12):    // Rotate OLED
+                  EepromSettings.rotateOled = !EepromSettings.rotateOled;               
                 break;
                 
             }

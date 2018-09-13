@@ -130,6 +130,11 @@ namespace Ui {
                   } else {        
                     if (EepromSettings.useOledScreen) { 
                       #ifndef DISABLE_OLED
+                        if (EepromSettings.rotateOled){
+                          display.setRotation(2);
+                        } else {
+                          display.setRotation(0);
+                        }
                         display.display();          
                       #endif
                     } else {
