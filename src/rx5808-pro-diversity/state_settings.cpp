@@ -185,7 +185,7 @@ void StateMachine::SettingsStateHandler::onUpdateDraw() {
             break;
             
             case 7:    // Version
-              Ui::display.print(PSTR2("Version v0.1"));
+              Ui::display.print(PSTR2("Version v0.2"));
             break;
             
             case 8:    // Adv Settings
