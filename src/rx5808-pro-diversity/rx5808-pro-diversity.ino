@@ -48,6 +48,7 @@
 #include "osd_switching.h"
 #include "voltage.h"
 #include "temperature.h"
+#include "touchpad.h"
 
 static void globalMenuButtonHandler(
   Button button,
@@ -56,6 +57,8 @@ static void globalMenuButtonHandler(
 
 void setup()
 {
+
+//  Serial.begin(9600);
   
   EepromSettings.load();
 
@@ -64,6 +67,8 @@ void setup()
 
   StateMachine::setup();
   Ui::setup(); 
+  TouchPad::setup(); 
+  
 
   if (!EepromSettings.useFastBoot) {
     
@@ -93,7 +98,7 @@ void setup()
     Ui::setTextColor(BLACK);
     Ui::setTextSize(1);
     Ui::setCursor(5, 52);       
-    Ui::display.print(PSTR2("QUADVERSITY    v0.1"));   
+    Ui::display.print(PSTR2("QUADVERSITY    v0.2"));   
     
     Ui::needDisplay();
     Ui::update();  
@@ -204,6 +209,8 @@ void setupPins() {
 }
 
 void loop() {
+  
+  TouchPad::update(); 
   
   Buttons::update();
   Receiver::update();
