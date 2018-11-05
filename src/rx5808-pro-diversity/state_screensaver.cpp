@@ -36,78 +36,78 @@ void StateMachine::ScreensaverStateHandler::onButtonChange(
 void StateMachine::ScreensaverStateHandler::onInitialDraw() {
     Ui::clear();
 
-    if (showLogo) {  
-      switch (EepromSettings.saveScreenOn) {
-        case 1:
-            Ui::drawBitmap(
-                0,
-                0,
-                logo,
-                SCREEN_WIDTH,
-                SCREEN_HEIGHT,
-                WHITE
-            );
-          break;
-        case 2:
-            Ui::drawBitmap(
-                0,
-                0,
-                logoBetaflight,
-                SCREEN_WIDTH,
-                SCREEN_HEIGHT,
-                WHITE
-            );
-          break;
-        case 3:
-            Ui::drawBitmap(
-                0,
-                0,
-                logoRotorRiot,
-                SCREEN_WIDTH,
-                SCREEN_HEIGHT,
-                WHITE
-            );
-          break;
-        case 4:
-            Ui::drawBitmap(
-                0,
-                0,
-                logoDb,
-                SCREEN_WIDTH,
-                SCREEN_HEIGHT,
-                WHITE
-            );
-          break;
-        #ifndef EEPROM_AT24C02  
-            case 5:
-                Ui::drawBitmap(
-                    0,
-                    0,
-                    EepromSettings.customLogo,
-                    SCREEN_WIDTH,
-                    SCREEN_HEIGHT,
-                    WHITE
-                );
-              break; 
-        #endif         
-      }
-      
-    } else {
-      Ui::setTextColor(WHITE);
-
-      Ui::setTextSize(6);
-      Ui::setCursor(
-          SCREEN_WIDTH_MID - ((CHAR_WIDTH) * 6) / 2 * 2 - 3,
-          2);
-
-      Ui::display.print(Channels::getName(Receiver::activeChannel));
-
-      Ui::setTextSize(2);
-      Ui::setCursor(
-          SCREEN_WIDTH_MID - ((CHAR_WIDTH + 1) * 2) / 2 * 4 - 1,
-          SCREEN_HEIGHT - CHAR_HEIGHT * 2 - 2);
-      Ui::display.print(Channels::getFrequency(Receiver::activeChannel));
-    }
+//    if (showLogo) {  
+//      switch (EepromSettings.saveScreenOn) {
+//        case 1:
+//            Ui::drawBitmap(
+//                0,
+//                0,
+//                logo,
+//                SCREEN_WIDTH,
+//                SCREEN_HEIGHT,
+//                WHITE
+//            );
+//          break;
+//        case 2:
+//            Ui::drawBitmap(
+//                0,
+//                0,
+//                logoBetaflight,
+//                SCREEN_WIDTH,
+//                SCREEN_HEIGHT,
+//                WHITE
+//            );
+//          break;
+//        case 3:
+//            Ui::drawBitmap(
+//                0,
+//                0,
+//                logoRotorRiot,
+//                SCREEN_WIDTH,
+//                SCREEN_HEIGHT,
+//                WHITE
+//            );
+//          break;
+//        case 4:
+//            Ui::drawBitmap(
+//                0,
+//                0,
+//                logoDb,
+//                SCREEN_WIDTH,
+//                SCREEN_HEIGHT,
+//                WHITE
+//            );
+//          break;
+//        #ifndef EEPROM_AT24C02  
+//            case 5:
+//                Ui::drawBitmap(
+//                    0,
+//                    0,
+//                    EepromSettings.customLogo,
+//                    SCREEN_WIDTH,
+//                    SCREEN_HEIGHT,
+//                    WHITE
+//                );
+//              break; 
+//        #endif         
+//      }
+//      
+//    } else {
+//      Ui::setTextColor(WHITE);
+//
+//      Ui::setTextSize(6);
+//      Ui::setCursor(
+//          SCREEN_WIDTH_MID - ((CHAR_WIDTH) * 6) / 2 * 2 - 3,
+//          2);
+//
+//      Ui::display.print(Channels::getName(Receiver::activeChannel));
+//
+//      Ui::setTextSize(2);
+//      Ui::setCursor(
+//          SCREEN_WIDTH_MID - ((CHAR_WIDTH + 1) * 2) / 2 * 4 - 1,
+//          SCREEN_HEIGHT - CHAR_HEIGHT * 2 - 2);
+//      Ui::display.print(Channels::getFrequency(Receiver::activeChannel));
+//    }
 
     Ui::needDisplay();
 }

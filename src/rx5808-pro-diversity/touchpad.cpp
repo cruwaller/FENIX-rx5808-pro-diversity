@@ -18,6 +18,9 @@ namespace TouchPad {
     void setup() {
 
         Pinnacle_Init();
+    
+        touchData.cursorX = 50;
+        touchData.cursorY = 50;
 
     }  
     
@@ -26,6 +29,22 @@ namespace TouchPad {
         if(isDataAvailable()) {
           
             Pinnacle_getRelative(&touchData);
+
+            touchData.cursorX -= touchData.xDelta / 2;
+            touchData.cursorY -= touchData.yDelta / 2;
+            // SC_224x216
+            if (touchData.cursorX < 0) {
+                touchData.cursorX = 0;
+            }
+            if (touchData.cursorX > 204) {
+                touchData.cursorX = 204;
+            }
+            if (touchData.cursorY < 0) {
+                touchData.cursorY = 0;
+            }
+            if (touchData.cursorY > 196) {
+                touchData.cursorY = 196;
+            }
             
 //            Serial.print(touchData.buttonPrimary);
 //            Serial.print('\t');
@@ -68,8 +87,8 @@ namespace TouchPad {
       result->buttonPrimary = data[0] & 0b00000001;
       result->buttonSecondary = data[0] & 0b00000010;
       result->buttonAuxiliary = data[0] & 0b00000100;
-      result->xDelta = (int8_t)data[1];
-      result->yDelta = (int8_t)data[2];
+      result->xDelta = (int8_t)data[2];
+      result->yDelta = (int8_t)data[1];
       result->xSign = data[0] & 0b00010000;
       result->ySign = data[0] & 0b00100000;
     

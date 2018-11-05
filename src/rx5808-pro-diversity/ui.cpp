@@ -8,6 +8,7 @@
 #include "bitmaps.h"
 #include "receiver_spi.h"
 #include "receiver.h"
+#include "touchpad.h"
 
 #include "TTVout.h"
 TTVout TV;
@@ -44,7 +45,8 @@ namespace Ui {
         #if F_CPU == 120000000L
             TV.begin(SC_160x108); // 120 MHz
         #elif F_CPU == 72000000L
-            TV.begin(SC_448x108); // 72 MHz
+//            TV.begin(SC_448x108); // 72 MHz
+            TV.begin(SC_224x216); // 72 MHz
         #elif F_CPU == 48000000L
             TV.begin(SC_256x192); // 48 MHz
         #endif
@@ -62,7 +64,8 @@ namespace Ui {
         #if F_CPU == 120000000L
             TV.begin(SC_160x108); // 120 MHz
         #elif F_CPU == 72000000L
-            TV.begin(SC_448x108); // 72 MHz
+//            TV.begin(SC_448x108); // 72 MHz
+            TV.begin(SC_224x216); // 72 MHz
         #elif F_CPU == 48000000L
             TV.begin(SC_256x192); // 48 MHz
         #endif
@@ -92,25 +95,36 @@ namespace Ui {
 
     // TODO replace with buffer from OLED
     void sdToTtvout() {      
-      for(int y=0; y<64; y++) {
-        for(int x=0; x<128; x++) {            
-          bool colour;
-          if (EepromSettings.invertDisplay) {
-              colour = !display.getPixel(x,y);
-          } else {
-              colour = display.getPixel(x,y);
-          }
-          
-          #if F_CPU == 120000000L
-              TV.draw_rect(16+x, 22+y, 1, 1, colour, colour);  // 120 MHz
-          #elif F_CPU == 72000000L
-              TV.draw_rect(32+x*3, 22+y, 3, 1, colour, colour); // 72 MHz
-          #elif F_CPU == 48000000L
-              TV.draw_rect(x*2, y*3, 2, 3, colour, colour); // 48 MHz
-          #endif
-              
-        }
-      }      
+//      for(int y=0; y<64; y++) {
+//        for(int x=0; x<128; x++) {            
+//          bool colour;
+//          if (EepromSettings.invertDisplay) {
+//              colour = !display.getPixel(x,y);
+//          } else {
+//              colour = display.getPixel(x,y);
+//          }
+//          
+//          #if F_CPU == 120000000L
+//              TV.draw_rect(16+x, 22+y, 1, 1, colour, colour);  // 120 MHz
+//          #elif F_CPU == 72000000L
+//              TV.draw_rect(32+x*3, 22+y, 3, 1, colour, colour); // 72 MHz
+//          #elif F_CPU == 48000000L
+//              TV.draw_rect(x*2, y*3, 2, 3, colour, colour); // 48 MHz
+//          #endif
+//              
+//        }
+//      }
+        TV.clear_screen();
+//        TV.draw_rect(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, 3, 3, 1, 1); // 72 MHz 
+
+        TV.draw_line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX, TouchPad::touchData.cursorY + 16, 1);
+        TV.draw_line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY + 16, TouchPad::touchData.cursorX + 4, TouchPad::touchData.cursorY + 13, 1);
+        TV.draw_line(TouchPad::touchData.cursorX + 4, TouchPad::touchData.cursorY + 13, TouchPad::touchData.cursorX + 6, TouchPad::touchData.cursorY + 18, 1);
+        TV.draw_line(TouchPad::touchData.cursorX + 6, TouchPad::touchData.cursorY + 18, TouchPad::touchData.cursorX + 9, TouchPad::touchData.cursorY + 17, 1);
+        TV.draw_line(TouchPad::touchData.cursorX + 9, TouchPad::touchData.cursorY + 17, TouchPad::touchData.cursorX + 7, TouchPad::touchData.cursorY + 13, 1);
+        TV.draw_line(TouchPad::touchData.cursorX + 7, TouchPad::touchData.cursorY + 13, TouchPad::touchData.cursorX + 11, TouchPad::touchData.cursorY + 12, 1);
+        TV.draw_line(TouchPad::touchData.cursorX + 11, TouchPad::touchData.cursorY + 12, TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, 1);
+
     }
 
     void beep() { 

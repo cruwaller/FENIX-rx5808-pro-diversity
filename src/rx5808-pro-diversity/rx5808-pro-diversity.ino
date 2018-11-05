@@ -118,11 +118,11 @@ void setup()
     Ui::beep(x*500);
   }
   
-  if (!EepromSettings.useFastBoot) {
-    while (millis() < 2000) { // Delay to show boot screen
-      delay(5);
-    }
-  }
+//  if (!EepromSettings.useFastBoot) {
+//    while (millis() < 2000) { // Delay to show boot screen
+//      delay(5);
+//    }
+//  }
 
   // Has to be last setup() otherwise channel may not be set.
   // RX possibly not botting quick enough if setup() is called earler.
@@ -138,6 +138,10 @@ void setup()
   #ifdef FENIX_QUADVERSITY
     digitalWrite(PIN_LED, HIGH);  // ON
   #endif
+
+////////////////// remove after testing   
+  switchOSDOutputState();
+
 }
 
 void setupPins() {

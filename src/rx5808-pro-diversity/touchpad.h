@@ -12,6 +12,8 @@ namespace TouchPad {
       int8_t yDelta;
       bool xSign;
       bool ySign; 
+      int16_t cursorX;
+      int16_t cursorY;
     } relData_t;
 
     extern relData_t touchData;
