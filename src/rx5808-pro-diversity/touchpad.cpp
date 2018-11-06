@@ -30,17 +30,18 @@ namespace TouchPad {
           
             Pinnacle_getRelative(&touchData);
 
-            touchData.cursorX -= touchData.xDelta / 2;
-            touchData.cursorY -= touchData.yDelta / 2;
-            // SC_224x216
-            if (touchData.cursorX < 0) {
-                touchData.cursorX = 0;
+            touchData.cursorX -= touchData.xDelta;
+            touchData.cursorY -= touchData.yDelta;
+            
+            // SC_448x216
+            if (touchData.cursorX < 1) {
+                touchData.cursorX = 1;
             }
-            if (touchData.cursorX > 204) {
-                touchData.cursorX = 204;
+            if (touchData.cursorX > 430) {
+                touchData.cursorX = 430;
             }
-            if (touchData.cursorY < 0) {
-                touchData.cursorY = 0;
+            if (touchData.cursorY < 1) {
+                touchData.cursorY = 1;
             }
             if (touchData.cursorY > 196) {
                 touchData.cursorY = 196;

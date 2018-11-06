@@ -41,6 +41,8 @@ void HomeStateHandler::onInitialDraw() {
 
 void HomeStateHandler::onUpdateDraw() {
 
+    Ui::clear();
+    
     // Channel name
     Ui::clearRect(
         CHANNEL_TEXT_X,

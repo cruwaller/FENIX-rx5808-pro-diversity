@@ -30,23 +30,30 @@ void *operator new(size_t size, void *ptr){
 
 #define MAX(a, b) (a > b ? a : b)
 
+//#define STATE_BUFFER_SIZE \
+//    MAX(sizeof(HomeStateHandler), \
+//    MAX(sizeof(HomeSimpleStateHandler), \
+//    MAX(sizeof(HomeStatsStateHandler), \
+//    MAX(sizeof(ScreensaverStateHandler), \
+//    MAX(sizeof(SearchStateHandler), \
+//    MAX(sizeof(BandScanStateHandler), \
+//    MAX(sizeof(MenuStateHandler), \
+//    MAX(sizeof(SettingsStateHandler), \
+//    MAX(sizeof(SettingsInternalStateHandler), \
+//    MAX(sizeof(SettingsRssiStateHandler), \
+//    MAX(sizeof(SpectatorStateHandler), \
+//    MAX(sizeof(FavouritesStateHandler), \
+//    MAX(sizeof(FinderStateHandler), \
+//    MAX(sizeof(LaptimerStateHandler), \
+//        sizeof(CustomLogoStateHandler) \        
+//    ))))))))))))))
+//;
 #define STATE_BUFFER_SIZE \
     MAX(sizeof(HomeStateHandler), \
-    MAX(sizeof(HomeSimpleStateHandler), \
-    MAX(sizeof(HomeStatsStateHandler), \
-    MAX(sizeof(ScreensaverStateHandler), \
-    MAX(sizeof(SearchStateHandler), \
-    MAX(sizeof(BandScanStateHandler), \
-    MAX(sizeof(MenuStateHandler), \
     MAX(sizeof(SettingsStateHandler), \
     MAX(sizeof(SettingsInternalStateHandler), \
-    MAX(sizeof(SettingsRssiStateHandler), \
-    MAX(sizeof(SpectatorStateHandler), \
-    MAX(sizeof(FavouritesStateHandler), \
-    MAX(sizeof(FinderStateHandler), \
-    MAX(sizeof(LaptimerStateHandler), \
-        sizeof(CustomLogoStateHandler) \        
-    ))))))))))))))
+        sizeof(SettingsRssiStateHandler) \   
+    )))
 ;
 
 namespace StateMachine {
@@ -102,10 +109,10 @@ namespace StateMachine {
             currentHandler->onInitialDraw();
         }
 
-        if (newState != State::SCREENSAVER) {
-            EepromSettings.lastKnownState = newState;
-            EepromSettings.markDirty();          
-        }
+//        if (newState != State::SCREENSAVER) {
+//            EepromSettings.lastKnownState = newState;
+//            EepromSettings.markDirty();          
+//        }
     
     }
 
@@ -117,20 +124,9 @@ namespace StateMachine {
 
         switch (state) {
             STATE_FACTORY(State::HOME, HomeStateHandler);
-            STATE_FACTORY(State::HOME_SIMPLE, HomeSimpleStateHandler);
-            STATE_FACTORY(State::HOME_STATS, HomeStatsStateHandler);
-            STATE_FACTORY(State::SCREENSAVER, ScreensaverStateHandler);
-            STATE_FACTORY(State::SEARCH, SearchStateHandler);
-            STATE_FACTORY(State::BANDSCAN, BandScanStateHandler);
-            STATE_FACTORY(State::MENU, MenuStateHandler);
             STATE_FACTORY(State::SETTINGS, SettingsStateHandler);
             STATE_FACTORY(State::SETTINGS_INTERNAL, SettingsInternalStateHandler);
             STATE_FACTORY(State::SETTINGS_RSSI, SettingsRssiStateHandler);
-            STATE_FACTORY(State::SPECTATOR, SpectatorStateHandler);
-            STATE_FACTORY(State::FAVOURITES, FavouritesStateHandler);
-            STATE_FACTORY(State::FINDER, FinderStateHandler);
-            STATE_FACTORY(State::LAPTIMER, LaptimerStateHandler);
-            STATE_FACTORY(State::CUSTOMLOGO, CustomLogoStateHandler);
 
             default:
                 return nullptr;

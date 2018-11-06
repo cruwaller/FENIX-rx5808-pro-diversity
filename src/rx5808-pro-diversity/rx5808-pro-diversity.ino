@@ -50,16 +50,16 @@
 #include "temperature.h"
 #include "touchpad.h"
 
-static void globalMenuButtonHandler(
-  Button button,
-  Buttons::PressType pressType
-);
+//static void globalMenuButtonHandler(
+//  Button button,
+//  Buttons::PressType pressType
+//);
 
 void setup()
 {
 
-  Serial.begin(9600);
-  Serial.println("begin");
+//  Serial.begin(9600);
+//  Serial.println("begin");
   
   EepromSettings.load();
 
@@ -128,45 +128,48 @@ void setup()
   // RX possibly not botting quick enough if setup() is called earler.
   Receiver::setup(); 
 
-  Serial.println("Setting state");
+//  Serial.println("Setting state");
   
-  // Switch to initial state. HOME_SIMPLE
-  StateMachine::switchState(StateMachine::State::HOME_SIMPLE);  
+//  StateMachine::switchState(StateMachine::State::HOME_SIMPLE); 
+  StateMachine::switchState(StateMachine::State::HOME);  
+//  StateMachine::switchState(StateMachine::State::SEARCH); 
+  
+////   Switch to initial state. HOME_SIMPLE 
 //  StateMachine::switchState(EepromSettings.lastKnownState);  
 //  if (!EepromSettings.isCalibrated) {
 //      StateMachine::switchState(StateMachine::State::SETTINGS_RSSI);
 //  }
 
-  Serial.println("FENIX_QUADVERSITY");
+//  Serial.println("FENIX_QUADVERSITY");
   // Setup complete.
   #ifdef FENIX_QUADVERSITY
     digitalWrite(PIN_LED, HIGH);  // ON
   #endif
 
-  Serial.println("switchOSDOutputState");
+//  Serial.println("switchOSDOutputState");
 ////////////////// remove after testing   
   switchOSDOutputState();
 
-  Serial.println("End setup");
+//  Serial.println("End setup");
 }
 
 void setupPins() {
 
-  #ifdef FENIX_QUADVERSITY
-    // Use to allow use of PB3 as a button
-    afio_cfg_debug_ports(AFIO_DEBUG_SW_ONLY); // http://www.stm32duino.com/viewtopic.php?t=1130#p13918
-  #endif
-  
-    pinMode(PIN_BUTTON_UP_PRESSED, INPUT_PULLUP);
-    pinMode(PIN_BUTTON_MODE_PRESSED, INPUT_PULLUP);
-    pinMode(PIN_BUTTON_DOWN_PRESSED, INPUT_PULLUP);
-    pinMode(PIN_BUTTON_FATSHARK_EB0, INPUT_PULLUP);
-    pinMode(PIN_BUTTON_FATSHARK_EB1, INPUT_PULLUP);
-  #ifdef FENIX_QUADVERSITY
-    pinMode(PIN_BUTTON_RIGHT_PRESSED, INPUT_PULLUP);
-    pinMode(PIN_BUTTON_LEFT_PRESSED, INPUT_PULLUP);
-    pinMode(PIN_BUTTON_FATSHARK_EB2, INPUT_PULLUP); 
-  #endif
+//  #ifdef FENIX_QUADVERSITY
+//    // Use to allow use of PB3 as a button
+//    afio_cfg_debug_ports(AFIO_DEBUG_SW_ONLY); // http://www.stm32duino.com/viewtopic.php?t=1130#p13918
+//  #endif
+//  
+//    pinMode(PIN_BUTTON_UP_PRESSED, INPUT_PULLUP);
+//    pinMode(PIN_BUTTON_MODE_PRESSED, INPUT_PULLUP);
+//    pinMode(PIN_BUTTON_DOWN_PRESSED, INPUT_PULLUP);
+//    pinMode(PIN_BUTTON_FATSHARK_EB0, INPUT_PULLUP);
+//    pinMode(PIN_BUTTON_FATSHARK_EB1, INPUT_PULLUP);
+//  #ifdef FENIX_QUADVERSITY
+//    pinMode(PIN_BUTTON_RIGHT_PRESSED, INPUT_PULLUP);
+//    pinMode(PIN_BUTTON_LEFT_PRESSED, INPUT_PULLUP);
+//    pinMode(PIN_BUTTON_FATSHARK_EB2, INPUT_PULLUP); 
+//  #endif
   
   #ifdef FENIX_QUADVERSITY
     pinMode(PIN_OSDCONTROL, OUTPUT);
@@ -220,11 +223,11 @@ void setupPins() {
 
 void loop() {
 
-  Serial.println("loop");
+//  Serial.println("loop");
   
   TouchPad::update(); 
   
-  Buttons::update();
+//  Buttons::update();
   Receiver::update();
   #ifdef FENIX_QUADVERSITY
     Voltage::update();

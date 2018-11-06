@@ -115,10 +115,12 @@ void StateMachine::SettingsRssiStateHandler::onButtonChange(
                   StateMachine::switchState(StateMachine::State::HOME);
                 break;
                 case 1:
-                  StateMachine::switchState(StateMachine::State::HOME_SIMPLE);
+//                  StateMachine::switchState(StateMachine::State::HOME_SIMPLE);
+                  StateMachine::switchState(StateMachine::State::HOME);
                 break;
                 case 2:
-                  StateMachine::switchState(StateMachine::State::HOME_STATS);
+//                  StateMachine::switchState(StateMachine::State::HOME_STATS);
+                  StateMachine::switchState(StateMachine::State::HOME);
                 break;
             }  
             

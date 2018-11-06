@@ -11,20 +11,20 @@ namespace StateMachine {
     enum class State : uint8_t {
         BOOT,
         HOME,
-        HOME_SIMPLE,
-        HOME_STATS,
-        SEARCH,
-        BANDSCAN,
-        SPECTATOR,
-        SCREENSAVER,
-        FAVOURITES, // https://github.com/piodabro/WPro58 I pinched your star :)
-        FINDER,
-        LAPTIMER,
-        MENU,
+//        HOME_SIMPLE,
+//        HOME_STATS,
+//        SEARCH,
+//        BANDSCAN,
+//        SPECTATOR,
+//        SCREENSAVER,
+//        FAVOURITES, // https://github.com/piodabro/WPro58 I pinched your star :)
+//        FINDER,
+//        LAPTIMER,
+//        MENU,
         SETTINGS,
         SETTINGS_INTERNAL,
-        SETTINGS_RSSI,
-        CUSTOMLOGO
+        SETTINGS_RSSI
+//        CUSTOMLOGO
     };
 
     class StateHandler {

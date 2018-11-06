@@ -202,7 +202,7 @@ void StateMachine::SettingsStateHandler::onUpdateDraw() {
             
             case 10:    // CUSTOMLOGO
               #ifdef FENIX_QUADVERSITY
-                  StateMachine::switchState(StateMachine::State::CUSTOMLOGO);
+//                  StateMachine::switchState(StateMachine::State::CUSTOMLOGO);
               #endif
             break;
             
