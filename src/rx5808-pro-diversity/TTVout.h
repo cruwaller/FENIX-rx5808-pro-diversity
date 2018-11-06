@@ -168,11 +168,14 @@ class TTVout {
     void sp(uint16_t x, uint16_t y, uint8_t c) {
     #if BITBAND==1
       if (c==1)
-        _adr[_width*y+ (x&0xf8) +7 -(x&7)] = 1;
+//        _adr[_width*y+ (x&0xf8) +7 -(x&7)] = 1;
+        _adr[_width*y+ (x&0xfff8) +7 -(x&7)] = 1;
       else if (c==0)
-        _adr[_width*y+ (x&0xf8) +7 -(x&7)] = 0;
+//        _adr[_width*y+ (x&0xf8) +7 -(x&7)] = 0;
+        _adr[_width*y+ (x&0xfff8) +7 -(x&7)] = 0;
       else 
-        _adr[_width*y+ (x&0xf8) +7 -(x&7)] ^= 1;
+//        _adr[_width*y+ (x&0xf8) +7 -(x&7)] ^= 1;
+        _adr[_width*y+ (x&0xfff8) +7 -(x&7)] ^= 1;
     #else
       if (c==1)
         _screen[(x/8) + (y*_hres)] |= 0x80 >> (x&7);
