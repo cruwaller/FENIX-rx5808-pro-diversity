@@ -69,9 +69,9 @@ void StateMachine::SettingsInternalStateHandler::onUpdateDraw() {
             Ui::display.print( settingsInternalMenu[index] );
             
                 Ui::setCursor(12, 28);
-                Ui::display.setTextColor(BLACK, WHITE); // 'inverted' text
+//                Ui::display.setTextColor(BLACK, WHITE); // 'inverted' text
                 Ui::display.print( settingsInternalMenu[selectedInternalMenuItem] );
-                Ui::display.setTextColor(WHITE, BLACK);
+//                Ui::display.setTextColor(WHITE, BLACK);
             
             Ui::setCursor(6, 38);    
             index = selectedInternalMenuItem+1;

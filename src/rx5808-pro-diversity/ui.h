@@ -3,13 +3,14 @@
 
 #include <SPI.h>
 #include <Wire.h>
-#include <Adafruit_GFX.h>
-#include "Adafruit_SSD1306_STM32.h"
+//#include <Adafruit_GFX.h>
+//#include "Adafruit_SSD1306_STM32.h"
 
 #include <stdint.h>
 
 #include "TTVout.h"
-#include <fontALL.h>
+//#include <fontALL.h>
+#include <font8x8.h>
 
 #include "settings.h"
 #include "settings_internal.h"
@@ -24,12 +25,12 @@
 #define CHAR_HEIGHT 7
 
 namespace Ui {
-    #ifdef OLED_128x64_ADAFRUIT_SCREENS
-      extern Adafruit_SSD1306 display;
-    #endif
-    #ifdef TVOUT_SCREENS
+//    #ifdef OLED_128x64_ADAFRUIT_SCREENS
+//      extern Adafruit_SSD1306 display;
+//    #endif
+//    #ifdef TVOUT_SCREENS
       extern TTVout display;
-    #endif
+//    #endif
     
     extern bool shouldDrawUpdate;
     extern bool shouldDisplay;

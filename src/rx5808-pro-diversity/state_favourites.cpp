@@ -51,9 +51,9 @@ void FavouritesStateHandler::onUpdate() {
         
         Ui::fillRect(20+22*(i%4)-2, 17+20*(i/4)-2, 15, 11, WHITE);
             
-        Ui::display.setTextColor(BLACK);
+//        Ui::display.setTextColor(BLACK);
         Ui::display.print(Channels::getName(EepromSettings.favouriteChannels[i]));
-        Ui::display.setTextColor(WHITE);
+//        Ui::display.setTextColor(WHITE);
         
         Ui::needDisplay(); 
 

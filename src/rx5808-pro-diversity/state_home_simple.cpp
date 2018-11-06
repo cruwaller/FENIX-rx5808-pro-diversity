@@ -16,7 +16,7 @@
 using StateMachine::HomeSimpleStateHandler;
 
 void HomeSimpleStateHandler::onEnter() {
-    Ui::clear();
+//    Ui::clear();
 }
 
 void HomeSimpleStateHandler::onUpdate() {

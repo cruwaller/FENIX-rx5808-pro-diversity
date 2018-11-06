@@ -65,6 +65,9 @@ namespace TouchPad {
 
     /*  Pinnacle-based TM0XX0XX Functions  */
     void Pinnacle_Init() {
+
+      Wire.begin();
+      Wire.setClock(400000);
       
       // Host clears SW_CC flag
       Pinnacle_ClearFlags();

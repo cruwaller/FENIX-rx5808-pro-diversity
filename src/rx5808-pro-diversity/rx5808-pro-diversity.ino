@@ -58,53 +58,53 @@ static void globalMenuButtonHandler(
 void setup()
 {
 
-//  Serial.begin(9600);
+  Serial.begin(9600);
+  Serial.println("begin");
   
   EepromSettings.load();
 
   setupPins();
   Temperature::setup();
-
   StateMachine::setup();
   Ui::setup(); 
   TouchPad::setup(); 
   
 
-  if (!EepromSettings.useFastBoot) {
-    
-    Ui::clear();      
-  
-  // Boot Logo avaibale as an option
-  //  Ui::drawBitmap(
-  //      0,
-  //      0,
-  //      bootlogo,
-  //      SCREEN_WIDTH,
-  //      SCREEN_HEIGHT,
-  //      WHITE
-  //  );  
-  
-    Ui::setTextColor(WHITE);
-    
-    Ui::setTextSize(1);
-    Ui::setCursor(0, 0);       
-    Ui::display.print(PSTR2("Booting...")); 
-    
-    Ui::setTextSize(4);
-    Ui::setCursor(4, 18);       
-    Ui::display.print(PSTR2("FENIX")); 
-  
-    Ui::fillRect(3, 51, 118, 9, WHITE);
-    Ui::setTextColor(BLACK);
-    Ui::setTextSize(1);
-    Ui::setCursor(5, 52);       
-    Ui::display.print(PSTR2("QUADVERSITY    v0.2"));   
-    
-    Ui::needDisplay();
-    Ui::update();  
-  }
+//  if (!EepromSettings.useFastBoot) {
+//    
+//    Ui::clear();      
+//  
+//  // Boot Logo avaibale as an option
+//  //  Ui::drawBitmap(
+//  //      0,
+//  //      0,
+//  //      bootlogo,
+//  //      SCREEN_WIDTH,
+//  //      SCREEN_HEIGHT,
+//  //      WHITE
+//  //  );  
+//  
+//    Ui::setTextColor(WHITE);
+//    
+//    Ui::setTextSize(1);
+//    Ui::setCursor(0, 0);       
+//    Ui::display.print(PSTR2("Booting...")); 
+//    
+//    Ui::setTextSize(4);
+//    Ui::setCursor(4, 18);       
+//    Ui::display.print(PSTR2("FENIX")); 
+//  
+//    Ui::fillRect(3, 51, 118, 9, WHITE);
+//    Ui::setTextColor(BLACK);
+//    Ui::setTextSize(1);
+//    Ui::setCursor(5, 52);       
+//    Ui::display.print(PSTR2("QUADVERSITY    v0.2"));   
+//    
+//    Ui::needDisplay();
+//    Ui::update();  
+//  }
 
-  Buttons::registerChangeFunc(globalMenuButtonHandler);
+//  Buttons::registerChangeFunc(globalMenuButtonHandler);
 
   // Flash lights as startup sequency
   for (int x=0; x<20; x++) {
@@ -127,21 +127,27 @@ void setup()
   // Has to be last setup() otherwise channel may not be set.
   // RX possibly not botting quick enough if setup() is called earler.
   Receiver::setup(); 
-  
-  // Switch to initial state.
-  StateMachine::switchState(EepromSettings.lastKnownState);  
-  if (!EepromSettings.isCalibrated) {
-      StateMachine::switchState(StateMachine::State::SETTINGS_RSSI);
-  }
 
+  Serial.println("Setting state");
+  
+  // Switch to initial state. HOME_SIMPLE
+  StateMachine::switchState(StateMachine::State::HOME_SIMPLE);  
+//  StateMachine::switchState(EepromSettings.lastKnownState);  
+//  if (!EepromSettings.isCalibrated) {
+//      StateMachine::switchState(StateMachine::State::SETTINGS_RSSI);
+//  }
+
+  Serial.println("FENIX_QUADVERSITY");
   // Setup complete.
   #ifdef FENIX_QUADVERSITY
     digitalWrite(PIN_LED, HIGH);  // ON
   #endif
 
+  Serial.println("switchOSDOutputState");
 ////////////////// remove after testing   
   switchOSDOutputState();
 
+  Serial.println("End setup");
 }
 
 void setupPins() {
@@ -213,6 +219,8 @@ void setupPins() {
 }
 
 void loop() {
+
+  Serial.println("loop");
   
   TouchPad::update(); 
   
@@ -222,52 +230,53 @@ void loop() {
     Voltage::update();
   #endif
   if (EepromSettings.useOledScreen || Ui::isTvOn) {
+  if (Ui::isTvOn) {
       StateMachine::update();
       Ui::update();
       EepromSettings.update();
   }
   Temperature::update();
   
-  if (EepromSettings.saveScreenOn) {
-    if (
-      StateMachine::currentState != StateMachine::State::SCREENSAVER
-      && StateMachine::currentState != StateMachine::State::BANDSCAN
-      && StateMachine::currentState != StateMachine::State::FINDER
-      && !Ui::isTvOn
-      && (millis() - Buttons::lastChangeTime) > (SCREENSAVER_TIMEOUT * 1000)
-    ) {
-      StateMachine::switchState(StateMachine::State::SCREENSAVER);
-    }    
+//  if (EepromSettings.saveScreenOn) {
+//    if (
+//      StateMachine::currentState != StateMachine::State::SCREENSAVER
+//      && StateMachine::currentState != StateMachine::State::BANDSCAN
+//      && StateMachine::currentState != StateMachine::State::FINDER
+//      && !Ui::isTvOn
+//      && (millis() - Buttons::lastChangeTime) > (SCREENSAVER_TIMEOUT * 1000)
+//    ) {
+//      StateMachine::switchState(StateMachine::State::SCREENSAVER);
+//    }    
   }
 }
 
 
-static void globalMenuButtonHandler(
-  Button button,
-  Buttons::PressType pressType
-) {
-  
-  if (
-    ( button == Button::MODE_PRESSED || button == Button::UP_PRESSED ||button == Button::DOWN_PRESSED || button == Button::RIGHT_PRESSED || button == Button::LEFT_PRESSED
-      || button == Button::FATSHARK_EB0 || button == Button::FATSHARK_EB1 || button == Button::FATSHARK_EB2)
-    && 
-    (pressType == Buttons::PressType::SHORT || pressType == Buttons::PressType::LONG || pressType == Buttons::PressType::HOLDING) 
-    &&
-    EepromSettings.buttonBeep
-  ) {
-     Ui::beep();
-  }
-  
-  if (
-    StateMachine::currentState != StateMachine::State::MENU &&
-    button == Button::MODE_PRESSED &&
-    pressType == Buttons::PressType::HOLDING
-  ) {
-    StateMachine::switchState(StateMachine::State::MENU);
-  }
-  
-  if ( button == Button::DOWN_PRESSED && pressType == Buttons::PressType::LONG ) {
-    switchOSDOutputState();
-  }
-  
-}
+//static void globalMenuButtonHandler(
+//  Button button,
+//  Buttons::PressType pressType
+//) {
+//  
+//  if (
+//    ( button == Button::MODE_PRESSED || button == Button::UP_PRESSED ||button == Button::DOWN_PRESSED || button == Button::RIGHT_PRESSED || button == Button::LEFT_PRESSED
+//      || button == Button::FATSHARK_EB0 || button == Button::FATSHARK_EB1 || button == Button::FATSHARK_EB2)
+//    && 
+//    (pressType == Buttons::PressType::SHORT || pressType == Buttons::PressType::LONG || pressType == Buttons::PressType::HOLDING) 
+//    &&
+//    EepromSettings.buttonBeep
+//  ) {
+//     Ui::beep();
+//  }
+//  
+//  if (
+//    StateMachine::currentState != StateMachine::State::MENU &&
+//    button == Button::MODE_PRESSED &&
+//    pressType == Buttons::PressType::HOLDING
+//  ) {
+//    StateMachine::switchState(StateMachine::State::MENU);
+//  }
+//  
+//  if ( button == Button::DOWN_PRESSED && pressType == Buttons::PressType::LONG ) {
+//    switchOSDOutputState();
+//  }
+//  
+//}

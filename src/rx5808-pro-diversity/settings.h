@@ -56,7 +56,8 @@ SOFTWARE.
 
 //#define DISABLE_OLED
 
-#define OLED_128x64_ADAFRUIT_SCREENS
+//#define OLED_128x64_ADAFRUIT_SCREENS
+#define TVOUT_SCREENS
 
 // Enable this if your screen is upside down.
 //#define USE_FLIP_SCREEN

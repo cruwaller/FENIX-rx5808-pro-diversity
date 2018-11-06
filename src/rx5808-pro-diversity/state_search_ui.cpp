@@ -84,7 +84,7 @@ if (EepromSettings.quadversity) {
     Ui::clear();
 
     Ui::setTextSize(RX_TEXT_SIZE);
-    Ui::setTextColor(INVERSE);
+//    Ui::setTextColor(INVERSE);
 
     Ui::setCursor(RX_TEXT_X-11, RX_TEXT_A_Y-4);
     Ui::display.print(PSTR2("A"));
@@ -264,7 +264,7 @@ void StateMachine::SearchStateHandler::drawRssiGraph() {
         );
 
         Ui::setTextSize(RX_TEXT_SIZE);
-        Ui::setTextColor(INVERSE);
+//        Ui::setTextColor(INVERSE);
 
     }      
     if (EepromSettings.quadversity) {

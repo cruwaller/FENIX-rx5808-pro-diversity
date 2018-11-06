@@ -11,64 +11,68 @@
 #include "touchpad.h"
 
 #include "TTVout.h"
-TTVout TV;
+//TTVout TV;
 
-#define OLED_RESET -1
+//#define OLED_RESET -1
 
 namespace Ui {
-    #ifdef OLED_128x64_ADAFRUIT_SCREENS
-      Adafruit_SSD1306 display(OLED_RESET);      
-    #endif 
+//    #ifdef OLED_128x64_ADAFRUIT_SCREENS
+//      Adafruit_SSD1306 display(OLED_RESET);      
+//    #endif 
     
+    TTVout display;
+
     bool shouldDrawUpdate = false;
     bool shouldDisplay = false;
     bool shouldFullRedraw = false;
     bool isTvOn = false;
 
     void setup() {
-        #ifdef OLED_128x64_ADAFRUIT_SCREENS  
+//        #ifdef OLED_128x64_ADAFRUIT_SCREENS  
         
-          Wire.setClock(400000);
+//          Wire.setClock(400000);
 
-          #ifndef DISABLE_OLED
-            display.begin(SSD1306_SWITCHCAPVCC, 0x3C); 
-          #endif
-          display.setTextColor(WHITE);
-          display.setTextSize(1);
-          display.setTextWrap(false);  
-          display.clearDisplay(); 
-          needDisplay();
-          update(); 
-        #endif
+//          #ifndef DISABLE_OLED
+//            display.begin(SSD1306_SWITCHCAPVCC, 0x3C); 
+//          #endif
+//          display.setTextColor(WHITE);
+//          display.setTextSize(1);
+//          display.setTextWrap(false);  
+//          display.clearDisplay(); 
+//          needDisplay();
+//          update(); 
+//        #endif
         
-        // tone will not work until begin is called.
-        #if F_CPU == 120000000L
-            TV.begin(SC_160x108); // 120 MHz
-        #elif F_CPU == 72000000L
-//            TV.begin(SC_448x108); // 72 MHz
-            TV.begin(SC_224x216); // 72 MHz
-        #elif F_CPU == 48000000L
-            TV.begin(SC_256x192); // 48 MHz
-        #endif
-        TV.end();    
+//        // tone will not work until begin is called.
+//        #if F_CPU == 120000000L
+//            TV.begin(SC_160x108); // 120 MHz
+//        #elif F_CPU == 72000000L
+////            TV.begin(SC_448x108); // 72 MHz
+//            display.begin(SC_224x216); // 72 MHz
+            display.begin(SC_448x216); // 72 MHz
+//        #elif F_CPU == 48000000L
+//            TV.begin(SC_256x192); // 48 MHz
+//        #endif
+        display.end();    
     }
 
     void tvOn() {
 
         ReceiverSpi::setPowerDownRegister(0b01010000110000010011);
         
-        #ifndef DISABLE_OLED
-          display.ssd1306_command(SSD1306_DISPLAYOFF);  
-        #endif
+//        #ifndef DISABLE_OLED
+//          display.ssd1306_command(SSD1306_DISPLAYOFF);  
+//        #endif
         
-        #if F_CPU == 120000000L
-            TV.begin(SC_160x108); // 120 MHz
-        #elif F_CPU == 72000000L
-//            TV.begin(SC_448x108); // 72 MHz
-            TV.begin(SC_224x216); // 72 MHz
-        #elif F_CPU == 48000000L
-            TV.begin(SC_256x192); // 48 MHz
-        #endif
+//        #if F_CPU == 120000000L
+//            TV.begin(SC_160x108); // 120 MHz
+//        #elif F_CPU == 72000000L
+////            TV.begin(SC_448x108); // 72 MHz
+//            display.begin(SC_224x216); // 72 MHz
+            display.begin(SC_448x216); // 72 MHz
+//        #elif F_CPU == 48000000L
+//            TV.begin(SC_256x192); // 48 MHz
+//        #endif
 
         Ui::sdToTtvout(); 
         
@@ -81,14 +85,14 @@ namespace Ui {
 
         Receiver::setChannel(Receiver::activeChannel);
         
-        TV.end();    
+        display.end();    
         
-        if (EepromSettings.useOledScreen) {
-          #ifndef DISABLE_OLED
-            display.ssd1306_command(SSD1306_DISPLAYON);
-            display.display();  
-          #endif        
-        }
+//        if (EepromSettings.useOledScreen) {
+//          #ifndef DISABLE_OLED
+//            display.ssd1306_command(SSD1306_DISPLAYON);
+//            display.display();  
+//          #endif        
+//        }
          
         isTvOn = false;
     }
@@ -114,53 +118,54 @@ namespace Ui {
 //              
 //        }
 //      }
-        TV.clear_screen();
+
+//        display.clear_screen();
 //        TV.draw_rect(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, 3, 3, 1, 1); // 72 MHz 
 
-        TV.draw_line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX, TouchPad::touchData.cursorY + 16, 1);
-        TV.draw_line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY + 16, TouchPad::touchData.cursorX + 4, TouchPad::touchData.cursorY + 13, 1);
-        TV.draw_line(TouchPad::touchData.cursorX + 4, TouchPad::touchData.cursorY + 13, TouchPad::touchData.cursorX + 6, TouchPad::touchData.cursorY + 18, 1);
-        TV.draw_line(TouchPad::touchData.cursorX + 6, TouchPad::touchData.cursorY + 18, TouchPad::touchData.cursorX + 9, TouchPad::touchData.cursorY + 17, 1);
-        TV.draw_line(TouchPad::touchData.cursorX + 9, TouchPad::touchData.cursorY + 17, TouchPad::touchData.cursorX + 7, TouchPad::touchData.cursorY + 13, 1);
-        TV.draw_line(TouchPad::touchData.cursorX + 7, TouchPad::touchData.cursorY + 13, TouchPad::touchData.cursorX + 11, TouchPad::touchData.cursorY + 12, 1);
-        TV.draw_line(TouchPad::touchData.cursorX + 11, TouchPad::touchData.cursorY + 12, TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, 1);
+        display.draw_line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX, TouchPad::touchData.cursorY + 16, 1);
+        display.draw_line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY + 16, TouchPad::touchData.cursorX + 4, TouchPad::touchData.cursorY + 13, 1);
+        display.draw_line(TouchPad::touchData.cursorX + 4, TouchPad::touchData.cursorY + 13, TouchPad::touchData.cursorX + 6, TouchPad::touchData.cursorY + 18, 1);
+        display.draw_line(TouchPad::touchData.cursorX + 6, TouchPad::touchData.cursorY + 18, TouchPad::touchData.cursorX + 9, TouchPad::touchData.cursorY + 17, 1);
+        display.draw_line(TouchPad::touchData.cursorX + 9, TouchPad::touchData.cursorY + 17, TouchPad::touchData.cursorX + 7, TouchPad::touchData.cursorY + 13, 1);
+        display.draw_line(TouchPad::touchData.cursorX + 7, TouchPad::touchData.cursorY + 13, TouchPad::touchData.cursorX + 11, TouchPad::touchData.cursorY + 12, 1);
+        display.draw_line(TouchPad::touchData.cursorX + 11, TouchPad::touchData.cursorY + 12, TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, 1);
 
     }
 
     void beep() { 
         uint16_t freq = 5000; // frequency in Hz
-        TV.tone(freq, BEEPER_CHIRP);
+        display.tone(freq, BEEPER_CHIRP);
     }
     void beep(uint16_t freq) { 
-        TV.tone(freq, BEEPER_CHIRP);
+        display.tone(freq, BEEPER_CHIRP);
     }
 
     void update() {
         if (shouldDisplay) {
-              #ifdef OLED_128x64_ADAFRUIT_SCREENS
+//              #ifdef OLED_128x64_ADAFRUIT_SCREENS
                       
-                  if (isTvOn) {
+//                  if (isTvOn) {
                     Ui::sdToTtvout();
-                  } else {        
-                    if (EepromSettings.useOledScreen) { 
-                      #ifndef DISABLE_OLED
-                        if (EepromSettings.rotateOled){
-                          display.setRotation(2);
-                        } else {
-                          display.setRotation(0);
-                        }
-                        display.display();          
-                      #endif
-                    } else {
-                      #ifndef DISABLE_OLED
-                        display.ssd1306_command(SSD1306_DISPLAYOFF);
-                      #endif
-                    }
-                  }
-                  
-              #endif 
-              #ifdef TVOUT_SCREENS
-              #endif
+//                  } else {        
+//                    if (EepromSettings.useOledScreen) { 
+//                      #ifndef DISABLE_OLED
+//                        if (EepromSettings.rotateOled){
+//                          display.setRotation(2);
+//                        } else {
+//                          display.setRotation(0);
+//                        }
+//                        display.display();          
+//                      #endif
+//                    } else {
+//                      #ifndef DISABLE_OLED
+//                        display.ssd1306_command(SSD1306_DISPLAYOFF);
+//                      #endif
+//                    }
+//                  }
+//                  
+//              #endif 
+//              #ifdef TVOUT_SCREENS
+//              #endif
             shouldDisplay = false;
         }
     }
@@ -433,10 +438,10 @@ namespace Ui {
       #ifdef TVOUT_SCREENS
       //TODO add larger font
         if (size == 1) {
-          display.select_font(font4x6);
+//          display.select_font(font4x6);
         }
         else if (size == 2) {
-          display.select_font(font6x8);
+//          display.select_font(font6x8);
         }
         else if (size == 3) {
           display.select_font(font8x8);
@@ -451,7 +456,7 @@ namespace Ui {
           display.select_font(font8x8);
         }
         else {
-          display.select_font(font4x6);
+//          display.select_font(font4x6);
         }        
       #endif
     }
