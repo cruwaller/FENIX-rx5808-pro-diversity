@@ -55,6 +55,8 @@
 //  Buttons::PressType pressType
 //);
 
+Timer UiRefreshTimer = Timer(33); // refresh every 33ms (30 FPS)
+  
 void setup()
 {
 
@@ -68,7 +70,6 @@ void setup()
   StateMachine::setup();
   Ui::setup(); 
   TouchPad::setup(); 
-  
 
 //  if (!EepromSettings.useFastBoot) {
 //    
@@ -233,7 +234,8 @@ void loop() {
     Voltage::update();
   #endif
   if (EepromSettings.useOledScreen || Ui::isTvOn) {
-  if (Ui::isTvOn) {
+  if (Ui::isTvOn && UiRefreshTimer.hasTicked()) {
+      UiRefreshTimer.reset();
       StateMachine::update();
       Ui::update();
       EepromSettings.update();
