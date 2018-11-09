@@ -47,7 +47,7 @@ namespace Ui {
 //        #if F_CPU == 120000000L
 //            TV.begin(SC_160x108); // 120 MHz
 //        #elif F_CPU == 72000000L
-////            TV.begin(SC_448x108); // 72 MHz
+//            display.begin(SC_448x108); // 72 MHz
 //            display.begin(SC_224x216); // 72 MHz
             display.begin(SC_448x216); // 72 MHz
 //        #elif F_CPU == 48000000L
@@ -67,7 +67,7 @@ namespace Ui {
 //        #if F_CPU == 120000000L
 //            TV.begin(SC_160x108); // 120 MHz
 //        #elif F_CPU == 72000000L
-////            TV.begin(SC_448x108); // 72 MHz
+//            display.begin(SC_448x108); // 72 MHz
 //            display.begin(SC_224x216); // 72 MHz
             display.begin(SC_448x216); // 72 MHz
 //        #elif F_CPU == 48000000L
@@ -269,6 +269,17 @@ namespace Ui {
         #undef CLAMP_DATAPOINT
     }
 
+    void drawLine(
+        const int x1,
+        const int y1,
+        const int x2,
+        const int y2,
+        const int color
+    ) {
+          #ifdef TVOUT_SCREENS
+            display.draw_line( x1, y1, x2, y2, WHITE );
+          #endif
+        }
 
     void drawDashedHLine(
         const int x,
@@ -327,6 +338,21 @@ namespace Ui {
       #endif
       #ifdef TVOUT_SCREENS
         display.draw_column(x, y, y+h, color);
+      #endif
+    }
+
+    void drawRect(
+        const int x,
+        const int y,
+        const int w,
+        const int h,
+        const int color
+    ) {
+      #ifdef OLED_128x64_ADAFRUIT_SCREENS
+//        display.drawRoundRect(x, y, w, h, r, color);
+      #endif
+      #ifdef TVOUT_SCREENS
+        display.draw_rect(x, y, w, h, color);
       #endif
     }
 
@@ -438,10 +464,10 @@ namespace Ui {
       #ifdef TVOUT_SCREENS
       //TODO add larger font
         if (size == 1) {
-//          display.select_font(font4x6);
+          display.select_font(font8x8);
         }
         else if (size == 2) {
-//          display.select_font(font6x8);
+          display.select_font(font8x8);
         }
         else if (size == 3) {
           display.select_font(font8x8);
@@ -456,7 +482,7 @@ namespace Ui {
           display.select_font(font8x8);
         }
         else {
-//          display.select_font(font4x6);
+          display.select_font(font8x8);
         }        
       #endif
     }
@@ -478,6 +504,55 @@ namespace Ui {
       #ifdef TVOUT_SCREENS
 //        display.print(text);
       #endif
+    }
+    
+    void drawBigCharacter( const int x, const int y, const char text, const int xMultiplier, const int yMultiplier) {
+        for (uint8_t i=0; i<8; i++) {
+            for (uint8_t j=0; j<8; j++) {
+
+                bool colour = bitRead(font8x8[i + 3 + text*8], 7 - j);
+                fillRect( x + j * xMultiplier, 
+                          y + i * yMultiplier, 
+                          xMultiplier, 
+                          yMultiplier, 
+                          colour);
+            }
+        }
+    }
+    
+    void drawBigNumber( const int x, const int y, const int number, const int xMultiplier, const int yMultiplier) {
+        switch (number) {
+            case 0:
+                  drawBigCharacter( x, y, '0', xMultiplier, yMultiplier);
+              break;
+            case 1:
+                  drawBigCharacter( x, y, '1', xMultiplier, yMultiplier);
+              break;
+            case 2:
+                  drawBigCharacter( x, y, '2', xMultiplier, yMultiplier);
+              break;
+            case 3:
+                  drawBigCharacter( x, y, '3', xMultiplier, yMultiplier);
+              break;
+            case 4:
+                  drawBigCharacter( x, y, '4', xMultiplier, yMultiplier);
+              break;
+            case 5:
+                  drawBigCharacter( x, y, '5', xMultiplier, yMultiplier);
+              break;
+            case 6:
+                  drawBigCharacter( x, y, '6', xMultiplier, yMultiplier);
+              break;
+            case 7:
+                  drawBigCharacter( x, y, '7', xMultiplier, yMultiplier);
+              break;
+            case 8:
+                  drawBigCharacter( x, y, '8', xMultiplier, yMultiplier);
+              break;
+            case 9:
+                  drawBigCharacter( x, y, '9', xMultiplier, yMultiplier);
+              break;
+          }
     }
           
     void clear() {

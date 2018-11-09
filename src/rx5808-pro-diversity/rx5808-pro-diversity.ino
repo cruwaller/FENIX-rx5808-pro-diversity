@@ -55,8 +55,11 @@
 //  Buttons::PressType pressType
 //);
 
-Timer UiRefreshTimer = Timer(33); // refresh every 33ms (30 FPS)
-  
+// Refresh rate is set to match touchpad rate
+Timer UiRefreshTimer = Timer(50); // refresh every 50ms (20 FPS)
+
+extern Timer UiTimeOut = Timer(3000);
+
 void setup()
 {
 
@@ -151,7 +154,6 @@ void setup()
 ////////////////// remove after testing   
   switchOSDOutputState();
 
-//  Serial.println("End setup");
 }
 
 void setupPins() {
@@ -223,36 +225,36 @@ void setupPins() {
 }
 
 void loop() {
-
-//  Serial.println("loop");
   
-  TouchPad::update(); 
+    Receiver::update();
+    
+    #ifdef FENIX_QUADVERSITY  
+//        Voltage::update();
+    #endif
   
-//  Buttons::update();
-  Receiver::update();
-  #ifdef FENIX_QUADVERSITY
-    Voltage::update();
-  #endif
-  if (EepromSettings.useOledScreen || Ui::isTvOn) {
-  if (Ui::isTvOn && UiRefreshTimer.hasTicked()) {
-      UiRefreshTimer.reset();
-      StateMachine::update();
-      Ui::update();
-      EepromSettings.update();
-  }
-  Temperature::update();
+    if (UiRefreshTimer.hasTicked()) {
+        UiRefreshTimer.reset();
+        TouchPad::update(); 
+        
+        if (Ui::isTvOn) {
+            Temperature::update();
+            StateMachine::update();
+            Ui::update();
+            EepromSettings.update();
+        }
+    }
+    
+//    if (TouchPad::touchData.isActive) {
+//        UiTimeOut.reset();
+//    }
+//    if (Ui::isTvOn && UiTimeOut.hasTicked()) {
+//        switchOSDOutputState();    
+//    }
+//    if (!Ui::isTvOn && TouchPad::touchData.buttonPrimary) {
+//        switchOSDOutputState();
+//    }
   
-//  if (EepromSettings.saveScreenOn) {
-//    if (
-//      StateMachine::currentState != StateMachine::State::SCREENSAVER
-//      && StateMachine::currentState != StateMachine::State::BANDSCAN
-//      && StateMachine::currentState != StateMachine::State::FINDER
-//      && !Ui::isTvOn
-//      && (millis() - Buttons::lastChangeTime) > (SCREENSAVER_TIMEOUT * 1000)
-//    ) {
-//      StateMachine::switchState(StateMachine::State::SCREENSAVER);
-//    }    
-  }
+    TouchPad::clearTouchData(); 
 }
 
 

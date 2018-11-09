@@ -1,7 +1,7 @@
 #include <TTVout.h>
 #include <fontALL.h>
 #include "schematic.h"
-#include "TVOlogo.h"
+#include <TVOlogo.h>
 
 TTVout TV;
 

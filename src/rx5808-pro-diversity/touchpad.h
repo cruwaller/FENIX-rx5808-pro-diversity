@@ -5,6 +5,7 @@ namespace TouchPad {
 
     typedef struct _relData
     {
+      bool isActive;
       bool buttonPrimary;
       bool buttonSecondary;
       bool buttonAuxiliary;
@@ -20,7 +21,7 @@ namespace TouchPad {
     
     void setup();
     void update();
-
+    void clearTouchData();
     void Pinnacle_Init();
     void Pinnacle_getRelative(relData_t * result);
     void Pinnacle_ClearFlags();

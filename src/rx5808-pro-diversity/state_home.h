@@ -1,7 +1,7 @@
 #ifndef STATE_HOME_H
 #define STATE_HOME_H
 
-
+#include "channels.h"
 #include "state.h"
 #include "settings.h"
 
@@ -9,9 +9,15 @@
 namespace StateMachine {
     class HomeStateHandler : public StateMachine::StateHandler {
         private:
+            void doTapAction();
+            void bandScanUpdate();
             void setChannel(int channelIncrement);
             void centreFrequency();
             bool centred = false;
+            
+            uint8_t orderedChanelIndex = 0;
+            uint8_t lastChannelIndex = 0;
+            uint8_t rssiData[CHANNELS_SIZE] = { 0 };
 
         public:
             void onEnter();
@@ -20,7 +26,7 @@ namespace StateMachine {
             void onInitialDraw();
             void onUpdateDraw();
 
-            void onButtonChange(Button button, Buttons::PressType pressType);
+//            void onButtonChange(Button button, Buttons::PressType pressType);
 
     };
 }

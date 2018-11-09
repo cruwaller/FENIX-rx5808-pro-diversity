@@ -19,8 +19,8 @@ namespace TouchPad {
 
         Pinnacle_Init();
     
-        touchData.cursorX = 50;
-        touchData.cursorY = 50;
+        touchData.cursorX = 200;
+        touchData.cursorY = 100;
 
     }  
     
@@ -63,6 +63,17 @@ namespace TouchPad {
           
         }
     }
+    
+    void clearTouchData() {
+        touchData.isActive = false;
+        touchData.buttonPrimary = 0;
+        touchData.buttonSecondary = 0;
+        touchData.buttonAuxiliary = 0;
+        touchData.xDelta = 0;
+        touchData.yDelta = 0;
+        touchData.xSign = 0;
+        touchData.ySign = 0;
+    }
 
     /*  Pinnacle-based TM0XX0XX Functions  */
     void Pinnacle_Init() {
@@ -75,6 +86,11 @@ namespace TouchPad {
     
       // Feed Enable
       RAP_Write(0x04, 0b00000001);
+    
+      // Sample Rate (default 100 Hz)
+      // Needs to be decrease and only check on UI update.
+      // Higher rate introduces UI noise.
+      RAP_Write(0x09, 0x14); // 20 Hz
       
     }
     
@@ -87,7 +103,9 @@ namespace TouchPad {
       RAP_ReadBytes(0x12, data, 3);
     
       Pinnacle_ClearFlags();
-    
+
+      
+      result->isActive = true;
       result->buttonPrimary = data[0] & 0b00000001;
       result->buttonSecondary = data[0] & 0b00000010;
       result->buttonAuxiliary = data[0] & 0b00000100;

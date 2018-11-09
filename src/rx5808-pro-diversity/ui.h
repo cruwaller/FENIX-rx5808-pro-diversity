@@ -15,8 +15,9 @@
 #include "settings.h"
 #include "settings_internal.h"
 
-#define SCREEN_WIDTH 128
-#define SCREEN_HEIGHT 64
+//SC_448x216
+#define SCREEN_WIDTH 448
+#define SCREEN_HEIGHT 216
 
 #define SCREEN_WIDTH_MID ((SCREEN_WIDTH / 2) - 1)
 #define SCREEN_HEIGHT_MID ((SCREEN_HEIGHT / 2) - 1)
@@ -66,10 +67,12 @@ namespace Ui {
         const uint8_t h
     );
 
+    void drawLine(const int x1, const int y1, const int x2, const int y2, const int color);
     void drawDashedHLine(const int x, const int y, const int w, const int step);
     void drawDashedVLine(const int x, const int y, const int w, const int step);
     void drawFastHLine(const int x, const int y, const int w, const int color);
     void drawFastVLine(const int x, const int y, const int h, const int color);
+    void drawRect(const int x, const int y,const int w, const int h, const int color);
     void drawRoundRect(const int x, const int y,const int w, const int h, const int r, const int color);
     void fillRect(const int x, const int y,const int w, const int h, const int color);
     void fillTriangle(const int x0, const int y0, const int x1, const int y1, const int x2, const int y2, const int color);
@@ -81,6 +84,8 @@ namespace Ui {
     void setTextSize(const int size);
     void setCursor(const int x, const int y);
     void print(const char text);
+    void drawBigCharacter( const int x, const int y, const char text, const int xMultiplier, const int yMultiplier);
+    void drawBigNumber( const int x, const int y, const int number, const int xMultiplier, const int yMultiplier);
       
     void clear();
     void clearRect(const int x, const int y, const int w, const int h);
