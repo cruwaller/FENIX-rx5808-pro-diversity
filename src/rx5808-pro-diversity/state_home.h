@@ -4,13 +4,19 @@
 #include "channels.h"
 #include "state.h"
 #include "settings.h"
+#include "receiver.h"
 
 
 namespace StateMachine {
     class HomeStateHandler : public StateMachine::StateHandler {
         private:
             void doTapAction();
+    
+            uint8_t displayActiveChannel = 0;
+            bool wasInBandScanRegion = false;
+            bool isInBandScanRegion();
             void bandScanUpdate();
+            
             void setChannel(int channelIncrement);
             void centreFrequency();
             bool centred = false;

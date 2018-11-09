@@ -30,7 +30,11 @@
 using StateMachine::HomeStateHandler;
 
 void HomeStateHandler::onEnter() {
+
+    displayActiveChannel = Receiver::activeChannel;
+    
     Ui::clear();
+    
 }
 
 void HomeStateHandler::onUpdate() {
@@ -46,8 +50,17 @@ void HomeStateHandler::onUpdateDraw() {
     if (TouchPad::touchData.buttonPrimary) {
       this->doTapAction();
     }
-
-    bandScanUpdate();
+    
+    if (isInBandScanRegion()) {
+        bandScanUpdate();
+        wasInBandScanRegion = true;
+    } else {
+        if (wasInBandScanRegion) {
+            Receiver::setChannel(displayActiveChannel);
+        }
+        displayActiveChannel = Receiver::activeChannel;
+        wasInBandScanRegion = false;
+    }
     
     Ui::clear();
 
@@ -99,24 +112,24 @@ void HomeStateHandler::onUpdateDraw() {
     
     // Display Band and Channel
     Ui::drawBigCharacter( 4, 16, 
-                          Channels::getName(Receiver::activeChannel)[0], 
+                          Channels::getName(displayActiveChannel)[0], 
                           11, 10);
     Ui::drawBigCharacter( 82, 16, 
-                          Channels::getName(Receiver::activeChannel)[1], 
+                          Channels::getName(displayActiveChannel)[1], 
                           11, 10);
            
     // Display Frequency
     Ui::drawBigNumber( 8, 100, 
-                       Channels::getFrequency(Receiver::activeChannel) / 1000, 
+                       Channels::getFrequency(displayActiveChannel) / 1000, 
                        5, 3);
     Ui::drawBigNumber( 48, 100, 
-                       (Channels::getFrequency(Receiver::activeChannel) % 1000 ) / 100, 
+                       (Channels::getFrequency(displayActiveChannel) % 1000 ) / 100, 
                        5, 3);
     Ui::drawBigNumber( 88, 100, 
-                       (Channels::getFrequency(Receiver::activeChannel) % 100 ) / 10, 
+                       (Channels::getFrequency(displayActiveChannel) % 100 ) / 10, 
                        5, 3);
     Ui::drawBigNumber( 128, 100, 
-                       Channels::getFrequency(Receiver::activeChannel) % 10, 
+                       Channels::getFrequency(displayActiveChannel) % 10, 
                        5, 3);
 
     // Channel labels
@@ -378,6 +391,18 @@ void HomeStateHandler::doTapAction() {
      ) {
           this->setChannel(1);
         }
+  else if ( // Select channel from spectrum
+      HomeStateHandler::isInBandScanRegion()
+     ) {
+          Receiver::setChannel(
+                              Channels::getOrderedIndex( (TouchPad::touchData.cursorX-40) / 5 )
+                              );
+          HomeStateHandler::centreFrequency();
+          displayActiveChannel = Receiver::activeChannel;
+          
+          EepromSettings.startChannel = displayActiveChannel;
+          EepromSettings.markDirty();
+        }
 
 //  else if (
 //      pressType == Buttons::PressType::LONG &&
@@ -448,41 +473,50 @@ void HomeStateHandler::centreFrequency() {
 //  SCREEN_WIDTH - 4*(COLUMN_WIDTH+2),
 //  CHAR_HEIGHT * 2);
         
-  Ui::setCursor(9, 56);
-  Ui::setTextSize(1);
-  Ui::setTextColor(WHITE);
-  Ui::display.print( centerFreq );
-  Ui::drawBullseye(39, 59, 4, WHITE);
+//  Ui::setCursor(9, 56);
+//  Ui::setTextSize(1);
+//  Ui::setTextColor(WHITE);
+//  Ui::display.print( centerFreq );
+//  Ui::drawBullseye(39, 59, 4, WHITE);
   
-  centred = true;
+//  centred = true;
 
   // Clear centering notification
-  Ui::clearRect(26, 27, 76, 12);
+//  Ui::clearRect(26, 27, 76, 12);
+  
+  wasInBandScanRegion = false;
+}
+
+bool HomeStateHandler::isInBandScanRegion() {
+    if (TouchPad::touchData.cursorY > 130 ) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 void HomeStateHandler::bandScanUpdate() {
 
-    if (TouchPad::touchData.cursorY > 150 ) {
-      
-        if (!Receiver::isRssiStable())
-            return;
     
-        if (!EepromSettings.quadversity) {
-            rssiData[orderedChanelIndex] = max(Receiver::rssiA, Receiver::rssiB);
-        }
-        if (EepromSettings.quadversity) {
-            rssiData[orderedChanelIndex] = max(Receiver::rssiA, max(Receiver::rssiB, max(Receiver::rssiC, Receiver::rssiD)));
-        }
-    
-        orderedChanelIndex = orderedChanelIndex + 1;
-        if (orderedChanelIndex == CHANNELS_SIZE) {
-            orderedChanelIndex = 0;
-        }
-        Receiver::setChannel(Channels::getOrderedIndex(orderedChanelIndex));
+    if (!wasInBandScanRegion) {
+        orderedChanelIndex = Channels::getOrderedIndexFromIndex(displayActiveChannel); // Start from currently selected channel to prevent initial spike artifact.
+    }
       
+    if (!Receiver::isRssiStable())
+        return;
+
+    if (!EepromSettings.quadversity) {
+        rssiData[orderedChanelIndex] = max(Receiver::rssiA, Receiver::rssiB);
+    }
+    if (EepromSettings.quadversity) {
+        rssiData[orderedChanelIndex] = max(Receiver::rssiA, max(Receiver::rssiB, max(Receiver::rssiC, Receiver::rssiD)));
     }
 
-//    Ui::needUpdate();
+    orderedChanelIndex = orderedChanelIndex + 1;
+    if (orderedChanelIndex == CHANNELS_SIZE) {
+        orderedChanelIndex = 0;
+    }
+    Receiver::setChannel(Channels::getOrderedIndex(orderedChanelIndex));
     
 }
 

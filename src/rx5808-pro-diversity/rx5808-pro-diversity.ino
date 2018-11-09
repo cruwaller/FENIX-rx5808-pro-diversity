@@ -152,7 +152,7 @@ void setup()
 
 //  Serial.println("switchOSDOutputState");
 ////////////////// remove after testing   
-  switchOSDOutputState();
+//  switchOSDOutputState();
 
 }
 
@@ -244,15 +244,15 @@ void loop() {
         }
     }
     
-//    if (TouchPad::touchData.isActive) {
-//        UiTimeOut.reset();
-//    }
-//    if (Ui::isTvOn && UiTimeOut.hasTicked()) {
-//        switchOSDOutputState();    
-//    }
-//    if (!Ui::isTvOn && TouchPad::touchData.buttonPrimary) {
-//        switchOSDOutputState();
-//    }
+    if (TouchPad::touchData.isActive) {
+        UiTimeOut.reset();
+    }
+    if (Ui::isTvOn && UiTimeOut.hasTicked()) {
+        switchOSDOutputState();    
+    }
+    if (!Ui::isTvOn && TouchPad::touchData.buttonPrimary) {
+        switchOSDOutputState();
+    }
   
     TouchPad::clearTouchData(); 
 }
