@@ -55,11 +55,6 @@
 //  Buttons::PressType pressType
 //);
 
-// Refresh rate is set to match touchpad rate
-Timer UiRefreshTimer = Timer(50); // refresh every 50ms (20 FPS)
-
-extern Timer UiTimeOut = Timer(3000);
-
 void setup()
 {
 
@@ -152,7 +147,7 @@ void setup()
 
 //  Serial.println("switchOSDOutputState");
 ////////////////// remove after testing   
-//  switchOSDOutputState();
+//  Ui::switchOSDOutputState();
 
 }
 
@@ -232,8 +227,8 @@ void loop() {
 //        Voltage::update();
     #endif
   
-    if (UiRefreshTimer.hasTicked()) {
-        UiRefreshTimer.reset();
+    if (Ui::UiRefreshTimer.hasTicked()) {
+        Ui::UiRefreshTimer.reset();
         TouchPad::update(); 
         
         if (Ui::isTvOn) {
@@ -245,13 +240,13 @@ void loop() {
     }
     
     if (TouchPad::touchData.isActive) {
-        UiTimeOut.reset();
+        Ui::UiTimeOut.reset();
     }
-    if (Ui::isTvOn && UiTimeOut.hasTicked()) {
-        switchOSDOutputState();    
+    if (Ui::isTvOn && Ui::UiTimeOut.hasTicked()) {
+        Ui::switchOSDOutputState();    
     }
     if (!Ui::isTvOn && TouchPad::touchData.buttonPrimary) {
-        switchOSDOutputState();
+        Ui::switchOSDOutputState();
     }
   
     TouchPad::clearTouchData(); 

@@ -221,11 +221,11 @@ namespace Channels {
     const uint16_t getCenterFreq(uint16_t freq) {
 
         // Centering notification
-        Ui::clearRect(26, 27, 76, 12);
-        Ui::drawRoundRect(26, 27, 76, 12, 2, WHITE);
+        Ui::clearRect(30, 60, 100, 13);
+        Ui::drawRoundRect(30, 60, 100, 13, 2, WHITE);
         Ui::setTextSize(1);
         Ui::setTextColor(WHITE);
-        Ui::setCursor(28, 29);
+        Ui::setCursor(33, 62);
         Ui::display.print(PSTR2("Centering..."));
         Ui::needDisplay(); 
         Ui::update();

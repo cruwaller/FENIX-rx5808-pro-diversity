@@ -497,6 +497,7 @@ bool HomeStateHandler::isInBandScanRegion() {
 
 void HomeStateHandler::bandScanUpdate() {
 
+    Ui::UiTimeOut.reset();
     
     if (!wasInBandScanRegion) {
         orderedChanelIndex = Channels::getOrderedIndexFromIndex(displayActiveChannel); // Start from currently selected channel to prevent initial spike artifact.

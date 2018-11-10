@@ -14,6 +14,7 @@
 
 #include "settings.h"
 #include "settings_internal.h"
+#include "timer.h"
 
 //SC_448x216
 #define SCREEN_WIDTH 448
@@ -35,8 +36,15 @@ namespace Ui {
     
     extern bool shouldDrawUpdate;
     extern bool shouldDisplay;
-    extern bool shouldFullRedraw;
+    extern bool shouldFullRedraw;    
+    
     extern bool isTvOn;
+    void switchOSDOutputState();
+    
+    // Refresh rate is set to match touchpad rate.  Refresh every 50ms (20 FPS)
+    extern Timer UiRefreshTimer;
+    // UI time for return to FPV
+    extern Timer UiTimeOut;
 
     void setup();
     void sdToTtvout();
@@ -47,6 +55,8 @@ namespace Ui {
     void beep();
     void beep(uint16_t freq);
 
+    void drawCursor();
+    
     void drawGraph(
         const uint8_t data[],
         const uint8_t dataSize,

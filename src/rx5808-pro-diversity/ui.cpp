@@ -27,6 +27,11 @@ namespace Ui {
     bool shouldFullRedraw = false;
     bool isTvOn = false;
 
+    // Refresh rate is set to match touchpad rate.  Refresh every 50ms (20 FPS)
+    Timer UiRefreshTimer = Timer(50);
+    // UI time for return to FPV
+    Timer UiTimeOut = Timer(3000);
+
     void setup() {
 //        #ifdef OLED_128x64_ADAFRUIT_SCREENS  
         
@@ -97,6 +102,26 @@ namespace Ui {
         isTvOn = false;
     }
 
+    void switchOSDOutputState() {
+      if (!isTvOn) {
+        
+        tvOn();
+    
+        #ifdef FENIX_QUADVERSITY
+          digitalWrite(PIN_OSDCONTROL, LOW);
+        #endif
+        
+      } else {    
+        
+        tvOff();
+        
+        #ifdef FENIX_QUADVERSITY
+          digitalWrite(PIN_OSDCONTROL, HIGH);
+        #endif
+        
+      }   
+    }
+
     // TODO replace with buffer from OLED
     void sdToTtvout() {      
 //      for(int y=0; y<64; y++) {
@@ -122,14 +147,38 @@ namespace Ui {
 //        display.clear_screen();
 //        TV.draw_rect(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, 3, 3, 1, 1); // 72 MHz 
 
-        display.draw_line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX, TouchPad::touchData.cursorY + 16, 1);
-        display.draw_line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY + 16, TouchPad::touchData.cursorX + 4, TouchPad::touchData.cursorY + 13, 1);
-        display.draw_line(TouchPad::touchData.cursorX + 4, TouchPad::touchData.cursorY + 13, TouchPad::touchData.cursorX + 6, TouchPad::touchData.cursorY + 18, 1);
-        display.draw_line(TouchPad::touchData.cursorX + 6, TouchPad::touchData.cursorY + 18, TouchPad::touchData.cursorX + 9, TouchPad::touchData.cursorY + 17, 1);
-        display.draw_line(TouchPad::touchData.cursorX + 9, TouchPad::touchData.cursorY + 17, TouchPad::touchData.cursorX + 7, TouchPad::touchData.cursorY + 13, 1);
-        display.draw_line(TouchPad::touchData.cursorX + 7, TouchPad::touchData.cursorY + 13, TouchPad::touchData.cursorX + 11, TouchPad::touchData.cursorY + 12, 1);
-        display.draw_line(TouchPad::touchData.cursorX + 11, TouchPad::touchData.cursorY + 12, TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, 1);
+    }
 
+    // This needs to be redone with a fill triangle... which needs to be added to the TTVout lib.
+    void drawCursor() {
+
+        // Black inner
+        display.draw_line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX, TouchPad::touchData.cursorY + 16, BLACK);
+        display.draw_line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX+1, TouchPad::touchData.cursorY + 16, BLACK);
+        display.draw_line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX+2, TouchPad::touchData.cursorY + 15, BLACK);
+        display.draw_line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX+3, TouchPad::touchData.cursorY + 14, BLACK);
+        display.draw_line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX+4, TouchPad::touchData.cursorY + 13, BLACK);
+        
+        display.draw_line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX+6, TouchPad::touchData.cursorY + 18, BLACK);
+        display.draw_line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX+7, TouchPad::touchData.cursorY + 18, BLACK);
+        display.draw_line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX+8, TouchPad::touchData.cursorY + 17, BLACK);
+        display.draw_line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX+9, TouchPad::touchData.cursorY + 17, BLACK);
+        
+        display.draw_line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX+7, TouchPad::touchData.cursorY + 13, BLACK);
+        display.draw_line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX+8, TouchPad::touchData.cursorY + 13, BLACK);
+        display.draw_line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX+9, TouchPad::touchData.cursorY + 13, BLACK);
+        display.draw_line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX+10, TouchPad::touchData.cursorY + 13, BLACK);
+        display.draw_line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX+11, TouchPad::touchData.cursorY + 13, BLACK);
+        
+        // White boarder
+        display.draw_line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX, TouchPad::touchData.cursorY + 16, WHITE);
+        display.draw_line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY + 16, TouchPad::touchData.cursorX + 4, TouchPad::touchData.cursorY + 13, WHITE);
+        display.draw_line(TouchPad::touchData.cursorX + 4, TouchPad::touchData.cursorY + 13, TouchPad::touchData.cursorX + 6, TouchPad::touchData.cursorY + 18, WHITE);
+        display.draw_line(TouchPad::touchData.cursorX + 6, TouchPad::touchData.cursorY + 18, TouchPad::touchData.cursorX + 9, TouchPad::touchData.cursorY + 17, WHITE);
+        display.draw_line(TouchPad::touchData.cursorX + 9, TouchPad::touchData.cursorY + 17, TouchPad::touchData.cursorX + 7, TouchPad::touchData.cursorY + 13, WHITE);
+        display.draw_line(TouchPad::touchData.cursorX + 7, TouchPad::touchData.cursorY + 13, TouchPad::touchData.cursorX + 11, TouchPad::touchData.cursorY + 12, WHITE);
+        display.draw_line(TouchPad::touchData.cursorX + 11, TouchPad::touchData.cursorY + 12, TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, WHITE);
+        
     }
 
     void beep() { 
@@ -141,11 +190,14 @@ namespace Ui {
     }
 
     void update() {
-        if (shouldDisplay) {
+
+        drawCursor();
+        
+//        if (shouldDisplay) {
 //              #ifdef OLED_128x64_ADAFRUIT_SCREENS
-                      
+//                      
 //                  if (isTvOn) {
-                    Ui::sdToTtvout();
+//                    Ui::sdToTtvout();
 //                  } else {        
 //                    if (EepromSettings.useOledScreen) { 
 //                      #ifndef DISABLE_OLED
@@ -166,8 +218,8 @@ namespace Ui {
 //              #endif 
 //              #ifdef TVOUT_SCREENS
 //              #endif
-            shouldDisplay = false;
-        }
+//            shouldDisplay = false;
+//        }
     }
 
     void drawGraph(
