@@ -6,7 +6,7 @@
 
 # Wiring
 
-<img src="docs/img/photos/module_wiring.jpeg" width="30%"> <img src="docs/img/photos/touchpad_wiring.jpeg" width="30%"> <img src="docs/img/photos/touchpad_stuck_on_module.jpeg" width="30%">
+<img src="docs/img/photos/module_wiring.jpg" width="30%"> <img src="docs/img/photos/touchpad_wiring.jpg" width="30%"> <img src="docs/img/photos/touchpad_stuck_on_module.jpg" width="30%">
 
 # Hardware
 
