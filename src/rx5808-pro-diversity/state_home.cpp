@@ -368,26 +368,26 @@ void HomeStateHandler::onUpdateDraw() {
 void HomeStateHandler::doTapAction() {
             
   if (
-      TouchPad::touchData.cursorX > 4  && TouchPad::touchData.cursorX < 82 &&
-      TouchPad::touchData.cursorY > 16 && TouchPad::touchData.cursorY < 50
+      TouchPad::touchData.cursorX > 15  && TouchPad::touchData.cursorX < 85 &&
+      TouchPad::touchData.cursorY > 20 && TouchPad::touchData.cursorY < 60
      ) {
           this->setChannel(-8);
         }
   else if (
-      TouchPad::touchData.cursorX > 4  && TouchPad::touchData.cursorX < 82 &&
-      TouchPad::touchData.cursorY > 50 && TouchPad::touchData.cursorY < 84
+      TouchPad::touchData.cursorX > 15  && TouchPad::touchData.cursorX < 85 &&
+      TouchPad::touchData.cursorY > 60 && TouchPad::touchData.cursorY < 100
      ) {
           this->setChannel(8);
         }
   else if (
-      TouchPad::touchData.cursorX > 82  && TouchPad::touchData.cursorX < 160 &&
-      TouchPad::touchData.cursorY > 16 && TouchPad::touchData.cursorY < 50
+      TouchPad::touchData.cursorX > 85  && TouchPad::touchData.cursorX < 160 &&
+      TouchPad::touchData.cursorY > 20 && TouchPad::touchData.cursorY < 60
      ) {
           this->setChannel(-1);
         }
   else if (
-      TouchPad::touchData.cursorX > 82  && TouchPad::touchData.cursorX < 160 &&
-      TouchPad::touchData.cursorY > 50 && TouchPad::touchData.cursorY < 84
+      TouchPad::touchData.cursorX > 85  && TouchPad::touchData.cursorX < 160 &&
+      TouchPad::touchData.cursorY > 60 && TouchPad::touchData.cursorY < 100
      ) {
           this->setChannel(1);
         }
