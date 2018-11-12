@@ -73,6 +73,10 @@ void HomeStateHandler::onUpdateDraw() {
         Ui::display.print(PSTR2(" / ")); 
     #endif
 
+    #ifdef REALACC_RX5808_PRO_PLUS_OSD
+        Ui::setCursor( 322, 4);
+    #endif
+
     // Temperature
     Ui::display.printFloat(Temperature::temperature, 0);
     Ui::display.print(PSTR2("C")); 
