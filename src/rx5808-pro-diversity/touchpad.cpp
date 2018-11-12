@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <avr/pgmspace.h>
 
+#include "ui.h"
 #include "touchpad.h"
 #include <Wire.h>
 
@@ -30,7 +31,8 @@ namespace TouchPad {
           
             Pinnacle_getRelative(&touchData);
 
-            touchData.cursorX -= touchData.xDelta;
+            touchData.cursorX -= touchData.xDelta; // Reversed for testing
+//            touchData.cursorX += touchData.xDelta;
             touchData.cursorY -= touchData.yDelta;
             
             // SC_448x216
@@ -45,6 +47,10 @@ namespace TouchPad {
             }
             if (touchData.cursorY > 196) {
                 touchData.cursorY = 196;
+            }
+
+            if (touchData.buttonPrimary) {
+                Ui::beep();
             }
             
 //            Serial.print(touchData.buttonPrimary);
