@@ -48,10 +48,10 @@ namespace StateMachine {
 
             // FIXME: This should probably be handled in the UI module but not
             // 100% on how to decouple them at this stage
-            static Timer drawTimer = Timer(OLED_FRAMERATE);
+//            static Timer drawTimer = Timer(OLED_FRAMERATE);
             if (currentHandler
                 && Ui::shouldDrawUpdate
-                && drawTimer.hasTicked()
+//                && drawTimer.hasTicked()
             ) {
                 if (Ui::shouldFullRedraw) {
                     currentHandler->onInitialDraw();
@@ -60,7 +60,7 @@ namespace StateMachine {
 
                 currentHandler->onUpdateDraw();
                 Ui::shouldDrawUpdate = false;
-                drawTimer.reset();
+//                drawTimer.reset();
             }
         }
     }

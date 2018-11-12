@@ -12,12 +12,21 @@
 #include "ui.h"
 #include "pstr_helper.h"
 
-
+#include "touchpad.h"
+    
 void StateMachine::SettingsRssiStateHandler::onEnter() {
     internalState = InternalState::WAIT_FOR_LOW;
 }
 
 void StateMachine::SettingsRssiStateHandler::onUpdate() {
+
+    Ui::UiTimeOut.reset();
+    onUpdateDraw();
+    
+    if (TouchPad::touchData.buttonPrimary && internalState!=InternalState::SCANNING_LOW) {
+      doTapAction();
+    }
+  
     if (!Receiver::isRssiStable())
         return;
 
@@ -53,13 +62,16 @@ void StateMachine::SettingsRssiStateHandler::onUpdate() {
     Receiver::setChannel((Receiver::activeChannel + 1) % CHANNELS_SIZE);
     
     if (internalState==InternalState::SCANNING_LOW || internalState==InternalState::SCANNING_HIGH) {
-        Ui::setTextSize(2);
-        Ui::clearRect(52, 32, 24, 20);
-        Ui::setCursor(52, 32);
-        Ui::display.print(Channels::getName(Receiver::activeChannel));       
+        Ui::setTextSize(1);
+        Ui::setTextColor(WHITE);
+        Ui::drawBigCharacter( 120, 55, 
+                              Channels::getName(Receiver::activeChannel)[0], 
+                              11, 10);
+        Ui::drawBigCharacter( 200, 55, 
+                              Channels::getName(Receiver::activeChannel)[1], 
+                              11, 10);     
         Ui::needDisplay(); 
         Ui::update();      
-        Ui::clearRect(52, 32, 24, 20);
     }
           
     if (Receiver::activeChannel == 0) {
@@ -72,62 +84,45 @@ void StateMachine::SettingsRssiStateHandler::onUpdate() {
     }
 }
 
-//void StateMachine::SettingsRssiStateHandler::onButtonChange(
-//    Button button,
-//    Buttons::PressType pressType
-//) {
-//    if (button != Button::MODE_PRESSED || pressType != Buttons::PressType::SHORT)
-//        return;
-//
-//    switch (internalState) {
-//        case InternalState::WAIT_FOR_LOW:
-//            internalState = InternalState::SCANNING_LOW;
-//            currentSweep = 0;
-//            Receiver::setChannel(0);
-//            bestChannel = 0;
-//
-//            EepromSettings.rssiAMin = UINT16_MAX;
-//            EepromSettings.rssiAMax = 0;
-//            EepromSettings.rssiBMin = UINT16_MAX;
-//            EepromSettings.rssiBMax = 0;
-//            EepromSettings.rssiCMin = UINT16_MAX;
-//            EepromSettings.rssiCMax = 0;
-//            EepromSettings.rssiDMin = UINT16_MAX;
-//            EepromSettings.rssiDMax = 0;
-//        break;
-//
-//        case InternalState::DONE:
-//            EepromSettings.isCalibrated = true;
-//            
-//            EepromSettings.save();
-//
-//            Receiver::setChannel(
-//              Channels::getClosestChannel(
-//                Channels::getCenterFreq(
-//                  Channels::getFrequency(bestChannel))));
-//            
-//            EepromSettings.lastKnownMenuItem = 0;
-//            EepromSettings.markDirty();
-//
-//            switch(EepromSettings.selectedHomePage) {
-//                case 0:
-//                  StateMachine::switchState(StateMachine::State::HOME);
-//                break;
-//                case 1:
-////                  StateMachine::switchState(StateMachine::State::HOME_SIMPLE);
-//                  StateMachine::switchState(StateMachine::State::HOME);
-//                break;
-//                case 2:
-////                  StateMachine::switchState(StateMachine::State::HOME_STATS);
-//                  StateMachine::switchState(StateMachine::State::HOME);
-//                break;
-//            }  
-//            
-//        break;
-//    }
-//
-//    Ui::needUpdate();
-//}
+void StateMachine::SettingsRssiStateHandler::doTapAction() {
+
+    switch (internalState) {
+        case InternalState::WAIT_FOR_LOW:
+            internalState = InternalState::SCANNING_LOW;
+            currentSweep = 0;
+            Receiver::setChannel(0);
+            bestChannel = 0;
+
+            EepromSettings.rssiAMin = UINT16_MAX;
+            EepromSettings.rssiAMax = 0;
+            EepromSettings.rssiBMin = UINT16_MAX;
+            EepromSettings.rssiBMax = 0;
+            EepromSettings.rssiCMin = UINT16_MAX;
+            EepromSettings.rssiCMax = 0;
+            EepromSettings.rssiDMin = UINT16_MAX;
+            EepromSettings.rssiDMax = 0;
+        break;
+
+        case InternalState::DONE:
+            EepromSettings.isCalibrated = true;
+            
+            EepromSettings.save();
+
+            Receiver::setChannel(
+              Channels::getClosestChannel(
+                Channels::getCenterFreq(
+                  Channels::getFrequency(bestChannel))));
+            
+            EepromSettings.lastKnownMenuItem = 0;
+            EepromSettings.markDirty();
+
+            StateMachine::switchState(StateMachine::State::HOME);
+            
+        break;
+    }
+
+    Ui::needUpdate();
+}
 
 
 void StateMachine::SettingsRssiStateHandler::onInitialDraw() {
@@ -140,51 +135,60 @@ void StateMachine::SettingsRssiStateHandler::onUpdateDraw() {
 
     switch (internalState) {
       case InternalState::WAIT_FOR_LOW:
+    
           Ui::setTextSize(1);
-          Ui::setCursor(0, 0);
-          Ui::display.println(PSTR2("- Turn on VTx & place"));
-          Ui::display.println(PSTR2("  1m away."));
-          Ui::display.println(PSTR2(" "));
+          Ui::setTextColor(WHITE);
+          Ui::setCursor( 80, 40);
+          Ui::display.println(PSTR2("Your module is not calibrated."));
+          Ui::setCursor( 80, 50);
+          Ui::display.println(PSTR2("Follow the below steps."));
+          Ui::setCursor( 80, 70);
+          Ui::display.println(PSTR2("- Turn on a VTx at 25mW & place 1m away."));
+          Ui::setCursor( 80, 80);
           Ui::display.println(PSTR2("- Remove Rx antennas."));
-
-          Ui::setCursor(0, SCREEN_HEIGHT - CHAR_HEIGHT - 1);
-          Ui::display.print(PSTR2("Press MODE when ready."));
+          Ui::setCursor( 80, 100);
+          Ui::display.println(PSTR2("Press MODE when ready."));
       break;
 
       case InternalState::SCANNING_LOW:
           Ui::setTextSize(1);
-          Ui::setCursor(0, 0);
-          Ui::display.println(PSTR2("Scanning for lowest &"));
-          Ui::display.println(PSTR2("highest RSSI..."));
+          Ui::setTextColor(WHITE);
+          Ui::setCursor( 80, 40);
+          Ui::display.println(PSTR2("Scanning for lowest & highest RSSI..."));
       break;
 
       case InternalState::DONE:
           Ui::setTextSize(1);
-          Ui::setCursor(0, 0);
+          Ui::setTextColor(WHITE);
+          Ui::setCursor( 80, 40);
           Ui::display.print(PSTR2("All done!"));
 
           Ui::setCursor(0, CHAR_HEIGHT * 2);
           
+          Ui::setCursor( 80, 60);
           Ui::display.print(PSTR2("A: "));
           Ui::display.print(EepromSettings.rssiAMin);
           Ui::display.print(PSTR2(" -> "));
           Ui::display.println(EepromSettings.rssiAMax);
+          Ui::setCursor( 80, 70);
           Ui::display.print(PSTR2("B: "));
           Ui::display.print(EepromSettings.rssiBMin);
           Ui::display.print(PSTR2(" -> "));
           Ui::display.println(EepromSettings.rssiBMax);
           if (EepromSettings.quadversity) {
+              Ui::setCursor( 80, 80);
               Ui::display.print(PSTR2("C: "));
               Ui::display.print(EepromSettings.rssiCMin);
               Ui::display.print(PSTR2(" -> "));
               Ui::display.println(EepromSettings.rssiCMax);
+              Ui::setCursor( 80, 90);
               Ui::display.print(PSTR2("D: "));
               Ui::display.print(EepromSettings.rssiDMin);
               Ui::display.print(PSTR2(" -> "));
               Ui::display.println(EepromSettings.rssiDMax);
           }
 
-          Ui::setCursor(0, SCREEN_HEIGHT - CHAR_HEIGHT - 1);
+          Ui::setCursor( 80, 110);
           Ui::display.print(PSTR2("Press MODE to save."));
       break;
     }

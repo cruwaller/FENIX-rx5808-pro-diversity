@@ -60,7 +60,7 @@ SOFTWARE.
   #define OLED_CLASS Adafruit_SSD1306
 #endif
 
-#define OLED_FRAMERATE 1000 / 25
+//#define OLED_FRAMERATE 1000 / 25
 
 // === Misc ====================================================================
 #define EEPROM_SAVE_TIME 1000

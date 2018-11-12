@@ -74,6 +74,7 @@ void setup()
 
   if (!EepromSettings.isCalibrated) {
       StateMachine::switchState(StateMachine::State::SETTINGS_RSSI); 
+      Ui::switchOSDOutputState();    
   } else {
       StateMachine::switchState(StateMachine::State::HOME); 
   }   
