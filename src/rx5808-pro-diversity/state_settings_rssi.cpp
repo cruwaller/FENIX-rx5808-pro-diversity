@@ -8,7 +8,6 @@
 #include "settings.h"
 #include "settings_internal.h"
 #include "settings_eeprom.h"
-#include "buttons.h"
 
 #include "ui.h"
 #include "pstr_helper.h"
@@ -73,62 +72,62 @@ void StateMachine::SettingsRssiStateHandler::onUpdate() {
     }
 }
 
-void StateMachine::SettingsRssiStateHandler::onButtonChange(
-    Button button,
-    Buttons::PressType pressType
-) {
-    if (button != Button::MODE_PRESSED || pressType != Buttons::PressType::SHORT)
-        return;
-
-    switch (internalState) {
-        case InternalState::WAIT_FOR_LOW:
-            internalState = InternalState::SCANNING_LOW;
-            currentSweep = 0;
-            Receiver::setChannel(0);
-            bestChannel = 0;
-
-            EepromSettings.rssiAMin = UINT16_MAX;
-            EepromSettings.rssiAMax = 0;
-            EepromSettings.rssiBMin = UINT16_MAX;
-            EepromSettings.rssiBMax = 0;
-            EepromSettings.rssiCMin = UINT16_MAX;
-            EepromSettings.rssiCMax = 0;
-            EepromSettings.rssiDMin = UINT16_MAX;
-            EepromSettings.rssiDMax = 0;
-        break;
-
-        case InternalState::DONE:
-            EepromSettings.isCalibrated = true;
-            
-            EepromSettings.save();
-
-            Receiver::setChannel(
-              Channels::getClosestChannel(
-                Channels::getCenterFreq(
-                  Channels::getFrequency(bestChannel))));
-            
-            EepromSettings.lastKnownMenuItem = 0;
-            EepromSettings.markDirty();
-
-            switch(EepromSettings.selectedHomePage) {
-                case 0:
-                  StateMachine::switchState(StateMachine::State::HOME);
-                break;
-                case 1:
-//                  StateMachine::switchState(StateMachine::State::HOME_SIMPLE);
-                  StateMachine::switchState(StateMachine::State::HOME);
-                break;
-                case 2:
-//                  StateMachine::switchState(StateMachine::State::HOME_STATS);
-                  StateMachine::switchState(StateMachine::State::HOME);
-                break;
-            }  
-            
-        break;
-    }
-
-    Ui::needUpdate();
-}
+//void StateMachine::SettingsRssiStateHandler::onButtonChange(
+//    Button button,
+//    Buttons::PressType pressType
+//) {
+//    if (button != Button::MODE_PRESSED || pressType != Buttons::PressType::SHORT)
+//        return;
+//
+//    switch (internalState) {
+//        case InternalState::WAIT_FOR_LOW:
+//            internalState = InternalState::SCANNING_LOW;
+//            currentSweep = 0;
+//            Receiver::setChannel(0);
+//            bestChannel = 0;
+//
+//            EepromSettings.rssiAMin = UINT16_MAX;
+//            EepromSettings.rssiAMax = 0;
+//            EepromSettings.rssiBMin = UINT16_MAX;
+//            EepromSettings.rssiBMax = 0;
+//            EepromSettings.rssiCMin = UINT16_MAX;
+//            EepromSettings.rssiCMax = 0;
+//            EepromSettings.rssiDMin = UINT16_MAX;
+//            EepromSettings.rssiDMax = 0;
+//        break;
+//
+//        case InternalState::DONE:
+//            EepromSettings.isCalibrated = true;
+//            
+//            EepromSettings.save();
+//
+//            Receiver::setChannel(
+//              Channels::getClosestChannel(
+//                Channels::getCenterFreq(
+//                  Channels::getFrequency(bestChannel))));
+//            
+//            EepromSettings.lastKnownMenuItem = 0;
+//            EepromSettings.markDirty();
+//
+//            switch(EepromSettings.selectedHomePage) {
+//                case 0:
+//                  StateMachine::switchState(StateMachine::State::HOME);
+//                break;
+//                case 1:
+////                  StateMachine::switchState(StateMachine::State::HOME_SIMPLE);
+//                  StateMachine::switchState(StateMachine::State::HOME);
+//                break;
+//                case 2:
+////                  StateMachine::switchState(StateMachine::State::HOME_STATS);
+//                  StateMachine::switchState(StateMachine::State::HOME);
+//                break;
+//            }  
+//            
+//        break;
+//    }
+//
+//    Ui::needUpdate();
+//}
 
 
 void StateMachine::SettingsRssiStateHandler::onInitialDraw() {

@@ -35,31 +35,18 @@
 #include "settings.h"
 #include "settings_internal.h"
 #include "settings_eeprom.h"
-#include "pstr_helper.h"
 
 #include "channels.h"
 #include "receiver.h"
 #include "receiver_spi.h"
-#include "buttons.h"
 #include "state.h"
-#include "state_menu.h"
 #include "ui.h"
-#include "bitmaps.h"
-#include "osd_switching.h"
 #include "voltage.h"
 #include "temperature.h"
 #include "touchpad.h"
 
-//static void globalMenuButtonHandler(
-//  Button button,
-//  Buttons::PressType pressType
-//);
-
 void setup()
 {
-
-//  Serial.begin(9600);
-//  Serial.println("begin");
   
   EepromSettings.load();
 
@@ -68,42 +55,6 @@ void setup()
   StateMachine::setup();
   Ui::setup(); 
   TouchPad::setup(); 
-
-//  if (!EepromSettings.useFastBoot) {
-//    
-//    Ui::clear();      
-//  
-//  // Boot Logo avaibale as an option
-//  //  Ui::drawBitmap(
-//  //      0,
-//  //      0,
-//  //      bootlogo,
-//  //      SCREEN_WIDTH,
-//  //      SCREEN_HEIGHT,
-//  //      WHITE
-//  //  );  
-//  
-//    Ui::setTextColor(WHITE);
-//    
-//    Ui::setTextSize(1);
-//    Ui::setCursor(0, 0);       
-//    Ui::display.print(PSTR2("Booting...")); 
-//    
-//    Ui::setTextSize(4);
-//    Ui::setCursor(4, 18);       
-//    Ui::display.print(PSTR2("FENIX")); 
-//  
-//    Ui::fillRect(3, 51, 118, 9, WHITE);
-//    Ui::setTextColor(BLACK);
-//    Ui::setTextSize(1);
-//    Ui::setCursor(5, 52);       
-//    Ui::display.print(PSTR2("QUADVERSITY    v0.2"));   
-//    
-//    Ui::needDisplay();
-//    Ui::update();  
-//  }
-
-//  Buttons::registerChangeFunc(globalMenuButtonHandler);
 
   // Flash lights as startup sequency
   for (int x=0; x<20; x++) {
@@ -116,58 +67,24 @@ void setup()
     #endif
     Ui::beep(x*500);
   }
-  
-//  if (!EepromSettings.useFastBoot) {
-//    while (millis() < 2000) { // Delay to show boot screen
-//      delay(5);
-//    }
-//  }
 
   // Has to be last setup() otherwise channel may not be set.
   // RX possibly not botting quick enough if setup() is called earler.
   Receiver::setup(); 
 
-//  Serial.println("Setting state");
-  
-//  StateMachine::switchState(StateMachine::State::HOME_SIMPLE); 
-  StateMachine::switchState(StateMachine::State::HOME);  
-//  StateMachine::switchState(StateMachine::State::SEARCH); 
-  
-////   Switch to initial state. HOME_SIMPLE 
-//  StateMachine::switchState(EepromSettings.lastKnownState);  
-//  if (!EepromSettings.isCalibrated) {
-//      StateMachine::switchState(StateMachine::State::SETTINGS_RSSI);
-//  }
+  if (!EepromSettings.isCalibrated) {
+      StateMachine::switchState(StateMachine::State::SETTINGS_RSSI); 
+  } else {
+      StateMachine::switchState(StateMachine::State::HOME); 
+  }   
 
-//  Serial.println("FENIX_QUADVERSITY");
-  // Setup complete.
   #ifdef FENIX_QUADVERSITY
     digitalWrite(PIN_LED, HIGH);  // ON
   #endif
 
-//  Serial.println("switchOSDOutputState");
-////////////////// remove after testing   
-//  Ui::switchOSDOutputState();
-
 }
 
 void setupPins() {
-
-//  #ifdef FENIX_QUADVERSITY
-//    // Use to allow use of PB3 as a button
-//    afio_cfg_debug_ports(AFIO_DEBUG_SW_ONLY); // http://www.stm32duino.com/viewtopic.php?t=1130#p13918
-//  #endif
-//  
-//    pinMode(PIN_BUTTON_UP_PRESSED, INPUT_PULLUP);
-//    pinMode(PIN_BUTTON_MODE_PRESSED, INPUT_PULLUP);
-//    pinMode(PIN_BUTTON_DOWN_PRESSED, INPUT_PULLUP);
-//    pinMode(PIN_BUTTON_FATSHARK_EB0, INPUT_PULLUP);
-//    pinMode(PIN_BUTTON_FATSHARK_EB1, INPUT_PULLUP);
-//  #ifdef FENIX_QUADVERSITY
-//    pinMode(PIN_BUTTON_RIGHT_PRESSED, INPUT_PULLUP);
-//    pinMode(PIN_BUTTON_LEFT_PRESSED, INPUT_PULLUP);
-//    pinMode(PIN_BUTTON_FATSHARK_EB2, INPUT_PULLUP); 
-//  #endif
   
   #ifdef FENIX_QUADVERSITY
     pinMode(PIN_OSDCONTROL, OUTPUT);
@@ -224,7 +141,7 @@ void loop() {
     Receiver::update();
     
     #ifdef FENIX_QUADVERSITY  
-//        Voltage::update();
+        Voltage::update();
     #endif
   
     if (Ui::UiRefreshTimer.hasTicked()) {
@@ -251,34 +168,3 @@ void loop() {
   
     TouchPad::clearTouchData(); 
 }
-
-
-//static void globalMenuButtonHandler(
-//  Button button,
-//  Buttons::PressType pressType
-//) {
-//  
-//  if (
-//    ( button == Button::MODE_PRESSED || button == Button::UP_PRESSED ||button == Button::DOWN_PRESSED || button == Button::RIGHT_PRESSED || button == Button::LEFT_PRESSED
-//      || button == Button::FATSHARK_EB0 || button == Button::FATSHARK_EB1 || button == Button::FATSHARK_EB2)
-//    && 
-//    (pressType == Buttons::PressType::SHORT || pressType == Buttons::PressType::LONG || pressType == Buttons::PressType::HOLDING) 
-//    &&
-//    EepromSettings.buttonBeep
-//  ) {
-//     Ui::beep();
-//  }
-//  
-//  if (
-//    StateMachine::currentState != StateMachine::State::MENU &&
-//    button == Button::MODE_PRESSED &&
-//    pressType == Buttons::PressType::HOLDING
-//  ) {
-//    StateMachine::switchState(StateMachine::State::MENU);
-//  }
-//  
-//  if ( button == Button::DOWN_PRESSED && pressType == Buttons::PressType::LONG ) {
-//    switchOSDOutputState();
-//  }
-//  
-//}

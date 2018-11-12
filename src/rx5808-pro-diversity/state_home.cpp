@@ -1,5 +1,4 @@
 #include <Arduino.h>
-//#include <avr/pgmspace.h>
 
 #include "settings_eeprom.h"
 
@@ -7,7 +6,6 @@
 
 #include "receiver.h"
 #include "channels.h"
-#include "buttons.h"
 #include "state.h"
 #include "ui.h"
 #include "pstr_helper.h"
@@ -15,26 +13,11 @@
 #include "voltage.h"
 #include "touchpad.h"
 
-//#define COLUMN_WIDTH 7
-//
-//#define CHANNEL_TEXT_SIZE 4
-//#define CHANNEL_TEXT_X 3
-//#define CHANNEL_TEXT_Y 4
-//#define CHANNEL_TEXT_H (CHAR_HEIGHT * CHANNEL_TEXT_SIZE)
-//
-//#define FREQUENCY_TEXT_SIZE 2
-//#define FREQUENCY_TEXT_X 2
-//#define FREQUENCY_TEXT_Y (SCREEN_HEIGHT - (CHAR_HEIGHT * 3)-4)
-//#define FREQUENCY_TEXT_H (CHAR_HEIGHT * FREQUENCY_TEXT_SIZE)
-
 using StateMachine::HomeStateHandler;
 
 void HomeStateHandler::onEnter() {
-
     displayActiveChannel = Receiver::activeChannel;
-    
     Ui::clear();
-    
 }
 
 void HomeStateHandler::onUpdate() {
@@ -76,22 +59,27 @@ void HomeStateHandler::onUpdateDraw() {
         Ui::display.print(PSTR2("Quadversity"));
     }    
 
-    // Voltage
-    Ui::setCursor( 280, 4);
-    Ui::display.print(PSTR2("7"));   
-//    Ui::display.print(Voltage::voltage);        
-    Ui::display.print(PSTR2("."));        
-    Ui::display.print(PSTR2("6"));
-//    Ui::display.print(Voltage::voltageDec);
-    Ui::display.print(PSTR2("V"));
+
+    #ifdef FENIX_QUADVERSITY
+        // Voltage
+        Ui::setCursor( 280, 4);
+    //    Ui::display.print(PSTR2("7"));   
+        Ui::display.print(Voltage::voltage);        
+        Ui::display.print(PSTR2("."));        
+    //    Ui::display.print(PSTR2("6"));
+        Ui::display.print(Voltage::voltageDec);
+        Ui::display.print(PSTR2("V"));
+        
+        Ui::display.print(PSTR2(" / ")); 
+    #endif
 
     // Temperature
-    Ui::display.print(PSTR2(" / ")); 
     Ui::display.printFloat(Temperature::temperature, 0);
     Ui::display.print(PSTR2("C")); 
+    
+    Ui::display.print(PSTR2(" / ")); 
 
     // On Time
-    Ui::display.print(PSTR2(" / ")); 
     uint8_t hours = millis() / 1000 / 60 / 60;
     uint8_t mins  = millis() / 1000 / 60 - hours * 60 * 60;
     uint8_t secs  = millis() / 1000 - hours * 60 * 60 - mins * 60;
@@ -236,135 +224,10 @@ void HomeStateHandler::onUpdateDraw() {
     Ui::display.print(Channels::getFrequency(Channels::getOrderedIndex(0)));
     Ui::setCursor( 410, 204);
     Ui::display.print(Channels::getFrequency(Channels::getOrderedIndex(CHANNELS_SIZE-1)));
-
-    
-
-    // Clear Centered frequency
-//    if (!centred) {
-//      Ui::clearRect(
-//        0, 
-//        FREQUENCY_TEXT_Y + CHAR_HEIGHT * 2,
-//        SCREEN_WIDTH - 4*(COLUMN_WIDTH+2),
-//        CHAR_HEIGHT * 2);
-//    }
-
-//     Voltage 
-//    #ifdef FENIX_QUADVERSITY
-//        Ui::clearRect(
-//          SCREEN_WIDTH - 15,
-//          0,
-//          15,
-//          SCREEN_HEIGHT - 1
-//        );
-//    
-//        Ui::clearRect(45, 56, 36, 7);
-//        Ui::setTextSize(1);
-//        Ui::setTextColor(WHITE);
-//        Ui::setCursor(45, 56);
-//        Ui::display.print(Voltage::voltage);        
-//        Ui::display.print(PSTR2("."));        
-//        Ui::display.print(Voltage::voltageDec);
-//        Ui::display.print(PSTR2("V"));
-
-//        // Trying to determine if batter is 2, 3, or 4 cell.
-//        Ui::setTextSize(1);
-//        Ui::setTextColor(WHITE);
-//        Ui::setCursor(115, 54);
-//
-//        uint8_t maxVoltage;
-//        if (EepromSettings.vbatWarning < 80) {
-//          maxVoltage = 2*42;
-//          Ui::display.print(PSTR2("2S"));
-//        } else if (EepromSettings.vbatWarning < 120) {
-//          maxVoltage = 3*42;
-//          Ui::display.print(PSTR2("3S"));
-//        } else {
-//          maxVoltage = 4*42;
-//          Ui::display.print(PSTR2("4S"));
-//        }
-//        
-//        Ui::drawRoundRect(SCREEN_WIDTH - 13 + 2, 0, 6, 4, 2, WHITE);
-//        Ui::drawRoundRect(SCREEN_WIDTH - 15, 3, 14, SCREEN_HEIGHT-17, 2, WHITE);
-//        
-//        uint8_t batteryHeight = constrain(
-//          map(
-//            Voltage::voltage * 10 + Voltage::voltageDec,
-//            EepromSettings.vbatWarning,
-//            maxVoltage,
-//            1,
-//            SCREEN_HEIGHT-21
-//            ),
-//            1,
-//            SCREEN_HEIGHT-21
-//            );
-//        Ui::fillRect(SCREEN_WIDTH - 15 + 2, SCREEN_HEIGHT-16-batteryHeight, 10, batteryHeight, WHITE);
-//    #endif
-
-//    uint8_t rssiAHeight = 0;
-//    uint8_t rssiBHeight = 0;
-//    uint8_t rssiCHeight = 0;
-//    uint8_t rssiDHeight = 0;
-//    
-//    // RSSI bars
-//    rssiAHeight = constrain(map(Receiver::rssiA, 0, 100, 1, (SCREEN_HEIGHT-14)), 1, (SCREEN_HEIGHT-14));
-//    rssiBHeight = constrain(map(Receiver::rssiB, 0, 100, 1, (SCREEN_HEIGHT-14)), 1, (SCREEN_HEIGHT-14));
-//    if (EepromSettings.quadversity) {
-//      rssiCHeight = constrain(map(Receiver::rssiC, 0, 100, 1, (SCREEN_HEIGHT-14)), 1, (SCREEN_HEIGHT-14));
-//      rssiDHeight = constrain(map(Receiver::rssiD, 0, 100, 1, (SCREEN_HEIGHT-14)), 1, (SCREEN_HEIGHT-14));
-//    }
-//
-//    int8_t xOffset = -16;
-//
-//    Ui::clearRect(
-//        xOffset + SCREEN_WIDTH - 4*(COLUMN_WIDTH+2) - 1,
-//        0,
-//        4*(COLUMN_WIDTH+2),
-//        SCREEN_HEIGHT - 1
-//    );
-//    
-//    Ui::fillRect(xOffset + SCREEN_WIDTH - 4*(COLUMN_WIDTH+2), (SCREEN_HEIGHT-14) - rssiAHeight, COLUMN_WIDTH, rssiAHeight, WHITE);
-//    Ui::fillRect(xOffset + SCREEN_WIDTH - 3*(COLUMN_WIDTH+2), (SCREEN_HEIGHT-14) - rssiBHeight, COLUMN_WIDTH, rssiBHeight, WHITE);
-//    if (EepromSettings.quadversity) {
-//      Ui::fillRect(xOffset + SCREEN_WIDTH - 2*(COLUMN_WIDTH+2), (SCREEN_HEIGHT-14) - rssiCHeight, COLUMN_WIDTH, rssiCHeight, WHITE);
-//      Ui::fillRect(xOffset + SCREEN_WIDTH - 1*(COLUMN_WIDTH+2), (SCREEN_HEIGHT-14) - rssiDHeight, COLUMN_WIDTH, rssiDHeight, WHITE);
-//    }
-//    
-//    Ui::setTextSize(1);
-//    Ui::setTextColor(WHITE);
-//    
-//    Ui::setCursor(xOffset + SCREEN_WIDTH - 4*(COLUMN_WIDTH+2)+1, 54);
-//    Ui::display.print(PSTR2("A"));
-//    Ui::setCursor(xOffset + SCREEN_WIDTH - 3*(COLUMN_WIDTH+2)+1, 54);
-//    Ui::display.print(PSTR2("B"));
-//    if (EepromSettings.quadversity) {
-//      Ui::setCursor(xOffset + SCREEN_WIDTH - 2*(COLUMN_WIDTH+2)+1, 54);
-//      Ui::display.print(PSTR2("C"));
-//      Ui::setCursor(xOffset + SCREEN_WIDTH - 1*(COLUMN_WIDTH+2)+1, 54);
-//      Ui::display.print(PSTR2("D"));
-//    }
-//
-//    if (Receiver::activeReceiver == Receiver::ReceiverId::A) {
-//        Ui::drawRoundRect(xOffset + SCREEN_WIDTH - 4*(COLUMN_WIDTH+2)-1, 52, 9, 11, 2, WHITE);
-//    }
-//    if (Receiver::activeReceiver == Receiver::ReceiverId::B) {
-//        Ui::drawRoundRect(xOffset + SCREEN_WIDTH - 3*(COLUMN_WIDTH+2)-1, 52, 9, 11, 2, WHITE);
-//    }
-//    if (EepromSettings.quadversity) {
-//      if (Receiver::activeReceiver == Receiver::ReceiverId::C) {
-//          Ui::drawRoundRect(xOffset + SCREEN_WIDTH - 2*(COLUMN_WIDTH+2)-1, 52, 9, 11, 2, WHITE);
-//      }
-//      if (Receiver::activeReceiver == Receiver::ReceiverId::D) {
-//          Ui::drawRoundRect(xOffset + SCREEN_WIDTH - 1*(COLUMN_WIDTH+2)-1, 52, 9, 11, 2, WHITE);
-//      }
-//    }
       
     Ui::needDisplay();
 }
 
-//void HomeStateHandler::onButtonChange(
-//    Button button,
-//    Buttons::PressType pressType
-//) {
 void HomeStateHandler::doTapAction() {
             
   if (
@@ -403,17 +266,6 @@ void HomeStateHandler::doTapAction() {
           EepromSettings.startChannel = displayActiveChannel;
           EepromSettings.markDirty();
         }
-
-//  else if (
-//      pressType == Buttons::PressType::LONG &&
-//      button == Button::MODE_PRESSED
-//     ) {
-//        #ifdef FENIX_QUADVERSITY  
-//          // Future menu ???
-//        #else
-//          this->centreFrequency();
-//        #endif  
-//        }
 }
 
 void HomeStateHandler::setChannel(int channelIncrement) {
@@ -466,23 +318,6 @@ void HomeStateHandler::centreFrequency() {
   uint16_t activeChannelFreq = Channels::getFrequency(Receiver::activeChannel);
   uint16_t centerFreq = Channels::getCenterFreq(activeChannelFreq);
   Receiver::setChannelByFreq(centerFreq);
-
-//  Ui::clearRect(
-//  0, 
-//  FREQUENCY_TEXT_Y + CHAR_HEIGHT * 2,
-//  SCREEN_WIDTH - 4*(COLUMN_WIDTH+2),
-//  CHAR_HEIGHT * 2);
-        
-//  Ui::setCursor(9, 56);
-//  Ui::setTextSize(1);
-//  Ui::setTextColor(WHITE);
-//  Ui::display.print( centerFreq );
-//  Ui::drawBullseye(39, 59, 4, WHITE);
-  
-//  centred = true;
-
-  // Clear centering notification
-//  Ui::clearRect(26, 27, 76, 12);
   
   wasInBandScanRegion = false;
 }

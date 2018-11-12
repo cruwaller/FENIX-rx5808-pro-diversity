@@ -4,7 +4,6 @@
 #include "settings_eeprom.h"
 
 #include "state.h"
-#include "buttons.h"
 #include "ui.h"
 #include "voltage.h"
 
@@ -145,131 +144,131 @@ void StateMachine::SettingsInternalStateHandler::onUpdateDraw() {
 
 }
 
-void StateMachine::SettingsInternalStateHandler::onButtonChange(
-    Button button,
-    Buttons::PressType pressType
-)  {
-  
-  if (
-      pressType == Buttons::PressType::SHORT &&
-      button == Button::MODE_PRESSED
-     ) {
-          if (showChangeInternalMenuOptions) {
-              showChangeInternalMenuOptions = false;
-              if (factoryReset == 3) {
-                EepromSettings.initDefaults(); 
-              }
-              EepromSettings.save();    
-              delay(250); // wait for eeprom to finish writing
-              nvic_sys_reset();
-          } else {
-              showChangeInternalMenuOptions = true;        
-          }
-        }
-  else if (
-      pressType == Buttons::PressType::LONG &&
-      button == Button::MODE_PRESSED
-     ) {
-        }
-  else if (
-      pressType == Buttons::PressType::SHORT &&
-      button == Button::UP_PRESSED
-     ) {
-          if (!showChangeInternalMenuOptions) {
-              selectedInternalMenuItem--;
-              if (selectedInternalMenuItem < 0)
-                selectedInternalMenuItem += menuInternalItems;
-          }    
-          if (showChangeInternalMenuOptions) {   
-    
-            switch(selectedInternalMenuItem) {
-                
-                case (0):    // Factry Reset 
-                    factoryReset--;
-                    if (factoryReset > 5) {
-                      factoryReset = 5;
-                    }                         
-                break;
-           
-                case 1:    // spectatorFreqScanStep
-                    EepromSettings.spectatorFreqScanStep--;
-                break;
-                
-                case 2:    // spectatorFWHM
-                    EepromSettings.spectatorFWHM--;
-                break;
-                
-                case 3:    // rssiSeekTreshold
-                    EepromSettings.rssiSeekTreshold--;
-                break;
-                
-                case 4:    // rssiMinTuneTime
-                    EepromSettings.rssiMinTuneTime--;
-                break;
-                
-                case 5:    // rssiHysteresis
-                    EepromSettings.rssiHysteresis--;
-                break;
-                
-                case 6:    // rssiHysteresisPeriod
-                    EepromSettings.rssiHysteresisPeriod--;
-                break;
-
-                case (7):    // 
-                break;
-                
-            }  
-          }
-        }
-  else if (
-      pressType == Buttons::PressType::SHORT &&
-      button == Button::DOWN_PRESSED
-     ) {
-          if (!showChangeInternalMenuOptions) {
-              selectedInternalMenuItem++;
-              if (selectedInternalMenuItem > menuInternalItems-1)
-                selectedInternalMenuItem -= menuInternalItems;
-          } 
-          if (showChangeInternalMenuOptions) {   
-    
-            switch(selectedInternalMenuItem) {
-                
-                case (0):    // Factry Reset 
-                    factoryReset++;
-                    if (factoryReset > 5) {
-                      factoryReset = 0;
-                    }     
-                break;
-           
-                case 1:    // spectatorFreqScanStep
-                    EepromSettings.spectatorFreqScanStep++;
-                break;
-                
-                case 2:    // spectatorFWHM
-                    EepromSettings.spectatorFWHM++;
-                break;
-                
-                case 3:    // rssiSeekTreshold
-                    EepromSettings.rssiSeekTreshold++;
-                break;
-                
-                case 4:    // rssiMinTuneTime
-                    EepromSettings.rssiMinTuneTime++;
-                break;
-                
-                case 5:    // rssiHysteresis
-                    EepromSettings.rssiHysteresis++;
-                break;
-                
-                case 6:    // rssiHysteresisPeriod
-                    EepromSettings.rssiHysteresisPeriod++;
-                break;
-
-                case (7):    // 
-                break;
-                
-            }
-          }
-        }
-
-}
+//void StateMachine::SettingsInternalStateHandler::onButtonChange(
+//    Button button,
+//    Buttons::PressType pressType
+//)  {
+//  
+//  if (
+//      pressType == Buttons::PressType::SHORT &&
+//      button == Button::MODE_PRESSED
+//     ) {
+//          if (showChangeInternalMenuOptions) {
+//              showChangeInternalMenuOptions = false;
+//              if (factoryReset == 3) {
+//                EepromSettings.initDefaults(); 
+//              }
+//              EepromSettings.save();    
+//              delay(250); // wait for eeprom to finish writing
+//              nvic_sys_reset();
+//          } else {
+//              showChangeInternalMenuOptions = true;        
+//          }
+//        }
+//  else if (
+//      pressType == Buttons::PressType::LONG &&
+//      button == Button::MODE_PRESSED
+//     ) {
+//        }
+//  else if (
+//      pressType == Buttons::PressType::SHORT &&
+//      button == Button::UP_PRESSED
+//     ) {
+//          if (!showChangeInternalMenuOptions) {
+//              selectedInternalMenuItem--;
+//              if (selectedInternalMenuItem < 0)
+//                selectedInternalMenuItem += menuInternalItems;
+//          }    
+//          if (showChangeInternalMenuOptions) {   
+//    
+//            switch(selectedInternalMenuItem) {
+//                
+//                case (0):    // Factry Reset 
+//                    factoryReset--;
+//                    if (factoryReset > 5) {
+//                      factoryReset = 5;
+//                    }                         
+//                break;
+//           
+//                case 1:    // spectatorFreqScanStep
+//                    EepromSettings.spectatorFreqScanStep--;
+//                break;
+//                
+//                case 2:    // spectatorFWHM
+//                    EepromSettings.spectatorFWHM--;
+//                break;
+//                
+//                case 3:    // rssiSeekTreshold
+//                    EepromSettings.rssiSeekTreshold--;
+//                break;
+//                
+//                case 4:    // rssiMinTuneTime
+//                    EepromSettings.rssiMinTuneTime--;
+//                break;
+//                
+//                case 5:    // rssiHysteresis
+//                    EepromSettings.rssiHysteresis--;
+//                break;
+//                
+//                case 6:    // rssiHysteresisPeriod
+//                    EepromSettings.rssiHysteresisPeriod--;
+//                break;
+//
+//                case (7):    // 
+//                break;
+//                
+//            }  
+//          }
+//        }
+//  else if (
+//      pressType == Buttons::PressType::SHORT &&
+//      button == Button::DOWN_PRESSED
+//     ) {
+//          if (!showChangeInternalMenuOptions) {
+//              selectedInternalMenuItem++;
+//              if (selectedInternalMenuItem > menuInternalItems-1)
+//                selectedInternalMenuItem -= menuInternalItems;
+//          } 
+//          if (showChangeInternalMenuOptions) {   
+//    
+//            switch(selectedInternalMenuItem) {
+//                
+//                case (0):    // Factry Reset 
+//                    factoryReset++;
+//                    if (factoryReset > 5) {
+//                      factoryReset = 0;
+//                    }     
+//                break;
+//           
+//                case 1:    // spectatorFreqScanStep
+//                    EepromSettings.spectatorFreqScanStep++;
+//                break;
+//                
+//                case 2:    // spectatorFWHM
+//                    EepromSettings.spectatorFWHM++;
+//                break;
+//                
+//                case 3:    // rssiSeekTreshold
+//                    EepromSettings.rssiSeekTreshold++;
+//                break;
+//                
+//                case 4:    // rssiMinTuneTime
+//                    EepromSettings.rssiMinTuneTime++;
+//                break;
+//                
+//                case 5:    // rssiHysteresis
+//                    EepromSettings.rssiHysteresis++;
+//                break;
+//                
+//                case 6:    // rssiHysteresisPeriod
+//                    EepromSettings.rssiHysteresisPeriod++;
+//                break;
+//
+//                case (7):    // 
+//                break;
+//                
+//            }
+//          }
+//        }
+//
+//}

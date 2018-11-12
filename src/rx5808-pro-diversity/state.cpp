@@ -3,23 +3,11 @@
 #include "state.h"
 
 #include "state_home.h"
-#include "state_home_simple.h"
-#include "state_home_stats.h"
-#include "state_screensaver.h"
-#include "state_search.h"
-#include "state_bandscan.h"
-#include "state_menu.h"
 #include "state_settings.h"
 #include "state_settings_internal.h"
 #include "state_settings_rssi.h"
-#include "state_spectator.h"
-#include "state_favourites.h"
-#include "state_finder.h"
-#include "state_custom_logo.h"
-#include "state_laptimer.h"
 
 #include "ui.h"
-#include "buttons.h"
 #include "settings_eeprom.h"
 #include "timer.h"
 
@@ -30,24 +18,6 @@ void *operator new(size_t size, void *ptr){
 
 #define MAX(a, b) (a > b ? a : b)
 
-//#define STATE_BUFFER_SIZE \
-//    MAX(sizeof(HomeStateHandler), \
-//    MAX(sizeof(HomeSimpleStateHandler), \
-//    MAX(sizeof(HomeStatsStateHandler), \
-//    MAX(sizeof(ScreensaverStateHandler), \
-//    MAX(sizeof(SearchStateHandler), \
-//    MAX(sizeof(BandScanStateHandler), \
-//    MAX(sizeof(MenuStateHandler), \
-//    MAX(sizeof(SettingsStateHandler), \
-//    MAX(sizeof(SettingsInternalStateHandler), \
-//    MAX(sizeof(SettingsRssiStateHandler), \
-//    MAX(sizeof(SpectatorStateHandler), \
-//    MAX(sizeof(FavouritesStateHandler), \
-//    MAX(sizeof(FinderStateHandler), \
-//    MAX(sizeof(LaptimerStateHandler), \
-//        sizeof(CustomLogoStateHandler) \        
-//    ))))))))))))))
-//;
 #define STATE_BUFFER_SIZE \
     MAX(sizeof(HomeStateHandler), \
     MAX(sizeof(SettingsStateHandler), \
@@ -57,7 +27,7 @@ void *operator new(size_t size, void *ptr){
 ;
 
 namespace StateMachine {
-    static void onButtonChange(Button button, Buttons::PressType pressType);
+//    static void onButtonChange(Button button, Buttons::PressType pressType);
     static StateHandler *getStateHandler(State stateType);
 
 
@@ -68,7 +38,7 @@ namespace StateMachine {
 
 
     void setup() {
-        Buttons::registerChangeFunc(onButtonChange);
+//        Buttons::registerChangeFunc(onButtonChange);
     }
 
     void update() {
@@ -108,11 +78,6 @@ namespace StateMachine {
             currentHandler->onEnter();
             currentHandler->onInitialDraw();
         }
-
-//        if (newState != State::SCREENSAVER) {
-//            EepromSettings.lastKnownState = newState;
-//            EepromSettings.markDirty();          
-//        }
     
     }
 
@@ -135,9 +100,9 @@ namespace StateMachine {
         #undef STATE_FACTORY
     }
 
-    static void onButtonChange(Button button, Buttons::PressType pressType) {
-        if (currentHandler != nullptr) {
-            currentHandler->onButtonChange(button, pressType);
-        }
-    }
+//    static void onButtonChange(Button button, Buttons::PressType pressType) {
+//        if (currentHandler != nullptr) {
+//            currentHandler->onButtonChange(button, pressType);
+//        }
+//    }
 }

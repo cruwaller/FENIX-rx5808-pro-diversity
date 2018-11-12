@@ -105,7 +105,7 @@ PROGMEM const struct {
     uint8_t quadversity = false;
     uint8_t saveScreenOn = 1;
     uint8_t useOledScreen = false;
-    uint8_t useFastBoot = false;
+    uint8_t useFastBoot = true;
     uint8_t selectedHomePage = 0;
     uint8_t buttonBeep = true;
     uint8_t invertDisplay = false;

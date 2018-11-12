@@ -4,7 +4,6 @@
 #include "settings_eeprom.h"
 
 #include "state.h"
-#include "buttons.h"
 #include "ui.h"
 #include "voltage.h"
 
@@ -229,184 +228,184 @@ void StateMachine::SettingsStateHandler::onUpdateDraw() {
 
 }
 
-void StateMachine::SettingsStateHandler::onButtonChange(
-    Button button,
-    Buttons::PressType pressType
-)  {
-  
-  if (
-      pressType == Buttons::PressType::SHORT &&
-      button == Button::MODE_PRESSED
-     ) {
-          if (showChangeMenuOptions) {
-              showChangeMenuOptions = false;
-              EepromSettings.markDirty();    
-          } else {
-              showChangeMenuOptions = true;        
-          }
-        }
-  else if (
-      pressType == Buttons::PressType::LONG &&
-      button == Button::MODE_PRESSED
-     ) {
-        }
-  else if (
-      pressType == Buttons::PressType::SHORT &&
-      button == Button::UP_PRESSED
-     ) {
-          if (!showChangeMenuOptions) {
-              selectedMenuItem--;
-              if (selectedMenuItem < 0)
-                selectedMenuItem += menuItems;
-          }    
-          if (showChangeMenuOptions) {   
-    
-            switch(selectedMenuItem) {
-                
-                case (0):    // Diversity
-                  #ifdef FENIX_QUADVERSITY
-                    EepromSettings.quadversity = !EepromSettings.quadversity;
-                    EepromSettings.isCalibrated = !EepromSettings.isCalibrated;
-                  #endif                    
-                break;
-                
-                case (1):    // Home Page
-                    EepromSettings.selectedHomePage--;
-                    if (EepromSettings.selectedHomePage == 255) {
-                      EepromSettings.selectedHomePage = 2;
-                    }                      
-                break;
-                
-                case (2):    // Voltage Scale
-                  EepromSettings.vbatScale++;                 
-                break;
-                
-                case (3):    // Volt Warning
-                  EepromSettings.vbatWarning--;                 
-                break;
-                
-                case (4):    // Save Screen
-                  EepromSettings.saveScreenOn--; 
-                  if (EepromSettings.saveScreenOn == 255) {
-                    #ifdef FENIX_QUADVERSITY
-                        EepromSettings.saveScreenOn = 5;
-                    #else
-                        EepromSettings.saveScreenOn = 4;
-                    #endif
-                  }                        
-                break;
-                
-                case (5):    // Use OLED Screen
-                  EepromSettings.useOledScreen = !EepromSettings.useOledScreen;                
-                break;
-                
-                case (6):    // Use Fast Boot
-                  EepromSettings.useFastBoot = !EepromSettings.useFastBoot;               
-                break;
-
-                case (7):    // About
-                break;
-
-                case (8):    // Adv Settings
-                break;
-                
-                case (9):    // Use Fast Boot
-                  EepromSettings.buttonBeep = !EepromSettings.buttonBeep;               
-                break;
-                
-                case (10):    // CUSTOMLOGO
-                  EepromSettings.buttonBeep = !EepromSettings.buttonBeep;               
-                break;
-                
-                case (11):    // Invert Display
-                  EepromSettings.invertDisplay = !EepromSettings.invertDisplay;               
-                break;
-                
-                case (12):    // Rotate OLED
-                  EepromSettings.rotateOled = !EepromSettings.rotateOled;               
-                break;
-                
-            }  
-          }
-        }
-  else if (
-      pressType == Buttons::PressType::SHORT &&
-      button == Button::DOWN_PRESSED
-     ) {
-          if (!showChangeMenuOptions) {
-              selectedMenuItem++;
-              if (selectedMenuItem > menuItems-1)
-                selectedMenuItem -= menuItems;
-          } 
-          if (showChangeMenuOptions) {   
-    
-            switch(selectedMenuItem) {
-                
-                case (0):    // Diversity
-                    #ifdef FENIX_QUADVERSITY
-                      EepromSettings.quadversity = !EepromSettings.quadversity;
-                      EepromSettings.isCalibrated = !EepromSettings.isCalibrated;
-                    #endif
-                break;
-                
-                case (1):    // Home Page
-                    EepromSettings.selectedHomePage++;
-                    if (EepromSettings.selectedHomePage == 3) {
-                      EepromSettings.selectedHomePage = 0;
-                    }      
-                break;
-                
-                case (2):    // Voltage Scale
-                    EepromSettings.vbatScale--;
-                break;
-                
-                case (3):    // Volt Warning
-                    EepromSettings.vbatWarning++;
-                break;
-                
-                case (4):    // Save Screen
-                    EepromSettings.saveScreenOn++;
-                    #ifdef FENIX_QUADVERSITY
-                        if (EepromSettings.saveScreenOn == 6) {
-                    #else
-                        if (EepromSettings.saveScreenOn == 5) {
-                    #endif
-                      EepromSettings.saveScreenOn = 0;
-                    }                
-                break;
-                
-                case (5):    // Use OLED Screen
-                    EepromSettings.useOledScreen = !EepromSettings.useOledScreen; 
-                break;
-                
-                case (6):    // Use Fast Boot
-                    EepromSettings.useFastBoot = !EepromSettings.useFastBoot; 
-                break;
-
-                case (7):    // About
-                break;
-
-                case (8):    // Adv Settings
-                break;
-                
-                case (9):    // Use Fast Boot
-                  EepromSettings.buttonBeep = !EepromSettings.buttonBeep;               
-                break;
-                
-                case (10):    // CUSTOMLOGO
-                  EepromSettings.buttonBeep = !EepromSettings.buttonBeep;               
-                break;
-                
-                case (11):    // Invert Display
-                  EepromSettings.invertDisplay = !EepromSettings.invertDisplay;               
-                break;
-                
-                case (12):    // Rotate OLED
-                  EepromSettings.rotateOled = !EepromSettings.rotateOled;               
-                break;
-                
-            }
-          }
-        }
-
-}
+//void StateMachine::SettingsStateHandler::onButtonChange(
+//    Button button,
+//    Buttons::PressType pressType
+//)  {
+//  
+//  if (
+//      pressType == Buttons::PressType::SHORT &&
+//      button == Button::MODE_PRESSED
+//     ) {
+//          if (showChangeMenuOptions) {
+//              showChangeMenuOptions = false;
+//              EepromSettings.markDirty();    
+//          } else {
+//              showChangeMenuOptions = true;        
+//          }
+//        }
+//  else if (
+//      pressType == Buttons::PressType::LONG &&
+//      button == Button::MODE_PRESSED
+//     ) {
+//        }
+//  else if (
+//      pressType == Buttons::PressType::SHORT &&
+//      button == Button::UP_PRESSED
+//     ) {
+//          if (!showChangeMenuOptions) {
+//              selectedMenuItem--;
+//              if (selectedMenuItem < 0)
+//                selectedMenuItem += menuItems;
+//          }    
+//          if (showChangeMenuOptions) {   
+//    
+//            switch(selectedMenuItem) {
+//                
+//                case (0):    // Diversity
+//                  #ifdef FENIX_QUADVERSITY
+//                    EepromSettings.quadversity = !EepromSettings.quadversity;
+//                    EepromSettings.isCalibrated = !EepromSettings.isCalibrated;
+//                  #endif                    
+//                break;
+//                
+//                case (1):    // Home Page
+//                    EepromSettings.selectedHomePage--;
+//                    if (EepromSettings.selectedHomePage == 255) {
+//                      EepromSettings.selectedHomePage = 2;
+//                    }                      
+//                break;
+//                
+//                case (2):    // Voltage Scale
+//                  EepromSettings.vbatScale++;                 
+//                break;
+//                
+//                case (3):    // Volt Warning
+//                  EepromSettings.vbatWarning--;                 
+//                break;
+//                
+//                case (4):    // Save Screen
+//                  EepromSettings.saveScreenOn--; 
+//                  if (EepromSettings.saveScreenOn == 255) {
+//                    #ifdef FENIX_QUADVERSITY
+//                        EepromSettings.saveScreenOn = 5;
+//                    #else
+//                        EepromSettings.saveScreenOn = 4;
+//                    #endif
+//                  }                        
+//                break;
+//                
+//                case (5):    // Use OLED Screen
+//                  EepromSettings.useOledScreen = !EepromSettings.useOledScreen;                
+//                break;
+//                
+//                case (6):    // Use Fast Boot
+//                  EepromSettings.useFastBoot = !EepromSettings.useFastBoot;               
+//                break;
+//
+//                case (7):    // About
+//                break;
+//
+//                case (8):    // Adv Settings
+//                break;
+//                
+//                case (9):    // Use Fast Boot
+//                  EepromSettings.buttonBeep = !EepromSettings.buttonBeep;               
+//                break;
+//                
+//                case (10):    // CUSTOMLOGO
+//                  EepromSettings.buttonBeep = !EepromSettings.buttonBeep;               
+//                break;
+//                
+//                case (11):    // Invert Display
+//                  EepromSettings.invertDisplay = !EepromSettings.invertDisplay;               
+//                break;
+//                
+//                case (12):    // Rotate OLED
+//                  EepromSettings.rotateOled = !EepromSettings.rotateOled;               
+//                break;
+//                
+//            }  
+//          }
+//        }
+//  else if (
+//      pressType == Buttons::PressType::SHORT &&
+//      button == Button::DOWN_PRESSED
+//     ) {
+//          if (!showChangeMenuOptions) {
+//              selectedMenuItem++;
+//              if (selectedMenuItem > menuItems-1)
+//                selectedMenuItem -= menuItems;
+//          } 
+//          if (showChangeMenuOptions) {   
+//    
+//            switch(selectedMenuItem) {
+//                
+//                case (0):    // Diversity
+//                    #ifdef FENIX_QUADVERSITY
+//                      EepromSettings.quadversity = !EepromSettings.quadversity;
+//                      EepromSettings.isCalibrated = !EepromSettings.isCalibrated;
+//                    #endif
+//                break;
+//                
+//                case (1):    // Home Page
+//                    EepromSettings.selectedHomePage++;
+//                    if (EepromSettings.selectedHomePage == 3) {
+//                      EepromSettings.selectedHomePage = 0;
+//                    }      
+//                break;
+//                
+//                case (2):    // Voltage Scale
+//                    EepromSettings.vbatScale--;
+//                break;
+//                
+//                case (3):    // Volt Warning
+//                    EepromSettings.vbatWarning++;
+//                break;
+//                
+//                case (4):    // Save Screen
+//                    EepromSettings.saveScreenOn++;
+//                    #ifdef FENIX_QUADVERSITY
+//                        if (EepromSettings.saveScreenOn == 6) {
+//                    #else
+//                        if (EepromSettings.saveScreenOn == 5) {
+//                    #endif
+//                      EepromSettings.saveScreenOn = 0;
+//                    }                
+//                break;
+//                
+//                case (5):    // Use OLED Screen
+//                    EepromSettings.useOledScreen = !EepromSettings.useOledScreen; 
+//                break;
+//                
+//                case (6):    // Use Fast Boot
+//                    EepromSettings.useFastBoot = !EepromSettings.useFastBoot; 
+//                break;
+//
+//                case (7):    // About
+//                break;
+//
+//                case (8):    // Adv Settings
+//                break;
+//                
+//                case (9):    // Use Fast Boot
+//                  EepromSettings.buttonBeep = !EepromSettings.buttonBeep;               
+//                break;
+//                
+//                case (10):    // CUSTOMLOGO
+//                  EepromSettings.buttonBeep = !EepromSettings.buttonBeep;               
+//                break;
+//                
+//                case (11):    // Invert Display
+//                  EepromSettings.invertDisplay = !EepromSettings.invertDisplay;               
+//                break;
+//                
+//                case (12):    // Rotate OLED
+//                  EepromSettings.rotateOled = !EepromSettings.rotateOled;               
+//                break;
+//                
+//            }
+//          }
+//        }
+//
+//}

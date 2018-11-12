@@ -1,5 +1,4 @@
 #include <Arduino.h>
-//#include <avr/pgmspace.h>
 
 #include "settings.h"
 #include "settings_eeprom.h"

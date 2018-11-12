@@ -5,20 +5,13 @@
 #include "settings_eeprom.h"
 #include "settings_internal.h"
 #include "ui.h"
-#include "bitmaps.h"
 #include "receiver_spi.h"
 #include "receiver.h"
 #include "touchpad.h"
 
 #include "TTVout.h"
-//TTVout TV;
-
-//#define OLED_RESET -1
 
 namespace Ui {
-//    #ifdef OLED_128x64_ADAFRUIT_SCREENS
-//      Adafruit_SSD1306 display(OLED_RESET);      
-//    #endif 
     
     TTVout display;
 
@@ -33,31 +26,8 @@ namespace Ui {
     Timer UiTimeOut = Timer(3000);
 
     void setup() {
-//        #ifdef OLED_128x64_ADAFRUIT_SCREENS  
-        
-//          Wire.setClock(400000);
-
-//          #ifndef DISABLE_OLED
-//            display.begin(SSD1306_SWITCHCAPVCC, 0x3C); 
-//          #endif
-//          display.setTextColor(WHITE);
-//          display.setTextSize(1);
-//          display.setTextWrap(false);  
-//          display.clearDisplay(); 
-//          needDisplay();
-//          update(); 
-//        #endif
-        
-//        // tone will not work until begin is called.
-//        #if F_CPU == 120000000L
-//            TV.begin(SC_160x108); // 120 MHz
-//        #elif F_CPU == 72000000L
-//            display.begin(SC_448x108); // 72 MHz
-//            display.begin(SC_224x216); // 72 MHz
-            display.begin(SC_448x216); // 72 MHz
-//        #elif F_CPU == 48000000L
-//            TV.begin(SC_256x192); // 48 MHz
-//        #endif
+        // tone will not work until begin is called.
+        display.begin(SC_448x216); // 72 MHz
         display.end();    
     }
 
@@ -65,21 +35,7 @@ namespace Ui {
 
         ReceiverSpi::setPowerDownRegister(0b01010000110000010011);
         
-//        #ifndef DISABLE_OLED
-//          display.ssd1306_command(SSD1306_DISPLAYOFF);  
-//        #endif
-        
-//        #if F_CPU == 120000000L
-//            TV.begin(SC_160x108); // 120 MHz
-//        #elif F_CPU == 72000000L
-//            display.begin(SC_448x108); // 72 MHz
-//            display.begin(SC_224x216); // 72 MHz
-            display.begin(SC_448x216); // 72 MHz
-//        #elif F_CPU == 48000000L
-//            TV.begin(SC_256x192); // 48 MHz
-//        #endif
-
-        Ui::sdToTtvout(); 
+        display.begin(SC_448x216); // 72 MHz
         
         isTvOn = true;
     }
@@ -90,14 +46,7 @@ namespace Ui {
 
         Receiver::setChannel(Receiver::activeChannel);
         
-        display.end();    
-        
-//        if (EepromSettings.useOledScreen) {
-//          #ifndef DISABLE_OLED
-//            display.ssd1306_command(SSD1306_DISPLAYON);
-//            display.display();  
-//          #endif        
-//        }
+        display.end();   
          
         isTvOn = false;
     }
@@ -120,33 +69,6 @@ namespace Ui {
         #endif
         
       }   
-    }
-
-    // TODO replace with buffer from OLED
-    void sdToTtvout() {      
-//      for(int y=0; y<64; y++) {
-//        for(int x=0; x<128; x++) {            
-//          bool colour;
-//          if (EepromSettings.invertDisplay) {
-//              colour = !display.getPixel(x,y);
-//          } else {
-//              colour = display.getPixel(x,y);
-//          }
-//          
-//          #if F_CPU == 120000000L
-//              TV.draw_rect(16+x, 22+y, 1, 1, colour, colour);  // 120 MHz
-//          #elif F_CPU == 72000000L
-//              TV.draw_rect(32+x*3, 22+y, 3, 1, colour, colour); // 72 MHz
-//          #elif F_CPU == 48000000L
-//              TV.draw_rect(x*2, y*3, 2, 3, colour, colour); // 48 MHz
-//          #endif
-//              
-//        }
-//      }
-
-//        display.clear_screen();
-//        TV.draw_rect(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, 3, 3, 1, 1); // 72 MHz 
-
     }
 
     // This needs to be redone with a fill triangle... which needs to be added to the TTVout lib.
@@ -193,33 +115,6 @@ namespace Ui {
 
         drawCursor();
         
-//        if (shouldDisplay) {
-//              #ifdef OLED_128x64_ADAFRUIT_SCREENS
-//                      
-//                  if (isTvOn) {
-//                    Ui::sdToTtvout();
-//                  } else {        
-//                    if (EepromSettings.useOledScreen) { 
-//                      #ifndef DISABLE_OLED
-//                        if (EepromSettings.rotateOled){
-//                          display.setRotation(2);
-//                        } else {
-//                          display.setRotation(0);
-//                        }
-//                        display.display();          
-//                      #endif
-//                    } else {
-//                      #ifndef DISABLE_OLED
-//                        display.ssd1306_command(SSD1306_DISPLAYOFF);
-//                      #endif
-//                    }
-//                  }
-//                  
-//              #endif 
-//              #ifdef TVOUT_SCREENS
-//              #endif
-//            shouldDisplay = false;
-//        }
     }
 
     void drawGraph(
