@@ -76,7 +76,7 @@ const struct {
     
     uint8_t isCalibrated = false;
     
-    uint8_t startChannel = 0;
+    uint8_t startChannel = 27;
     int lastKnownMenuItem = 0;
     StateMachine::State lastKnownState = StateMachine::State::HOME;
 
