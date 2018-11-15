@@ -32,6 +32,8 @@
   SOFTWARE.
 */
 
+#include <SPI.h>
+
 #include "settings.h"
 #include "settings_internal.h"
 #include "settings_eeprom.h"
@@ -47,12 +49,16 @@
 
 void setup()
 {
-  
+
+    Serial.begin(9600);
+
+    SPI.begin();
+    
 //  EepromSettings.load();
 
-//  setupPins();
+    setupPins();
 //  Temperature::setup();
-  StateMachine::setup();
+    StateMachine::setup();
 //  Ui::setup(); 
 //  TouchPad::setup(); 
 
@@ -85,7 +91,14 @@ void setup()
 
 }
 
-//void setupPins() {
+void setupPins() {
+
+    pinMode(PIN_SPI_SLAVE_SELECT_RX_A, OUTPUT);
+    digitalWrite(PIN_SPI_SLAVE_SELECT_RX_A, HIGH);
+    
+    pinMode(PIN_SPI_SLAVE_SELECT_RX_B, OUTPUT);
+    digitalWrite(PIN_SPI_SLAVE_SELECT_RX_B, HIGH);
+  
 //  
 //  #ifdef FENIX_QUADVERSITY
 //    pinMode(PIN_OSDCONTROL, OUTPUT);
@@ -135,9 +148,13 @@ void setup()
 //  #ifdef FENIX_QUADVERSITY
 //    pinMode(PIN_VBAT, INPUT_ANALOG);
 //  #endif
-//}
+}
 
 void loop() {
+  
+//    REMOVE ME - Test code for SPI RX
+//    ReceiverSpi::setSynthRegisterB(Channels::getSynthRegisterBFreq(5800));
+//    delay(2000);
   
     Receiver::update();
     

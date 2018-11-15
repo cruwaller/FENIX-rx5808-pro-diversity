@@ -3,7 +3,7 @@
 
 
 #include <stdint.h>
-
+#include <SPI.h>
 
 namespace ReceiverSpi {
   void setSynthRegisterB(uint16_t value);
