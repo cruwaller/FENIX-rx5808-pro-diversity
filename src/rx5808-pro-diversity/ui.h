@@ -1,50 +1,50 @@
-//#ifndef UI_H
-//#define UI_H
-//
+#ifndef UI_H
+#define UI_H
+
 //#include <SPI.h>
 //#include <Wire.h>
-//
-//#include <stdint.h>
-//
+
+#include <stdint.h>
+
 //#include "TTVout.h"
 ////#include <fontALL.h>
 //#include <font8x8.h>
-//
-//#include "settings.h"
-//#include "settings_internal.h"
-//#include "timer.h"
-//
-////SC_448x216
-//#define SCREEN_WIDTH 448
-//#define SCREEN_HEIGHT 216
-//
-//#define SCREEN_WIDTH_MID ((SCREEN_WIDTH / 2) - 1)
-//#define SCREEN_HEIGHT_MID ((SCREEN_HEIGHT / 2) - 1)
-//
-//#define CHAR_WIDTH 5
-//#define CHAR_HEIGHT 7
-//
-//namespace Ui {
+
+#include "settings.h"
+#include "settings_internal.h"
+#include "timer.h"
+
+//SC_448x216
+#define SCREEN_WIDTH 448
+#define SCREEN_HEIGHT 216
+
+#define SCREEN_WIDTH_MID ((SCREEN_WIDTH / 2) - 1)
+#define SCREEN_HEIGHT_MID ((SCREEN_HEIGHT / 2) - 1)
+
+#define CHAR_WIDTH 5
+#define CHAR_HEIGHT 7
+
+namespace Ui {
 //    extern TTVout display;
-//    
+    
 //    extern bool shouldDrawUpdate;
 //    extern bool shouldDisplay;
 //    extern bool shouldFullRedraw;    
-//    
-//    extern bool isTvOn;
-//    void switchOSDOutputState();
-//    
-//    // Refresh rate is set to match touchpad rate.  Refresh every 50ms (20 FPS)
+    
+    extern bool isTvOn;
+    void switchOSDOutputState();
+    
+    // Refresh rate is set to match touchpad rate.  Refresh every 50ms (20 FPS)
 //    extern Timer UiRefreshTimer;
-//    // UI time for return to FPV
-//    extern Timer UiTimeOut;
-//
-//    void setup();
+    // UI time for return to FPV
+    extern Timer UiTimeOut;
+
+    void setup();
 //    void sdToTtvout();
-//    void update();
-//
-//    void tvOn();
-//    void tvOff();
+    void update();
+
+    void tvOn();
+    void tvOff();
 //    void beep();
 //    void beep(uint16_t freq);
 //
@@ -96,6 +96,6 @@
 //    void needUpdate();
 //    void needDisplay();
 //    void needFullRedraw();
-//}
-//
-//#endif
+}
+
+#endif

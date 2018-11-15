@@ -58,8 +58,8 @@ void setup()
 
     setupPins();
 //    Temperature::setup();
-//    StateMachine::setup();
-//    Ui::setup(); 
+    StateMachine::setup();
+    Ui::setup(); 
     TouchPad::setup(); 
 
 //  // Flash lights as startup sequency
@@ -82,7 +82,7 @@ void setup()
 //      StateMachine::switchState(StateMachine::State::SETTINGS_RSSI); 
 //      Ui::switchOSDOutputState();    
 //  } else {
-//      StateMachine::switchState(StateMachine::State::HOME); 
+      StateMachine::switchState(StateMachine::State::HOME); 
 //  }   
 //
 //  #ifdef FENIX_QUADVERSITY
@@ -98,6 +98,8 @@ void setupPins() {
     
     pinMode(PIN_SPI_SLAVE_SELECT_RX_B, OUTPUT);
     digitalWrite(PIN_SPI_SLAVE_SELECT_RX_B, HIGH);
+
+    pinMode(PIN_RX_SWICTH, OUTPUT);
     
     pinMode(PIN_TOUCHPAD_SLAVE_SELECT, OUTPUT);
     digitalWrite(PIN_TOUCHPAD_SLAVE_SELECT, HIGH);
@@ -157,7 +159,8 @@ void setupPins() {
 
 void loop() {
 
-//    Serial.println("loop");
+    Serial.print("Ui::isTvOn - ");
+    Serial.println(Ui::isTvOn);
 //    REMOVE ME - Test code for SPI RX
 //    ReceiverSpi::setSynthRegisterB(Channels::getSynthRegisterBFreq(5800));
 //    delay(2000);
@@ -171,24 +174,24 @@ void loop() {
 //    if (Ui::UiRefreshTimer.hasTicked()) {
 //        Ui::UiRefreshTimer.reset();
         TouchPad::update(); 
-//        
-//        if (Ui::isTvOn) {
+        
+        if (Ui::isTvOn) {
 //            Temperature::update();
 //            StateMachine::update();
-//            Ui::update();
+            Ui::update();
             EepromSettings.update();
-//        }
+        }
 //    }
     
-//    if (TouchPad::touchData.isActive) {
-//        Ui::UiTimeOut.reset();
-//    }
-//    if (Ui::isTvOn && Ui::UiTimeOut.hasTicked()) {
-//        Ui::switchOSDOutputState();    
-//    }
-//    if (!Ui::isTvOn && TouchPad::touchData.buttonPrimary) {
-//        Ui::switchOSDOutputState();
-//    }
+    if (TouchPad::touchData.isActive) {
+        Ui::UiTimeOut.reset();
+    }
+    if (Ui::isTvOn && Ui::UiTimeOut.hasTicked()) {
+        Ui::switchOSDOutputState();    
+    }
+    if (!Ui::isTvOn && TouchPad::touchData.buttonPrimary) {
+        Ui::switchOSDOutputState();
+    }
   
-//    TouchPad::clearTouchData(); 
+    TouchPad::clearTouchData(); 
 }

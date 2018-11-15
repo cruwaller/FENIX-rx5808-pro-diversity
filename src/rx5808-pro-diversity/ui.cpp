@@ -1,77 +1,77 @@
-//#include <stdint.h>
-//
-//#include "settings.h"
-//#include "settings_eeprom.h"
-//#include "settings_internal.h"
-//#include "ui.h"
-//#include "receiver_spi.h"
-//#include "receiver.h"
-//#include "touchpad.h"
-//
-//
-//namespace Ui {
-//    
+#include <stdint.h>
+
+#include "settings.h"
+#include "settings_eeprom.h"
+#include "settings_internal.h"
+#include "ui.h"
+#include "receiver_spi.h"
+#include "receiver.h"
+#include "touchpad.h"
+
+
+namespace Ui {
+    
 //    TTVout display;
-//
+
 //    bool shouldDrawUpdate = false;
 //    bool shouldDisplay = false;
 //    bool shouldFullRedraw = false;
-//    bool isTvOn = false;
-//
-//    // Refresh rate is set to match touchpad rate.  Refresh every 50ms (20 FPS)
+    bool isTvOn = false;
+
+    // Refresh rate is set to match touchpad rate.  Refresh every 50ms (20 FPS)
 //    Timer UiRefreshTimer = Timer(50);
-//    // UI time for return to FPV
-//    Timer UiTimeOut = Timer(3000);
-//
-//    void setup() {
-//        // tone will not work until begin is called.
+    // UI time for return to FPV
+    Timer UiTimeOut = Timer(3000);
+
+    void setup() {
+        // tone will not work until begin is called.
 //        display.begin(SC_448x216); // 72 MHz
 //        display.end();    
-//    }
-//
-//    void tvOn() {
-//
-//        ReceiverSpi::setPowerDownRegister(0b01010000110000010011);
-//        
+    }
+
+    void tvOn() {
+
+        ReceiverSpi::setPowerDownRegister(0b01010000110000010011);
+        
 //        display.begin(SC_448x216); // 72 MHz
-//        
-//        isTvOn = true;
-//    }
-//
-//    void tvOff() { 
-//
-//        ReceiverSpi::setPowerDownRegister(0b00010000110000010011);
-//
-//        Receiver::setChannel(Receiver::activeChannel);
-//        
+        
+        isTvOn = true;
+    }
+
+    void tvOff() { 
+
+        ReceiverSpi::setPowerDownRegister(0b00010000110000010011);
+
+        Receiver::setChannel(Receiver::activeChannel);
+        
 //        display.end();   
-//         
-//        isTvOn = false;
-//    }
-//
-//    void switchOSDOutputState() {
-//      if (!isTvOn) {
-//        
-//        tvOn();
-//    
+         
+        isTvOn = false;
+    }
+
+    void switchOSDOutputState() {
+      if (!isTvOn) {
+        
+        tvOn();
+    
 //        #ifdef FENIX_QUADVERSITY
 //          digitalWrite(PIN_OSDCONTROL, LOW);
 //        #endif
-//        
-//      } else {    
-//        
-//        tvOff();
-//        
+        
+      } else {    
+        
+        tvOff();
+        
 //        #ifdef FENIX_QUADVERSITY
 //          digitalWrite(PIN_OSDCONTROL, HIGH);
 //        #endif
-//        
-//      }   
-//    }
-//
-//    // This needs to be redone with a fill triangle... which needs to be added to the TTVout lib.
-//    void drawCursor() {
-//
+        
+      }   
+    }
+
+    // This needs to be redone with a fill triangle... which needs to be added to the TTVout lib.
+    void drawCursor() {
+
 //        // Black inner
 //        display.draw_line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX, TouchPad::touchData.cursorY + 16, BLACK);
 //        display.draw_line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX+1, TouchPad::touchData.cursorY + 16, BLACK);
@@ -98,9 +98,9 @@
 //        display.draw_line(TouchPad::touchData.cursorX + 9, TouchPad::touchData.cursorY + 17, TouchPad::touchData.cursorX + 7, TouchPad::touchData.cursorY + 13, WHITE);
 //        display.draw_line(TouchPad::touchData.cursorX + 7, TouchPad::touchData.cursorY + 13, TouchPad::touchData.cursorX + 11, TouchPad::touchData.cursorY + 12, WHITE);
 //        display.draw_line(TouchPad::touchData.cursorX + 11, TouchPad::touchData.cursorY + 12, TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, WHITE);
-//
-//    }
-//
+
+    }
+
 //    void beep() { 
 //        uint16_t freq = 5000; // frequency in Hz
 //        display.tone(freq, BEEPER_CHIRP);
@@ -108,13 +108,13 @@
 //    void beep(uint16_t freq) { 
 //        display.tone(freq, BEEPER_CHIRP);
 //    }
-//
-//    void update() {
-//
-//        drawCursor();
-//        
-//    }
-//
+
+    void update() {
+
+        drawCursor();
+        
+    }
+
 //    void drawGraph(
 //        const uint8_t data[],
 //        const uint8_t dataSize,
@@ -529,6 +529,6 @@
 //    void needFullRedraw() {
 //        shouldFullRedraw = true;
 //    }
-//}
-//
+}
+
 
