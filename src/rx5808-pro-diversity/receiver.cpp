@@ -224,50 +224,50 @@ namespace Receiver {
             }            
           }
           
-          if (EepromSettings.quadversity) {
-            int8_t rssiMax = max(max(rssiA, rssiB), max(rssiC, rssiD));
-            uint8_t rssiDiff = 0;
-            uint8_t rssiDiffAbs = 0;
-            ReceiverId currentBestReceiver = activeReceiver;
-
-
-            // Find which Rx has the highest RSSI.
-            if (rssiA == rssiMax) {
-              currentBestReceiver = ReceiverId::A;
-            } else if (rssiB == rssiMax) {
-              currentBestReceiver = ReceiverId::B;
-            } else if (rssiC == rssiMax) {
-              currentBestReceiver = ReceiverId::C;
-            } else if (rssiD == rssiMax) {
-              currentBestReceiver = ReceiverId::D;
-            }
-
-            // Difference against currently active Rx.
-            if (ReceiverId::A == activeReceiver) {
-              rssiDiff = rssiMax - rssiA;
-            } else if (ReceiverId::B == activeReceiver) {
-              rssiDiff = rssiMax - rssiB;
-            } else if (ReceiverId::C == activeReceiver) {
-              rssiDiff = rssiMax - rssiC;
-            } else if (ReceiverId::D == activeReceiver) {
-              rssiDiff = rssiMax - rssiD;
-            }
-                
-            rssiDiffAbs = abs(rssiDiff);
-
-            if (rssiDiffAbs >= EepromSettings.rssiHysteresis) {
-                if (currentBestReceiver == diversityTargetReceiver) {
-                    if (diversityHysteresisTimer.hasTicked()) {
-                        nextReceiver = diversityTargetReceiver;
-                    }
-                } else {
-                    diversityTargetReceiver = currentBestReceiver;
-                    diversityHysteresisTimer.reset();
-                }
-            } else {
-                diversityHysteresisTimer.reset();
-            }            
-          }
+//          if (EepromSettings.quadversity) {
+//            int8_t rssiMax = max(max(rssiA, rssiB), max(rssiC, rssiD));
+//            uint8_t rssiDiff = 0;
+//            uint8_t rssiDiffAbs = 0;
+//            ReceiverId currentBestReceiver = activeReceiver;
+//
+//
+//            // Find which Rx has the highest RSSI.
+//            if (rssiA == rssiMax) {
+//              currentBestReceiver = ReceiverId::A;
+//            } else if (rssiB == rssiMax) {
+//              currentBestReceiver = ReceiverId::B;
+//            } else if (rssiC == rssiMax) {
+//              currentBestReceiver = ReceiverId::C;
+//            } else if (rssiD == rssiMax) {
+//              currentBestReceiver = ReceiverId::D;
+//            }
+//
+//            // Difference against currently active Rx.
+//            if (ReceiverId::A == activeReceiver) {
+//              rssiDiff = rssiMax - rssiA;
+//            } else if (ReceiverId::B == activeReceiver) {
+//              rssiDiff = rssiMax - rssiB;
+//            } else if (ReceiverId::C == activeReceiver) {
+//              rssiDiff = rssiMax - rssiC;
+//            } else if (ReceiverId::D == activeReceiver) {
+//              rssiDiff = rssiMax - rssiD;
+//            }
+//                
+//            rssiDiffAbs = abs(rssiDiff);
+//
+//            if (rssiDiffAbs >= EepromSettings.rssiHysteresis) {
+//                if (currentBestReceiver == diversityTargetReceiver) {
+//                    if (diversityHysteresisTimer.hasTicked()) {
+//                        nextReceiver = diversityTargetReceiver;
+//                    }
+//                } else {
+//                    diversityTargetReceiver = currentBestReceiver;
+//                    diversityHysteresisTimer.reset();
+//                }
+//            } else {
+//                diversityHysteresisTimer.reset();
+//            }            
+//          }
         
           setActiveReceiver(nextReceiver);
 
@@ -308,7 +308,7 @@ namespace Receiver {
             
             updateRssi();
 
-//            switchDiversity();
+            switchDiversity();
         }
     }
 }

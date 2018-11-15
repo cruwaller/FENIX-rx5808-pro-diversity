@@ -57,9 +57,9 @@ struct EepromSettings {
     uint8_t rssiHysteresis;
     uint16_t rssiHysteresisPeriod;
 
-    #ifndef EEPROM_AT24C02
-       unsigned char customLogo[128*64/8];
-    #endif
+//    #ifndef EEPROM_AT24C02
+//       unsigned char customLogo[128*64/8];
+//    #endif
     
     void update();
 
@@ -118,9 +118,9 @@ const struct {
     uint8_t rssiHysteresis = 2;
     uint16_t rssiHysteresisPeriod = 5;
 
-    #ifndef EEPROM_AT24C02
-        unsigned char customLogo[128*64/8] = {0};
-    #endif
+//    #ifndef EEPROM_AT24C02
+//        unsigned char customLogo[128*64/8] = {0};
+//    #endif
 } EepromDefaults;
 
 

@@ -54,7 +54,7 @@ void setup()
 
     SPI.begin();
     
-//  EepromSettings.load();
+  EepromSettings.load();
 
     setupPins();
 //    Temperature::setup();
@@ -74,10 +74,10 @@ void setup()
 //    Ui::beep(x*500);
 //  }
 
-//  // Has to be last setup() otherwise channel may not be set.
-//  // RX possibly not botting quick enough if setup() is called earler.
-//  Receiver::setup(); 
-//
+  // Has to be last setup() otherwise channel may not be set.
+  // RX possibly not botting quick enough if setup() is called earler.
+  Receiver::setup(); 
+
 //  if (!EepromSettings.isCalibrated) {
 //      StateMachine::switchState(StateMachine::State::SETTINGS_RSSI); 
 //      Ui::switchOSDOutputState();    
@@ -176,7 +176,7 @@ void loop() {
 //            Temperature::update();
 //            StateMachine::update();
 //            Ui::update();
-//            EepromSettings.update();
+            EepromSettings.update();
 //        }
 //    }
     

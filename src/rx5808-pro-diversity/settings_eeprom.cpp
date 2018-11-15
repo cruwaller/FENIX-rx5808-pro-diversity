@@ -1,6 +1,7 @@
 #include <string.h>
+#include "EEPROM.h"
 //#include "extEEPROM.h"
-#include <Wire.h>
+//#include <Wire.h>
 
 #include "settings.h"
 #include "settings_internal.h"
@@ -44,13 +45,15 @@ void EepromSettings::update() {
 
 void EepromSettings::load() {
 //  EEPROM.read(0, (byte *)this, sizeof(EepromSettings));
-
+    EEPROM.get(0, *this);
+    
     if (this->versionNumber != VERSION_NUMBER)
         this->initDefaults();
 }
 
 void EepromSettings::save() {
 //  byte i2cStat = EEPROM.write(0, (byte *)this, sizeof(EepromSettings));
+    EEPROM.put(0, *this);
 }
 
 void EepromSettings::markDirty() {
