@@ -3,6 +3,7 @@
 
 
 #include "settings.h"
+#include <stdint.h>
 
 
 #define CHANNELS_SIZE 72

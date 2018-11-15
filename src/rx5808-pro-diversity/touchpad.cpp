@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#include <avr/pgmspace.h>
 
 #include "ui.h"
 #include "touchpad.h"
@@ -50,7 +49,7 @@ namespace TouchPad {
             }
 
             if (touchData.buttonPrimary) {
-                Ui::beep();
+//                Ui::beep();
             }
             
 //            Serial.print(touchData.buttonPrimary);
@@ -134,33 +133,33 @@ namespace TouchPad {
     /*  RAP Functions */
     // Reads <count> Pinnacle registers starting at <address>
     //void RAP_ReadBytes(byte address, byte * data, byte count)
-    void RAP_ReadBytes(byte address, byte * data, uint8_t count) {
+    void RAP_ReadBytes(uint8_t address, uint8_t * data, uint8_t count) {
       
-      byte cmdByte = TOUCHPAD_READ_MASK | address;   // Form the READ command byte
-      byte i = 0;
-    
-      Wire.beginTransmission(TOUCHPAD_SLAVE_ADDR);   // Set up an I2C-write to the I2C slave (Pinnacle)
-      Wire.write(cmdByte);                  // Signal a RAP-read operation starting at <address>
-      Wire.endTransmission(true);           // I2C stop condition
-    
-      Wire.requestFrom((uint8_t)TOUCHPAD_SLAVE_ADDR, count);  // Read <count> bytes from I2C slave
-      
-      while(Wire.available())
-      {
-        data[i++] = Wire.read();
-      }
+//      byte cmdByte = TOUCHPAD_READ_MASK | address;   // Form the READ command byte
+//      byte i = 0;
+//    
+//      Wire.beginTransmission(TOUCHPAD_SLAVE_ADDR);   // Set up an I2C-write to the I2C slave (Pinnacle)
+//      Wire.write(cmdByte);                  // Signal a RAP-read operation starting at <address>
+//      Wire.endTransmission(true);           // I2C stop condition
+//    
+//      Wire.requestFrom((uint8_t)TOUCHPAD_SLAVE_ADDR, count);  // Read <count> bytes from I2C slave
+//      
+//      while(Wire.available())
+//      {
+//        data[i++] = Wire.read();
+//      }
       
     }
     
     // Writes single-byte <data> to <address>
-    void RAP_Write(byte address, byte data) {
-      
-      byte cmdByte = TOUCHPAD_WRITE_MASK | address;  // Form the WRITE command byte
-    
-      Wire.beginTransmission(TOUCHPAD_SLAVE_ADDR);   // Set up an I2C-write to the I2C slave (Pinnacle)
-      Wire.write(cmdByte);                   // Signal a RAP-write operation at <address>
-      Wire.write(data);                      // Write <data> to I2C slave
-      Wire.endTransmission(true);           // I2C stop condition
+    void RAP_Write(uint8_t address, uint8_t data) {
+//      
+//      byte cmdByte = TOUCHPAD_WRITE_MASK | address;  // Form the WRITE command byte
+//    
+//      Wire.beginTransmission(TOUCHPAD_SLAVE_ADDR);   // Set up an I2C-write to the I2C slave (Pinnacle)
+//      Wire.write(cmdByte);                   // Signal a RAP-write operation at <address>
+//      Wire.write(data);                      // Write <data> to I2C slave
+//      Wire.endTransmission(true);           // I2C stop condition
     }
 
     bool isDataAvailable() {

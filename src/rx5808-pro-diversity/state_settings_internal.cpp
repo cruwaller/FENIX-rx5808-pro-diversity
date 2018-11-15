@@ -1,4 +1,3 @@
-#include <avr/pgmspace.h>
 
 #include "state_settings_internal.h"
 #include "settings_eeprom.h"
@@ -29,14 +28,14 @@ void StateMachine::SettingsInternalStateHandler::onEnter() {
     selectedInternalMenuItem = 0;
     factoryReset = 0;
     showChangeInternalMenuOptions = false;
-    Ui::clear();
+//    Ui::clear();
 }
 
 void StateMachine::SettingsInternalStateHandler::onExit() {
 }
 
 void StateMachine::SettingsInternalStateHandler::onUpdate() {
-    Ui::needUpdate();
+//    Ui::needUpdate();
 }
 
 void StateMachine::SettingsInternalStateHandler::onInitialDraw() {
@@ -50,88 +49,88 @@ void StateMachine::SettingsInternalStateHandler::onUpdateDraw() {
       
         int8_t index;
     
-        Ui::clear();
-        Ui::setTextSize(1);
+//        Ui::clear();
+//        Ui::setTextSize(1);
         
-        Ui::setCursor(0, 8);
+//        Ui::setCursor(0, 8);
         index = selectedInternalMenuItem-2;
         if (index < 0) {
           index += menuInternalItems;
         }
-        Ui::display.print( settingsInternalMenu[index] );
+//        Ui::display.print( settingsInternalMenu[index] );
         
-            Ui::setCursor(6, 18);
+//            Ui::setCursor(6, 18);
             index = selectedInternalMenuItem-1;
             if (index < 0) {
               index += menuInternalItems;
             }
-            Ui::display.print( settingsInternalMenu[index] );
+//            Ui::display.print( settingsInternalMenu[index] );
             
-                Ui::setCursor(12, 28);
+//                Ui::setCursor(12, 28);
 //                Ui::display.setTextColor(BLACK, WHITE); // 'inverted' text
-                Ui::display.print( settingsInternalMenu[selectedInternalMenuItem] );
+//                Ui::display.print( settingsInternalMenu[selectedInternalMenuItem] );
 //                Ui::display.setTextColor(WHITE, BLACK);
             
-            Ui::setCursor(6, 38);    
+//            Ui::setCursor(6, 38);    
             index = selectedInternalMenuItem+1;
             if (index > menuInternalItems-1) {
               index -= menuInternalItems;
             }
-            Ui::display.print( settingsInternalMenu[index] );
+//            Ui::display.print( settingsInternalMenu[index] );
         
-        Ui::setCursor(0, 48);
+//        Ui::setCursor(0, 48);
         index = selectedInternalMenuItem+2;
         if (index > menuInternalItems-1) {
           index -= menuInternalItems;
         }
-        Ui::display.print( settingsInternalMenu[index] );
+//        Ui::display.print( settingsInternalMenu[index] );
     }
     
     if (showChangeInternalMenuOptions) {
-        Ui::fillRect(15, 20, 96, 24, BLACK);
-        Ui::drawRoundRect(15, 20, 96, 24, 2, WHITE);
-        Ui::setCursor(29, 28);
+//        Ui::fillRect(15, 20, 96, 24, BLACK);
+//        Ui::drawRoundRect(15, 20, 96, 24, 2, WHITE);
+//        Ui::setCursor(29, 28);
 
         switch(selectedInternalMenuItem) {
           
             case 0:    // Factory Reset
               if (factoryReset == 0) {
-                  Ui::display.print(PSTR2("    No     "));
+//                  Ui::display.print(PSTR2("    No     "));
               } else if (factoryReset == 1) {
-                  Ui::display.print(PSTR2("       No  "));
+//                  Ui::display.print(PSTR2("       No  "));
               } else if (factoryReset == 2) {
-                  Ui::display.print(PSTR2("  No       "));
+//                  Ui::display.print(PSTR2("  No       "));
               } else if (factoryReset == 3) {
-                  Ui::display.print(PSTR2("    Yes     "));
+//                  Ui::display.print(PSTR2("    Yes     "));
               } else if (factoryReset == 4) {
-                  Ui::display.print(PSTR2("  No       "));
+//                  Ui::display.print(PSTR2("  No       "));
               } else if (factoryReset == 5) {
-                  Ui::display.print(PSTR2("       No  "));
+//                  Ui::display.print(PSTR2("       No  "));
               }
             break;
        
             case 1:    // spectatorFreqScanStep
-                Ui::display.print(EepromSettings.spectatorFreqScanStep);
+//                Ui::display.print(EepromSettings.spectatorFreqScanStep);
             break;
             
             case 2:    // spectatorFWHM
-                Ui::display.print(EepromSettings.spectatorFWHM);
+//                Ui::display.print(EepromSettings.spectatorFWHM);
             break;
             
             case 3:    // rssiSeekTreshold
-                Ui::display.print(EepromSettings.rssiSeekTreshold);
+//                Ui::display.print(EepromSettings.rssiSeekTreshold);
             break;
             
             case 4:    // rssiMinTuneTime
-                Ui::display.print(EepromSettings.rssiMinTuneTime);
+//                Ui::display.print(EepromSettings.rssiMinTuneTime);
             break;
             
             case 5:    // rssiHysteresis
-                Ui::display.print(EepromSettings.rssiHysteresis);
+//                Ui::display.print(EepromSettings.rssiHysteresis);
             break;
             
             case 6:    // rssiHysteresisPeriod
-                Ui::display.print(EepromSettings.rssiHysteresisPeriod);
+//                Ui::display.print(EepromSettings.rssiHysteresisPeriod);
             break;
             
             case 7:    // 
@@ -140,7 +139,7 @@ void StateMachine::SettingsInternalStateHandler::onUpdateDraw() {
         }    
     }
         
-    Ui::needDisplay();
+//    Ui::needDisplay();
 
 }
 

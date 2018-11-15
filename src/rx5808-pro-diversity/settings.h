@@ -34,7 +34,7 @@ SOFTWARE.
 // =============================================================================
 
 //#define FENIX_QUADVERSITY
-#define REALACC_RX5808_PRO_PLUS_OSD
+//#define REALACC_RX5808_PRO_PLUS_OSD
 
 // === EEPROM ==================================================================
 //
@@ -42,7 +42,7 @@ SOFTWARE.
 //
 // =============================================================================
 
-#define EEPROM_AT24C02 // WORKING
+//#define EEPROM_AT24C02 // WORKING
 //#define EEPROM_AT24C16 // WORKING
 //#define EEPROM_AT24C32 // NOT TESTED
 //#define EEPROM_AT24C64 // WORKING
@@ -89,6 +89,18 @@ SOFTWARE.
 
 // === Pins ====================================================================
 
+
+#define PIN_SPI_SLAVE_SELECT_RX_A       22
+#define PIN_SPI_SLAVE_SELECT_RX_B       35
+#define PIN_SPI_SLAVE_SELECT_TOUCHPAD   21
+
+#define PIN_RX_SWICTH                   32
+
+#define PIN_RSSI_A                      36
+#define PIN_RSSI_B                      39
+
+//#define PIN_VBAT PA6 // dummy pin
+    
 #ifdef FENIX_QUADVERSITY
 
     #define PIN_BUTTON_UP_PRESSED PA12 // 33

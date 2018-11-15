@@ -3,7 +3,6 @@
 
 
 #include <stdint.h>
-#include <avr/pgmspace.h>
 
 #include "settings.h"
 #include "settings_internal.h"
@@ -72,7 +71,7 @@ struct EepromSettings {
 };
 
 
-PROGMEM const struct {
+const struct {
     uint8_t versionNumber = VERSION_NUMBER;
     
     uint8_t isCalibrated = false;

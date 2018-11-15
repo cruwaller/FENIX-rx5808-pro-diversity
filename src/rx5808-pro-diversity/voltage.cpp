@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#include <avr/pgmspace.h>
 
 #include "voltage.h"
 #include "settings_eeprom.h"

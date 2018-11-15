@@ -65,28 +65,28 @@ namespace Receiver {
 
     void setActiveReceiver(ReceiverId receiver) {
         if (!EepromSettings.quadversity) {
-            #ifdef FENIX_QUADVERSITY
-            digitalWrite(PIN_LED_A, receiver == ReceiverId::A);
-            digitalWrite(PIN_LED_B, receiver == ReceiverId::B);
-            #endif
-    
-            #ifdef REALACC_RX5808_PRO_PLUS_OSD
-                digitalWrite(PIN_LED_A, receiver != ReceiverId::A);
-                digitalWrite(PIN_LED_B, receiver != ReceiverId::B);
+//            #ifdef FENIX_QUADVERSITY
+//            digitalWrite(PIN_LED_A, receiver == ReceiverId::A);
+//            digitalWrite(PIN_LED_B, receiver == ReceiverId::B);
+//            #endif
+//    
+//            #ifdef REALACC_RX5808_PRO_PLUS_OSD
+//                digitalWrite(PIN_LED_A, receiver != ReceiverId::A);
+//                digitalWrite(PIN_LED_B, receiver != ReceiverId::B);
                 if (receiver == ReceiverId::A) {
-                    digitalWrite(TS5A3159, LOW);
+                    digitalWrite(PIN_RX_SWICTH, LOW);
                 }
                 if (receiver == ReceiverId::B){
-                    digitalWrite(TS5A3159, HIGH);
+                    digitalWrite(PIN_RX_SWICTH, HIGH);
                   
                 }
-            #endif
+//            #endif
             
         } else if (EepromSettings.quadversity) {
-            digitalWrite(PIN_LED_A, receiver == ReceiverId::A);
-            digitalWrite(PIN_LED_B, receiver == ReceiverId::B);
-            digitalWrite(PIN_LED_C, receiver == ReceiverId::C);
-            digitalWrite(PIN_LED_D, receiver == ReceiverId::D);
+//            digitalWrite(PIN_LED_A, receiver == ReceiverId::A);
+//            digitalWrite(PIN_LED_B, receiver == ReceiverId::B);
+//            digitalWrite(PIN_LED_C, receiver == ReceiverId::C);
+//            digitalWrite(PIN_LED_D, receiver == ReceiverId::D);
         }
         activeReceiver = receiver;
     }
@@ -111,19 +111,19 @@ namespace Receiver {
         }
         rssiBRaw /= RSSI_READS;
 
-        if (EepromSettings.quadversity) {
-            rssiCRaw = 0;
-            for (uint8_t i = 0; i < RSSI_READS; i++) {                       
-                rssiCRaw += analogRead(PIN_RSSI_C);
-            }
-            rssiCRaw /= RSSI_READS;
-            
-            rssiDRaw = 0;
-            for (uint8_t i = 0; i < RSSI_READS; i++) {                       
-                rssiDRaw += analogRead(PIN_RSSI_D);
-            }
-            rssiDRaw /= RSSI_READS;
-        }
+//        if (EepromSettings.quadversity) {
+//            rssiCRaw = 0;
+//            for (uint8_t i = 0; i < RSSI_READS; i++) {                       
+//                rssiCRaw += analogRead(PIN_RSSI_C);
+//            }
+//            rssiCRaw /= RSSI_READS;
+//            
+//            rssiDRaw = 0;
+//            for (uint8_t i = 0; i < RSSI_READS; i++) {                       
+//                rssiDRaw += analogRead(PIN_RSSI_D);
+//            }
+//            rssiDRaw /= RSSI_READS;
+//        }
        
         rssiA = constrain(
             map(

@@ -25,8 +25,8 @@ namespace TouchPad {
     void Pinnacle_Init();
     void Pinnacle_getRelative(relData_t * result);
     void Pinnacle_ClearFlags();
-    void RAP_ReadBytes(byte address, byte * data, uint8_t count);
-    void RAP_Write(byte address, byte data);
+    void RAP_ReadBytes(uint8_t address, uint8_t * data, uint8_t count);
+    void RAP_Write(uint8_t address, uint8_t data);
     bool isDataAvailable();
     
 }

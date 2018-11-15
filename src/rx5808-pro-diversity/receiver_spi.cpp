@@ -54,17 +54,17 @@ namespace ReceiverSpi {
 
 
 static inline void sendRegister(uint8_t address, uint32_t data) {
-    sendSlaveSelect(LOW);
-
-    sendBits(address, 4);
-    sendBit(HIGH); // Enable write.
-
-    sendBits(data, 20);
-
-    // Finished clocking data in
-    sendSlaveSelect(HIGH);
-    digitalWrite(PIN_SPI_CLOCK, LOW);
-    digitalWrite(PIN_SPI_DATA, LOW);
+//    sendSlaveSelect(LOW);
+//
+//    sendBits(address, 4);
+//    sendBit(HIGH); // Enable write.
+//
+//    sendBits(data, 20);
+//
+//    // Finished clocking data in
+//    sendSlaveSelect(HIGH);
+//    digitalWrite(PIN_SPI_CLOCK, LOW);
+//    digitalWrite(PIN_SPI_DATA, LOW);
 }
 
 
@@ -76,26 +76,26 @@ static inline void sendBits(uint32_t bits, uint8_t count) {
 }
 
 static inline void sendBit(uint8_t value) {
-    digitalWrite(PIN_SPI_CLOCK, LOW);
-    delayMicroseconds(1);
-
-    digitalWrite(PIN_SPI_DATA, value);
-    delayMicroseconds(1);
-    digitalWrite(PIN_SPI_CLOCK, HIGH);
-    delayMicroseconds(1);
-
-    digitalWrite(PIN_SPI_CLOCK, LOW);
-    delayMicroseconds(1);
+//    digitalWrite(PIN_SPI_CLOCK, LOW);
+//    delayMicroseconds(1);
+//
+//    digitalWrite(PIN_SPI_DATA, value);
+//    delayMicroseconds(1);
+//    digitalWrite(PIN_SPI_CLOCK, HIGH);
+//    delayMicroseconds(1);
+//
+//    digitalWrite(PIN_SPI_CLOCK, LOW);
+//    delayMicroseconds(1);
 }
 
 static inline void sendSlaveSelect(uint8_t value) {
-    #ifdef FENIX_QUADVERSITY
-      digitalWrite(PIN_SPI_SLAVE_SELECT, value);
-    #endif
-    
-    #ifdef REALACC_RX5808_PRO_PLUS_OSD
-      digitalWrite(PIN_SPI_SLAVE_SELECT_A, value);
-      digitalWrite(PIN_SPI_SLAVE_SELECT_B, value);
-    #endif
-    delayMicroseconds(1);
+//    #ifdef FENIX_QUADVERSITY
+//      digitalWrite(PIN_SPI_SLAVE_SELECT, value);
+//    #endif
+//    
+//    #ifdef REALACC_RX5808_PRO_PLUS_OSD
+//      digitalWrite(PIN_SPI_SLAVE_SELECT_A, value);
+//      digitalWrite(PIN_SPI_SLAVE_SELECT_B, value);
+//    #endif
+//    delayMicroseconds(1);
 }

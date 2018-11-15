@@ -50,16 +50,16 @@ namespace StateMachine {
             // 100% on how to decouple them at this stage
 //            static Timer drawTimer = Timer(OLED_FRAMERATE);
             if (currentHandler
-                && Ui::shouldDrawUpdate
+//                && Ui::shouldDrawUpdate
 //                && drawTimer.hasTicked()
             ) {
-                if (Ui::shouldFullRedraw) {
-                    currentHandler->onInitialDraw();
-                    Ui::shouldFullRedraw = false;
-                }
+//                if (Ui::shouldFullRedraw) {
+//                    currentHandler->onInitialDraw();
+//                    Ui::shouldFullRedraw = false;
+//                }
 
                 currentHandler->onUpdateDraw();
-                Ui::shouldDrawUpdate = false;
+//                Ui::shouldDrawUpdate = false;
 //                drawTimer.reset();
             }
         }
