@@ -57,10 +57,10 @@ void setup()
 //  EepromSettings.load();
 
     setupPins();
-//  Temperature::setup();
+//    Temperature::setup();
 //    StateMachine::setup();
-//  Ui::setup(); 
-//  TouchPad::setup(); 
+//    Ui::setup(); 
+    TouchPad::setup(); 
 
 //  // Flash lights as startup sequency
 //  for (int x=0; x<20; x++) {
@@ -98,7 +98,12 @@ void setupPins() {
     
     pinMode(PIN_SPI_SLAVE_SELECT_RX_B, OUTPUT);
     digitalWrite(PIN_SPI_SLAVE_SELECT_RX_B, HIGH);
-  
+    
+    pinMode(PIN_TOUCHPAD_SLAVE_SELECT, OUTPUT);
+    digitalWrite(PIN_TOUCHPAD_SLAVE_SELECT, HIGH);
+
+    pinMode(PIN_TOUCHPAD_DATA_READY, INPUT);
+
 //  
 //  #ifdef FENIX_QUADVERSITY
 //    pinMode(PIN_OSDCONTROL, OUTPUT);
@@ -152,7 +157,7 @@ void setupPins() {
 
 void loop() {
 
-    Serial.println("loop");
+//    Serial.println("loop");
 //    REMOVE ME - Test code for SPI RX
 //    ReceiverSpi::setSynthRegisterB(Channels::getSynthRegisterBFreq(5800));
 //    delay(2000);
@@ -165,7 +170,7 @@ void loop() {
   
 //    if (Ui::UiRefreshTimer.hasTicked()) {
 //        Ui::UiRefreshTimer.reset();
-//        TouchPad::update(); 
+        TouchPad::update(); 
 //        
 //        if (Ui::isTvOn) {
 //            Temperature::update();

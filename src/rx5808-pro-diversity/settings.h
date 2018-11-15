@@ -99,6 +99,11 @@ SOFTWARE.
 #define PIN_RSSI_A                      36
 #define PIN_RSSI_B                      39
 
+#define PIN_TOUCHPAD_SLAVE_SELECT       21
+#define PIN_TOUCHPAD_DATA_READY         34
+
+
+
 //#define PIN_VBAT PA6 // dummy pin
     
 #ifdef FENIX_QUADVERSITY

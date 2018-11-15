@@ -1,11 +1,12 @@
 #include <Arduino.h>
 
 #include "ui.h"
+#include "settings.h"
 #include "touchpad.h"
-#include <Wire.h>
+//#include <Wire.h>
 
-// Cirque's 7-bit I2C Slave Address
-#define TOUCHPAD_SLAVE_ADDR  0x2A
+//// Cirque's 7-bit I2C Slave Address
+//#define TOUCHPAD_SLAVE_ADDR  0x2A
 
 // Masks for Cirque Register Access Protocol (RAP)
 #define TOUCHPAD_WRITE_MASK  0x80
@@ -52,19 +53,19 @@ namespace TouchPad {
 //                Ui::beep();
             }
             
-//            Serial.print(touchData.buttonPrimary);
-//            Serial.print('\t');
-//            Serial.print(touchData.buttonSecondary);
-//            Serial.print('\t');
-//            Serial.print(touchData.buttonAuxiliary);
-//            Serial.print('\t');  
-//            Serial.print(touchData.xDelta);
-//            Serial.print('\t');
-//            Serial.print(touchData.yDelta);
-//            Serial.print('\t');
-//            Serial.print(touchData.xSign);
-//            Serial.print('\t');
-//            Serial.println(touchData.ySign);
+            Serial.print(touchData.buttonPrimary);
+            Serial.print('\t');
+            Serial.print(touchData.buttonSecondary);
+            Serial.print('\t');
+            Serial.print(touchData.buttonAuxiliary);
+            Serial.print('\t');  
+            Serial.print(touchData.xDelta);
+            Serial.print('\t');
+            Serial.print(touchData.yDelta);
+            Serial.print('\t');
+            Serial.print(touchData.xSign);
+            Serial.print('\t');
+            Serial.println(touchData.ySign);
           
         }
     }
@@ -83,19 +84,21 @@ namespace TouchPad {
     /*  Pinnacle-based TM0XX0XX Functions  */
     void Pinnacle_Init() {
 
-      Wire.begin();
-      Wire.setClock(400000);
+//      Wire.begin();
+//      Wire.setClock(400000);
       
+      SPI.begin();
+  
       // Host clears SW_CC flag
       Pinnacle_ClearFlags();
     
       // Feed Enable
       RAP_Write(0x04, 0b00000001);
     
-      // Sample Rate (default 100 Hz)
-      // Needs to be decrease and only check on UI update.
-      // Higher rate introduces UI noise.
-      RAP_Write(0x09, 0x14); // 20 Hz
+//      // Sample Rate (default 100 Hz)
+//      // Needs to be decrease and only check on UI update.
+//      // Higher rate introduces UI noise.
+//      RAP_Write(0x09, 0x14); // 20 Hz
       
     }
     
@@ -134,41 +137,50 @@ namespace TouchPad {
     // Reads <count> Pinnacle registers starting at <address>
     //void RAP_ReadBytes(byte address, byte * data, byte count)
     void RAP_ReadBytes(uint8_t address, uint8_t * data, uint8_t count) {
+        byte cmdByte = TOUCHPAD_READ_MASK | address;   // Form the READ command byte
       
-//      byte cmdByte = TOUCHPAD_READ_MASK | address;   // Form the READ command byte
-//      byte i = 0;
-//    
-//      Wire.beginTransmission(TOUCHPAD_SLAVE_ADDR);   // Set up an I2C-write to the I2C slave (Pinnacle)
-//      Wire.write(cmdByte);                  // Signal a RAP-read operation starting at <address>
-//      Wire.endTransmission(true);           // I2C stop condition
-//    
-//      Wire.requestFrom((uint8_t)TOUCHPAD_SLAVE_ADDR, count);  // Read <count> bytes from I2C slave
-//      
-//      while(Wire.available())
-//      {
-//        data[i++] = Wire.read();
-//      }
+        SPI.beginTransaction(SPISettings(10000000, MSBFIRST, SPI_MODE1));
       
+        Assert_SS();
+        SPI.transfer(cmdByte);  // Signal a RAP-read operation starting at <address>
+        SPI.transfer(0xFC);     // Filler byte
+        SPI.transfer(0xFC);     // Filler byte
+        for(byte i = 0; i < count; i++)
+        {
+          data[i] =  SPI.transfer(0xFC);  // Each subsequent SPI transfer gets another register's contents
+        }
+        DeAssert_SS();
+      
+        SPI.endTransaction();
     }
     
     // Writes single-byte <data> to <address>
     void RAP_Write(uint8_t address, uint8_t data) {
-//      
-//      byte cmdByte = TOUCHPAD_WRITE_MASK | address;  // Form the WRITE command byte
-//    
-//      Wire.beginTransmission(TOUCHPAD_SLAVE_ADDR);   // Set up an I2C-write to the I2C slave (Pinnacle)
-//      Wire.write(cmdByte);                   // Signal a RAP-write operation at <address>
-//      Wire.write(data);                      // Write <data> to I2C slave
-//      Wire.endTransmission(true);           // I2C stop condition
+        byte cmdByte = TOUCHPAD_WRITE_MASK | address;  // Form the WRITE command byte
+      
+        SPI.beginTransaction(SPISettings(10000000, MSBFIRST, SPI_MODE1));
+      
+        Assert_SS();
+        SPI.transfer(cmdByte);  // Signal a write to register at <address>
+        SPI.transfer(data);    // Send <value> to be written to register
+        DeAssert_SS();
+      
+        SPI.endTransaction();
     }
 
-    bool isDataAvailable() {
-      
-      byte data[1] = { 0 };
-      RAP_ReadBytes(0x02, data, 1);
+    void Assert_SS()
+    {
+      digitalWrite(PIN_TOUCHPAD_SLAVE_SELECT, LOW);
+    }
     
-      return data[0] & 0b00000100;
-      
-    } 
+    void DeAssert_SS()
+    {
+      digitalWrite(PIN_TOUCHPAD_SLAVE_SELECT, HIGH);
+    }
+    
+    bool isDataAvailable()
+    {
+      return digitalRead(PIN_TOUCHPAD_DATA_READY);
+    }
     
 }
