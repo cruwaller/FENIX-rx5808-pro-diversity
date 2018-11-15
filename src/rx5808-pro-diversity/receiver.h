@@ -47,7 +47,7 @@ namespace Receiver {
 
     void setChannel(uint8_t channel);
     void setChannelByFreq(uint16_t freq);
-    uint16_t updateRssi();
+    void updateRssi();
     void setActiveReceiver(ReceiverId receiver = ReceiverId::A);
 
     void antenaOnTime();

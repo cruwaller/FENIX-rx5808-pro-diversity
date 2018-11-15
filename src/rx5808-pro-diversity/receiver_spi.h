@@ -1,7 +1,6 @@
 #ifndef RECEIVER_SPI_H
 #define RECEIVER_SPI_H
 
-
 #include <stdint.h>
 #include <SPI.h>
 

@@ -32,7 +32,7 @@
   SOFTWARE.
 */
 
-#include <SPI.h>
+//#include <SPI.h>
 
 #include "settings.h"
 #include "settings_internal.h"
@@ -58,7 +58,7 @@ void setup()
 
     setupPins();
 //  Temperature::setup();
-    StateMachine::setup();
+//    StateMachine::setup();
 //  Ui::setup(); 
 //  TouchPad::setup(); 
 
@@ -151,7 +151,8 @@ void setupPins() {
 }
 
 void loop() {
-  
+
+    Serial.println("loop");
 //    REMOVE ME - Test code for SPI RX
 //    ReceiverSpi::setSynthRegisterB(Channels::getSynthRegisterBFreq(5800));
 //    delay(2000);

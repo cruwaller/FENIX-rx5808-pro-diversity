@@ -95,7 +95,7 @@ namespace Receiver {
         return rssiStableTimer.hasTicked();
     }
 
-    uint16_t updateRssi() {
+    void updateRssi() {
 
         uint8_t RSSI_READS = 15;  
         
@@ -125,70 +125,70 @@ namespace Receiver {
 //            rssiDRaw /= RSSI_READS;
 //        }
        
-        rssiA = constrain(
-            map(
-                rssiARaw,
-                EepromSettings.rssiAMin,
-                EepromSettings.rssiAMax,
-                0,
-                100
-            ),
-            0,
-            100
-        );
+//        rssiA = constrain(
+//            map(
+//                rssiARaw,
+//                EepromSettings.rssiAMin,
+//                EepromSettings.rssiAMax,
+//                0,
+//                100
+//            ),
+//            0,
+//            100
+//        );
+//        
+//        rssiB = constrain(
+//            map(
+//                rssiBRaw,
+//                EepromSettings.rssiBMin,
+//                EepromSettings.rssiBMax,
+//                0,
+//                100
+//            ),
+//            0,
+//            100
+//        );
         
-        rssiB = constrain(
-            map(
-                rssiBRaw,
-                EepromSettings.rssiBMin,
-                EepromSettings.rssiBMax,
-                0,
-                100
-            ),
-            0,
-            100
-        );
-        
-        rssiC = constrain(
-            map(
-                rssiCRaw,
-                EepromSettings.rssiCMin,
-                EepromSettings.rssiCMax,
-                0,
-                100
-            ),
-            0,
-            100
-        );
-        
-        rssiD = constrain(
-            map(
-                rssiDRaw,
-                EepromSettings.rssiDMin,
-                EepromSettings.rssiDMax,
-                0,
-                100
-            ),
-            0,
-            100
-        );
+//        rssiC = constrain(
+//            map(
+//                rssiCRaw,
+//                EepromSettings.rssiCMin,
+//                EepromSettings.rssiCMax,
+//                0,
+//                100
+//            ),
+//            0,
+//            100
+//        );
+//        
+//        rssiD = constrain(
+//            map(
+//                rssiDRaw,
+//                EepromSettings.rssiDMin,
+//                EepromSettings.rssiDMax,
+//                0,
+//                100
+//            ),
+//            0,
+//            100
+//        );
 
         if (rssiLogTimer.hasTicked()) {
             for (uint8_t i = 0; i < RECEIVER_LAST_DATA_SIZE - 1; i++) {
                 rssiALast[i] = rssiALast[i + 1];
                 rssiBLast[i] = rssiBLast[i + 1];                
-                if (EepromSettings.quadversity) {
-                    rssiCLast[i] = rssiCLast[i + 1];
-                    rssiDLast[i] = rssiDLast[i + 1];
-                }
+//                if (EepromSettings.quadversity) {
+//                    rssiCLast[i] = rssiCLast[i + 1];
+//                    rssiDLast[i] = rssiDLast[i + 1];
+//                }
             }
 
             rssiALast[RECEIVER_LAST_DATA_SIZE - 1] = rssiA;
             rssiBLast[RECEIVER_LAST_DATA_SIZE - 1] = rssiB;
-            if (EepromSettings.quadversity) {
-                rssiCLast[RECEIVER_LAST_DATA_SIZE - 1] = rssiC;
-                rssiDLast[RECEIVER_LAST_DATA_SIZE - 1] = rssiD;
-            }
+//            if (EepromSettings.quadversity) {
+//                rssiCLast[RECEIVER_LAST_DATA_SIZE - 1] = rssiC;
+//                rssiDLast[RECEIVER_LAST_DATA_SIZE - 1] = rssiD;
+//            }
 
             rssiLogTimer.reset();
         }
@@ -308,7 +308,7 @@ namespace Receiver {
             
             updateRssi();
 
-            switchDiversity();
+//            switchDiversity();
         }
     }
 }
