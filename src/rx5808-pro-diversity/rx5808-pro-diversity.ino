@@ -32,7 +32,8 @@
   SOFTWARE.
 */
 
-//#include <SPI.h>
+
+
 
 #include "settings.h"
 #include "settings_internal.h"
@@ -47,6 +48,23 @@
 #include "temperature.h"
 #include "touchpad.h"
 
+
+
+
+#include <soc/rtc.h>
+#include "CompositeGraphics.h"
+#include "Image.h"
+#include "CompositeOutput.h"
+#include "luni.h"
+#include "font6x8.h"
+
+const int XRES = 324;
+const int YRES = 224;
+CompositeGraphics graphics(XRES, YRES);
+CompositeOutput composite(CompositeOutput::NTSC, XRES * 2, YRES * 2);
+Image<CompositeGraphics> luni0(luni::xres, luni::yres, luni::pixels);
+Font<CompositeGraphics> font(6, 8, font6x8::pixels);
+
 void setup()
 {
 
@@ -54,25 +72,13 @@ void setup()
 
     SPI.begin();
     
-  EepromSettings.load();
+    EepromSettings.load();
 
     setupPins();
 //    Temperature::setup();
     StateMachine::setup();
     Ui::setup(); 
     TouchPad::setup(); 
-
-//  // Flash lights as startup sequency
-//  for (int x=0; x<20; x++) {
-//    digitalWrite(PIN_LED_A,!digitalRead(PIN_LED_A));
-//    digitalWrite(PIN_LED_B,!digitalRead(PIN_LED_B));
-//    #ifdef FENIX_QUADVERSITY
-//      digitalWrite(PIN_LED_C,!digitalRead(PIN_LED_C));
-//      digitalWrite(PIN_LED_D,!digitalRead(PIN_LED_D));
-//      digitalWrite(PIN_LED, !digitalRead(PIN_LED));
-//    #endif
-//    Ui::beep(x*500);
-//  }
 
   // Has to be last setup() otherwise channel may not be set.
   // RX possibly not botting quick enough if setup() is called earler.
@@ -84,11 +90,25 @@ void setup()
 //  } else {
       StateMachine::switchState(StateMachine::State::HOME); 
 //  }   
-//
-//  #ifdef FENIX_QUADVERSITY
-//    digitalWrite(PIN_LED, HIGH);  // ON
-//  #endif
 
+
+  
+
+    //highest clockspeed needed
+    rtc_clk_cpu_freq_set(RTC_CPU_FREQ_240M);
+    
+    //initializing DMA buffers and I2S
+    composite.init();
+    //initializing graphics double buffer
+    graphics.init();
+    //select font
+    graphics.setFont(font);
+  
+    //running composite output pinned to first core
+    xTaskCreatePinnedToCore(compositeCore, "c", 1024, NULL, 1, NULL, 0);
+    xTaskCreatePinnedToCore(compositeCore, "c", 1024, NULL, 1, NULL, 0);
+    //rendering the actual graphics in the main loop is done on the second core by default
+        
 }
 
 void setupPins() {
@@ -106,64 +126,9 @@ void setupPins() {
 
     pinMode(PIN_TOUCHPAD_DATA_READY, INPUT);
 
-//  
-//  #ifdef FENIX_QUADVERSITY
-//    pinMode(PIN_OSDCONTROL, OUTPUT);
-//    digitalWrite(PIN_OSDCONTROL, HIGH);
-//    pinMode(PIN_LED, OUTPUT);
-//    digitalWrite(PIN_LED, LOW);
-//  #endif
-//  
-//  #ifdef REALACC_RX5808_PRO_PLUS_OSD
-//    pinMode(TS5A3159, OUTPUT);
-//  #endif
-//  
-//    pinMode(PIN_LED_A, OUTPUT);
-//    digitalWrite(PIN_LED_A, LOW);
-//    pinMode(PIN_LED_B, OUTPUT);
-//    digitalWrite(PIN_LED_B, LOW);
-//    pinMode(PIN_LED_C, OUTPUT);
-//    digitalWrite(PIN_LED_C, LOW);
-//    pinMode(PIN_LED_D, OUTPUT);
-//    digitalWrite(PIN_LED_D, LOW);
-//  
-//    pinMode(PIN_RSSI_A, INPUT_ANALOG);
-//    pinMode(PIN_RSSI_B, INPUT_ANALOG);
-//    pinMode(PIN_RSSI_C, INPUT_ANALOG);
-//    pinMode(PIN_RSSI_D, INPUT_ANALOG);
-//  
-//  #ifdef FENIX_QUADVERSITY
-//    pinMode(PIN_SPI_SLAVE_SELECT, OUTPUT);
-//  #endif
-//  #ifdef REALACC_RX5808_PRO_PLUS_OSD
-//    pinMode(PIN_SPI_SLAVE_SELECT_A, OUTPUT);
-//    pinMode(PIN_SPI_SLAVE_SELECT_B, OUTPUT);
-//  #endif
-//    pinMode(PIN_SPI_DATA, OUTPUT);
-//    pinMode(PIN_SPI_CLOCK, OUTPUT);
-//    
-//  #ifdef FENIX_QUADVERSITY
-//    digitalWrite(PIN_SPI_SLAVE_SELECT, HIGH);
-//  #endif
-//  #ifdef REALACC_RX5808_PRO_PLUS_OSD
-//    digitalWrite(PIN_SPI_SLAVE_SELECT_A, HIGH);
-//    digitalWrite(PIN_SPI_SLAVE_SELECT_B, HIGH);
-//  #endif
-//    digitalWrite(PIN_SPI_CLOCK, LOW);
-//    digitalWrite(PIN_SPI_DATA, LOW);
-//    
-//  #ifdef FENIX_QUADVERSITY
-//    pinMode(PIN_VBAT, INPUT_ANALOG);
-//  #endif
 }
 
 void loop() {
-
-    Serial.print("Ui::isTvOn - ");
-    Serial.println(Ui::isTvOn);
-//    REMOVE ME - Test code for SPI RX
-//    ReceiverSpi::setSynthRegisterB(Channels::getSynthRegisterBFreq(5800));
-//    delay(2000);
   
     Receiver::update();
     
@@ -194,4 +159,57 @@ void loop() {
     }
   
     TouchPad::clearTouchData(); 
+
+    
+    draw();
+
+}
+
+void draw()
+{
+  //clearing background and starting to draw
+  graphics.begin(0);
+  //drawing an image
+  luni0.draw(graphics, 200, 10);
+
+  //drawing a frame
+  graphics.fillRect(27, 18, 160, 30, 10);
+  graphics.rect(27, 18, 160, 30, 20);
+
+  //setting text color, transparent background
+  graphics.setTextColor(50);
+  //text starting position
+  graphics.setCursor(30, 20);
+  //printing some lines of text
+  graphics.print("hello!");
+  graphics.print(" free memory: ");
+  graphics.print((int)heap_caps_get_free_size(MALLOC_CAP_DEFAULT));
+  graphics.print("\nrendered frame: ");
+  static int frame = 0;
+  graphics.print(frame, 10, 4); //base 10, 6 characters 
+  graphics.print("\n        in hex: ");
+  graphics.print(frame, 16, 4);
+  frame++;
+
+  //drawing some lines
+  for(int i = 0; i <= 100; i++)
+  {
+    graphics.line(50, i + 60, 50 + i, 160, i / 2);
+    graphics.line(150, 160 - i, 50 + i, 60, i / 2);
+  }
+  
+  //draw single pixel
+  graphics.dot(20, 190, 10);
+  
+  //finished drawing, swap back and front buffer to display it
+  graphics.end();
+}
+
+void compositeCore(void *data)
+{
+  while (true)
+  {
+    //just send the graphics frontbuffer whithout any interruption 
+    composite.sendFrameHalfResolution(&graphics.frame);
+  }
 }

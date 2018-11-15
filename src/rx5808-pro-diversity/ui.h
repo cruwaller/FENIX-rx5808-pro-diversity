@@ -25,11 +25,12 @@
 #define CHAR_HEIGHT 7
 
 namespace Ui {
+    
 //    extern TTVout display;
     
 //    extern bool shouldDrawUpdate;
 //    extern bool shouldDisplay;
-//    extern bool shouldFullRedraw;    
+//    extern bool shouldFullRedraw;  
     
     extern bool isTvOn;
     void switchOSDOutputState();

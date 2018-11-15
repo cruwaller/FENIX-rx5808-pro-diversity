@@ -8,9 +8,8 @@
 #include "receiver.h"
 #include "touchpad.h"
 
-
 namespace Ui {
-    
+
 //    TTVout display;
 
 //    bool shouldDrawUpdate = false;
@@ -26,7 +25,13 @@ namespace Ui {
     void setup() {
         // tone will not work until begin is called.
 //        display.begin(SC_448x216); // 72 MHz
-//        display.end();    
+//        display.end();  
+    }    
+
+    void update() {
+
+//        drawCursor();
+        
     }
 
     void tvOn() {
@@ -108,12 +113,6 @@ namespace Ui {
 //    void beep(uint16_t freq) { 
 //        display.tone(freq, BEEPER_CHIRP);
 //    }
-
-    void update() {
-
-        drawCursor();
-        
-    }
 
 //    void drawGraph(
 //        const uint8_t data[],
