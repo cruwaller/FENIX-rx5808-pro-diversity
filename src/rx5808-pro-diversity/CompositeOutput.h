@@ -172,11 +172,21 @@ class CompositeOutput
     i2s_set_pin(I2S_PORT, NULL);                           //use internal DAC
     i2s_set_sample_rates(I2S_PORT, 1000000);               //dummy sample rate, since the function fails at high values
   
-    //this is the hack that enables the highest sampling rate possible ~13MHz, have fun
-    SET_PERI_REG_BITS(I2S_CLKM_CONF_REG(0), I2S_CLKM_DIV_A_V, 1, I2S_CLKM_DIV_A_S);
-    SET_PERI_REG_BITS(I2S_CLKM_CONF_REG(0), I2S_CLKM_DIV_B_V, 1, I2S_CLKM_DIV_B_S);
-    SET_PERI_REG_BITS(I2S_CLKM_CONF_REG(0), I2S_CLKM_DIV_NUM_V, 2, I2S_CLKM_DIV_NUM_S); 
-    SET_PERI_REG_BITS(I2S_SAMPLE_RATE_CONF_REG(0), I2S_TX_BCK_DIV_NUM_V, 2, I2S_TX_BCK_DIV_NUM_S);
+    //this is the hack that enables the highest sampling rate possible 13.333MHz, have fun
+    SET_PERI_REG_BITS(I2S_CLKM_CONF_REG(I2S_PORT), I2S_CLKM_DIV_A_V, 1, I2S_CLKM_DIV_A_S);
+    SET_PERI_REG_BITS(I2S_CLKM_CONF_REG(I2S_PORT), I2S_CLKM_DIV_B_V, 1, I2S_CLKM_DIV_B_S);
+    SET_PERI_REG_BITS(I2S_CLKM_CONF_REG(I2S_PORT), I2S_CLKM_DIV_NUM_V, 2, I2S_CLKM_DIV_NUM_S); 
+    SET_PERI_REG_BITS(I2S_SAMPLE_RATE_CONF_REG(I2S_PORT), I2S_TX_BCK_DIV_NUM_V, 2, I2S_TX_BCK_DIV_NUM_S);
+  }
+  
+  void startOutput()
+  {
+    i2s_start(I2S_PORT);
+  }
+  
+  void stopOutput()
+  {
+    i2s_stop(I2S_PORT);
   }
 
   void sendLine()
@@ -227,8 +237,9 @@ class CompositeOutput
     fillValues(i, levelBlank, samplesBack);
   }
 
-  void fillHalfBlank(int &i)
+  void fillHalfBlank()
   {
+    int i = 0;
     fillValues(i, levelSync, samplesSync);
     fillValues(i, levelBlank, samplesLine / 2 - samplesSync);  
   }
@@ -271,6 +282,7 @@ class CompositeOutput
     i = 0;
     fillShort(i); fillShort(i);
     sendLine(); sendLine();
+    i = 0;
     fillShort(i); fillValues(i, levelBlank, samplesLine / 2);
     sendLine();
 
@@ -287,7 +299,7 @@ class CompositeOutput
     for(int y = 0; y < linesOddBlankBottom; y++)
       sendLine();
     i = 0;
-    fillHalfBlank(i); fillShort(i);
+    fillHalfBlank(); fillShort(i);
     sendLine(); 
     i = 0;
     fillShort(i); fillShort(i);

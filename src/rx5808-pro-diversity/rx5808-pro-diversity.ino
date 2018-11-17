@@ -58,6 +58,7 @@
 #include "luni.h"
 #include "font6x8.h"
 
+
 const int XRES = 324;
 const int YRES = 224;
 CompositeGraphics graphics(XRES, YRES);
@@ -101,14 +102,16 @@ void setup()
     composite.init();
     //initializing graphics double buffer
     graphics.init();
+    composite.stopOutput(); //stop i2s driver (no video output)
     //select font
     graphics.setFont(font);
-  
+
     //running composite output pinned to first core
     xTaskCreatePinnedToCore(compositeCore, "c", 1024, NULL, 1, NULL, 0);
-    xTaskCreatePinnedToCore(compositeCore, "c", 1024, NULL, 1, NULL, 0);
     //rendering the actual graphics in the main loop is done on the second core by default
-        
+
+    delay(1000);
+    ReceiverSpi::setSynthRegisterB(Channels::getSynthRegisterBFreq(5800));
 }
 
 void setupPins() {
@@ -141,6 +144,7 @@ void loop() {
         TouchPad::update(); 
         
         if (Ui::isTvOn) {
+            draw();
 //            Temperature::update();
 //            StateMachine::update();
             Ui::update();
@@ -152,16 +156,15 @@ void loop() {
         Ui::UiTimeOut.reset();
     }
     if (Ui::isTvOn && Ui::UiTimeOut.hasTicked()) {
-        Ui::switchOSDOutputState();    
+        Ui::switchOSDOutputState();  
+        composite.stopOutput();
     }
     if (!Ui::isTvOn && TouchPad::touchData.buttonPrimary) {
         Ui::switchOSDOutputState();
+        composite.startOutput();
     }
   
-    TouchPad::clearTouchData(); 
-
-    
-    draw();
+    TouchPad::clearTouchData();   
 
 }
 
@@ -203,6 +206,7 @@ void draw()
   
   //finished drawing, swap back and front buffer to display it
   graphics.end();
+
 }
 
 void compositeCore(void *data)
