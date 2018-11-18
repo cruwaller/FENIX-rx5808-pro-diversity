@@ -53,19 +53,19 @@ namespace TouchPad {
 //                Ui::beep();
             }
             
-            Serial.print(touchData.buttonPrimary);
-            Serial.print('\t');
-            Serial.print(touchData.buttonSecondary);
-            Serial.print('\t');
-            Serial.print(touchData.buttonAuxiliary);
-            Serial.print('\t');  
-            Serial.print(touchData.xDelta);
-            Serial.print('\t');
-            Serial.print(touchData.yDelta);
-            Serial.print('\t');
-            Serial.print(touchData.xSign);
-            Serial.print('\t');
-            Serial.println(touchData.ySign);
+//            Serial.print(touchData.buttonPrimary);
+//            Serial.print('\t');
+//            Serial.print(touchData.buttonSecondary);
+//            Serial.print('\t');
+//            Serial.print(touchData.buttonAuxiliary);
+//            Serial.print('\t');  
+//            Serial.print(touchData.xDelta);
+//            Serial.print('\t');
+//            Serial.print(touchData.yDelta);
+//            Serial.print('\t');
+//            Serial.print(touchData.xSign);
+//            Serial.print('\t');
+//            Serial.println(touchData.ySign);
           
         }
     }

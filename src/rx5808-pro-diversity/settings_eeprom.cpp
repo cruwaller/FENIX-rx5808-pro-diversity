@@ -29,8 +29,12 @@ static bool isDirty = false;
 //TwoWire Wire2(2);
 //byte i2cStat = EEPROM.begin(extEEPROM::twiClock100kHz,  &Wire2); 
 
+
 struct EepromSettings EepromSettings;
 
+void EepromSettings::setup() {
+    this->load();
+}
 
 void EepromSettings::update() {
     if (isDirty) {
@@ -54,6 +58,7 @@ void EepromSettings::load() {
 void EepromSettings::save() {
 //  byte i2cStat = EEPROM.write(0, (byte *)this, sizeof(EepromSettings));
     EEPROM.put(0, *this);
+    EEPROM.commit();
 }
 
 void EepromSettings::markDirty() {

@@ -26,5 +26,17 @@ class Font
         if(backColor >= 0)
           g.dot(px + x, py + y, backColor);
   }
+
+  void drawCharLarge(Graphics &g, int x, int y, char ch, int frontColor, int backColor, int xMultiplier, int yMultiplier)
+  {
+    const unsigned char *pix = &pixels[xres * yres * (ch - 32)];
+    for(int py = 0; py < yres; py++)
+      for(int px = 0; px < xres; px++)
+        if(*(pix++))
+          g.fillRect(px*xMultiplier + x, py*yMultiplier + y, xMultiplier, yMultiplier, frontColor);
+        else
+        if(backColor >= 0)
+          g.fillRect(px*xMultiplier + x, py*yMultiplier + y, xMultiplier, yMultiplier, backColor);
+  }
 };
 

@@ -3,7 +3,6 @@
 #include "voltage.h"
 #include "settings_eeprom.h"
 #include "settings.h"
-#include "pstr_helper.h"
 #include "timer.h"
 #include "ui.h"
         

@@ -10,7 +10,6 @@
 #include "settings_eeprom.h"
 
 #include "ui.h"
-#include "pstr_helper.h"
 
 #include "touchpad.h"
     
@@ -63,7 +62,10 @@ void StateMachine::SettingsRssiStateHandler::onUpdate() {
     
     if (internalState==InternalState::SCANNING_LOW || internalState==InternalState::SCANNING_HIGH) {
 //        Ui::setTextSize(1);
-//        Ui::setTextColor(WHITE);
+        Ui::display.setTextColor(100);
+          Ui::display.setCursor( 80, 60);
+        Ui::display.print(Channels::getName(Receiver::activeChannel)[0]);
+        Ui::display.print(Channels::getName(Receiver::activeChannel)[1]);
 //        Ui::drawBigCharacter( 120, 55, 
 //                              Channels::getName(Receiver::activeChannel)[0], 
 //                              11, 10);
@@ -101,6 +103,14 @@ void StateMachine::SettingsRssiStateHandler::doTapAction() {
             EepromSettings.rssiCMax = 0;
             EepromSettings.rssiDMin = UINT16_MAX;
             EepromSettings.rssiDMax = 0;
+//            EepromSettings.rssiAMin = 1000; //UINT16_MAX; // Cause error at rssiA = constrain(
+//            EepromSettings.rssiAMax = 1001; //0;
+//            EepromSettings.rssiBMin = 1000; //UINT16_MAX;
+//            EepromSettings.rssiBMax = 1001; //0;
+//            EepromSettings.rssiCMin = 1000; //UINT16_MAX;
+//            EepromSettings.rssiCMax = 1001; //0;
+//            EepromSettings.rssiDMin = 1000; //UINT16_MAX;
+//            EepromSettings.rssiDMax = 1001; //0;
         break;
 
         case InternalState::DONE:
@@ -137,59 +147,59 @@ void StateMachine::SettingsRssiStateHandler::onUpdateDraw() {
       case InternalState::WAIT_FOR_LOW:
     
 //          Ui::setTextSize(1);
-//          Ui::setTextColor(WHITE);
-//          Ui::setCursor( 80, 40);
-//          Ui::display.println(PSTR2("Your module is not calibrated."));
-//          Ui::setCursor( 80, 50);
-//          Ui::display.println(PSTR2("Follow the below steps."));
-//          Ui::setCursor( 80, 70);
-//          Ui::display.println(PSTR2("- Turn on a VTx at 25mW & place 1m away."));
-//          Ui::setCursor( 80, 80);
-//          Ui::display.println(PSTR2("- Remove Rx antennas."));
-//          Ui::setCursor( 80, 100);
-//          Ui::display.println(PSTR2("Press MODE when ready."));
+          Ui::display.setTextColor(100);
+          Ui::display.setCursor( 80, 40);
+          Ui::display.print("Your module is not calibrated.");
+          Ui::display.setCursor( 80, 50);
+          Ui::display.print("Follow the below steps.");
+          Ui::display.setCursor( 80, 70);
+          Ui::display.print("- Turn on a VTx at 25mW & place 1m away.");
+          Ui::display.setCursor( 80, 80);
+          Ui::display.print("- Remove Rx antennas.");
+          Ui::display.setCursor( 80, 100);
+          Ui::display.print("Press MODE when ready.");
       break;
 
       case InternalState::SCANNING_LOW:
 //          Ui::setTextSize(1);
-//          Ui::setTextColor(WHITE);
-//          Ui::setCursor( 80, 40);
-//          Ui::display.println(PSTR2("Scanning for lowest & highest RSSI..."));
+          Ui::display.setTextColor(100);
+          Ui::display.setCursor( 80, 40);
+          Ui::display.print("Scanning for lowest & highest RSSI...");
       break;
 
       case InternalState::DONE:
 //          Ui::setTextSize(1);
-//          Ui::setTextColor(WHITE);
-//          Ui::setCursor( 80, 40);
-//          Ui::display.print(PSTR2("All done!"));
-//
-//          Ui::setCursor(0, CHAR_HEIGHT * 2);
-//          
-//          Ui::setCursor( 80, 60);
-//          Ui::display.print(PSTR2("A: "));
-//          Ui::display.print(EepromSettings.rssiAMin);
-//          Ui::display.print(PSTR2(" -> "));
-//          Ui::display.println(EepromSettings.rssiAMax);
-//          Ui::setCursor( 80, 70);
-//          Ui::display.print(PSTR2("B: "));
-//          Ui::display.print(EepromSettings.rssiBMin);
-//          Ui::display.print(PSTR2(" -> "));
-//          Ui::display.println(EepromSettings.rssiBMax);
+          Ui::display.setTextColor(100);
+          Ui::display.setCursor( 80, 40);
+          Ui::display.print("All done!");
+
+          Ui::display.setCursor(0, CHAR_HEIGHT * 2);
+          
+          Ui::display.setCursor( 80, 60);
+          Ui::display.print("A: ");
+          Ui::display.print(EepromSettings.rssiAMin);
+          Ui::display.print(" -> ");
+          Ui::display.print(EepromSettings.rssiAMax);
+          Ui::display.setCursor( 80, 70);
+          Ui::display.print("B: ");
+          Ui::display.print(EepromSettings.rssiBMin);
+          Ui::display.print(" -> ");
+          Ui::display.print(EepromSettings.rssiBMax);
           if (EepromSettings.quadversity) {
-//              Ui::setCursor( 80, 80);
-//              Ui::display.print(PSTR2("C: "));
-//              Ui::display.print(EepromSettings.rssiCMin);
-//              Ui::display.print(PSTR2(" -> "));
-//              Ui::display.println(EepromSettings.rssiCMax);
-//              Ui::setCursor( 80, 90);
-//              Ui::display.print(PSTR2("D: "));
-//              Ui::display.print(EepromSettings.rssiDMin);
-//              Ui::display.print(PSTR2(" -> "));
-//              Ui::display.println(EepromSettings.rssiDMax);
+              Ui::display.setCursor( 80, 80);
+              Ui::display.print("C: ");
+              Ui::display.print(EepromSettings.rssiCMin);
+              Ui::display.print(" -> ");
+              Ui::display.print(EepromSettings.rssiCMax);
+              Ui::display.setCursor( 80, 90);
+              Ui::display.print("D: ");
+              Ui::display.print(EepromSettings.rssiDMin);
+              Ui::display.print(" -> ");
+              Ui::display.print(EepromSettings.rssiDMax);
           }
 
-//          Ui::setCursor( 80, 110);
-//          Ui::display.print(PSTR2("Press MODE to save."));
+          Ui::display.setCursor( 80, 80);
+          Ui::display.print("Press MODE to save.");
       break;
     }
 

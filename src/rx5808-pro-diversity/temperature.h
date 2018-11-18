@@ -3,10 +3,11 @@
 
 namespace Temperature {
     
-    extern float temperature;
+//    extern float temperature;
     
-    void setup();
-    void update();
+//    void setup();
+//    void update();
+    float getTemperature();
 }
 
 #endif

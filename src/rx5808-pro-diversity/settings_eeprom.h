@@ -61,6 +61,7 @@ struct EepromSettings {
 //       unsigned char customLogo[128*64/8];
 //    #endif
     
+    void setup();
     void update();
 
     void load();

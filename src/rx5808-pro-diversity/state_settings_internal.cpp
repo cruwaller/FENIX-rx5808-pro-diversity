@@ -6,8 +6,6 @@
 #include "ui.h"
 #include "voltage.h"
 
-#include "pstr_helper.h"
-
 int8_t selectedInternalMenuItem = 0;
 bool showChangeInternalMenuOptions = false;
 

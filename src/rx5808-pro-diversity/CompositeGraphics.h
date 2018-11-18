@@ -64,7 +64,7 @@ class CompositeGraphics
     cursorY = y;  
   }
   
-  void print(char *str)
+  void print(char *str) // drawCharLarge(Graphics &g, int x, int y, char ch, int frontColor, int backColor, int xMultiplier, int yMultiplier)
   {
     if(!font) return;
     while(*str)
@@ -76,6 +76,24 @@ class CompositeGraphics
       {
         cursorX = cursorBaseX;
         cursorY += font->yres;        
+      }
+      str++;
+    }
+  }
+  
+  void printLarge(char *str, int xMultiplier, int yMultiplier)
+  {
+    if(!font) return;
+    while(*str)
+    {
+      if(*str >= 32 && *str < 128)
+        font->drawCharLarge(*this, cursorX, cursorY, *str, frontColor, backColor, xMultiplier, yMultiplier);
+//      cursorX += font->xres*xMultiplier;
+      cursorX += (font->xres-2)*xMultiplier;
+      if(cursorX + font->xres > xres || *str == '\n')
+      {
+        cursorX = cursorBaseX;
+        cursorY += font->yres*yMultiplier;        
       }
       str++;
     }
@@ -99,6 +117,26 @@ class CompositeGraphics
     for(;i > 31 - minCharacters; i--)
       temp[i] = ' ';
     print(&temp[i + 1]);
+  }
+  
+  void printLarge(int number, int xMultiplier, int yMultiplier, int base = 10, int minCharacters = 1)
+  {
+    bool sign = number < 0;
+    if(sign) number = -number;
+    const char baseChars[] = "0123456789ABCDEF";
+    char temp[33];
+    temp[32] = 0;
+    int i = 31;
+    do
+    {
+      temp[i--] = baseChars[number % base];
+      number /= base;
+    }while(number > 0);
+    if(sign)
+      temp[i--] = '-';
+    for(;i > 31 - minCharacters; i--)
+      temp[i] = ' ';
+    printLarge(&temp[i + 1], xMultiplier, yMultiplier);
   }
 
   inline void begin(int clear = -1, bool clearZ = true)

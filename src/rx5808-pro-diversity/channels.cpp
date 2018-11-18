@@ -5,7 +5,6 @@
 #include "receiver.h"
 #include "Arduino.h"
 #include "ui.h"
-#include "pstr_helper.h"
 
 
 // Channels with their Mhz Values
@@ -185,9 +184,9 @@ namespace Channels {
     const uint16_t getFrequency(uint8_t index) {
         return pgm_read_word_near(channelFreqTable + index);
     }
-
+    
     // Returns channel name as a string.
-    uint8_t bandNames[] = {
+    char bandNames[] = {
         65,    // A  https://www.arduino.cc/en/Reference/ASCIIchart
         66,    // B
         69,    // E
@@ -198,14 +197,14 @@ namespace Channels {
         79,    // O
         72     // H
         };
-    char nameBuffer[3];
-    const char *getName(uint8_t index) {
+    char nameBuffer[2];
+    char *getName(uint8_t index) {
         uint8_t band = index / 8;
         uint8_t channel = 48 + (index % 8) + 1;   // https://www.arduino.cc/en/Reference/ASCIIchart
         
         nameBuffer[0] = bandNames[band];
         nameBuffer[1] = channel;
-        nameBuffer[2] = '\0';
+//        nameBuffer[2] = '\0';
         
         return nameBuffer;
     }

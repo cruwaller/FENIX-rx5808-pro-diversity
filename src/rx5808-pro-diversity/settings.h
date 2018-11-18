@@ -98,6 +98,8 @@ SOFTWARE.
 
 #define PIN_RSSI_A                      36
 #define PIN_RSSI_B                      39
+#define PIN_RSSI_C                      39
+#define PIN_RSSI_D                      39
 
 #define PIN_TOUCHPAD_SLAVE_SELECT       21
 #define PIN_TOUCHPAD_DATA_READY         34

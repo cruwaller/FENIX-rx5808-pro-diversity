@@ -46,12 +46,16 @@ namespace Receiver {
     static Timer rssiStableTimer = Timer(30); // default value and is replce by value stored in eeprom during setup
     static Timer rssiLogTimer = Timer(RECEIVER_LAST_DELAY);
 
+    bool hasRssiUpdated = false;
+
     void setChannel(uint8_t channel)
     {
         ReceiverSpi::setSynthRegisterB(Channels::getSynthRegisterB(channel));
 
         rssiStableTimer.reset();
         activeChannel = channel;
+
+        hasRssiUpdated = false;
     }
     
     void setChannelByFreq(uint16_t freq)
@@ -60,11 +64,12 @@ namespace Receiver {
 
         rssiStableTimer.reset();
 //        activeChannel = channel;
-      
+
+        hasRssiUpdated = false;      
     }
 
     void setActiveReceiver(ReceiverId receiver) {
-        if (!EepromSettings.quadversity) {
+//        if (!EepromSettings.quadversity) {
 //            #ifdef FENIX_QUADVERSITY
 //            digitalWrite(PIN_LED_A, receiver == ReceiverId::A);
 //            digitalWrite(PIN_LED_B, receiver == ReceiverId::B);
@@ -82,12 +87,12 @@ namespace Receiver {
                 }
 //            #endif
             
-        } else if (EepromSettings.quadversity) {
+//        } else if (EepromSettings.quadversity) {
 //            digitalWrite(PIN_LED_A, receiver == ReceiverId::A);
 //            digitalWrite(PIN_LED_B, receiver == ReceiverId::B);
 //            digitalWrite(PIN_LED_C, receiver == ReceiverId::C);
 //            digitalWrite(PIN_LED_D, receiver == ReceiverId::D);
-        }
+//        }
         activeReceiver = receiver;
     }
 
@@ -97,7 +102,7 @@ namespace Receiver {
 
     void updateRssi() {
 
-        uint8_t RSSI_READS = 15;  
+        uint8_t RSSI_READS = 15; //15;  
         
         rssiARaw = 0;
         for (uint8_t i = 0; i < RSSI_READS; i++) {                       
@@ -111,87 +116,93 @@ namespace Receiver {
         }
         rssiBRaw /= RSSI_READS;
 
-//        if (EepromSettings.quadversity) {
-//            rssiCRaw = 0;
-//            for (uint8_t i = 0; i < RSSI_READS; i++) {                       
-//                rssiCRaw += analogRead(PIN_RSSI_C);
-//            }
-//            rssiCRaw /= RSSI_READS;
-//            
-//            rssiDRaw = 0;
-//            for (uint8_t i = 0; i < RSSI_READS; i++) {                       
-//                rssiDRaw += analogRead(PIN_RSSI_D);
-//            }
-//            rssiDRaw /= RSSI_READS;
-//        }
-       
-//        rssiA = constrain(
-//            map(
-//                rssiARaw,
-//                EepromSettings.rssiAMin,
-//                EepromSettings.rssiAMax,
-//                0,
-//                100
-//            ),
-//            0,
-//            100
-//        );
-//        
-//        rssiB = constrain(
-//            map(
-//                rssiBRaw,
-//                EepromSettings.rssiBMin,
-//                EepromSettings.rssiBMax,
-//                0,
-//                100
-//            ),
-//            0,
-//            100
-//        );
-        
-//        rssiC = constrain(
-//            map(
-//                rssiCRaw,
-//                EepromSettings.rssiCMin,
-//                EepromSettings.rssiCMax,
-//                0,
-//                100
-//            ),
-//            0,
-//            100
-//        );
-//        
-//        rssiD = constrain(
-//            map(
-//                rssiDRaw,
-//                EepromSettings.rssiDMin,
-//                EepromSettings.rssiDMax,
-//                0,
-//                100
-//            ),
-//            0,
-//            100
-//        );
+        if (EepromSettings.quadversity) {
+            rssiCRaw = 0;
+            for (uint8_t i = 0; i < RSSI_READS; i++) {                       
+                rssiCRaw += analogRead(PIN_RSSI_C);
+            }
+            rssiCRaw /= RSSI_READS;
+            
+            rssiDRaw = 0;
+            for (uint8_t i = 0; i < RSSI_READS; i++) {                       
+                rssiDRaw += analogRead(PIN_RSSI_D);
+            }
+            rssiDRaw /= RSSI_READS;
+        }
+
+        if (StateMachine::currentState != StateMachine::State::SETTINGS_RSSI) {
+          
+            rssiA = constrain(
+                map(
+                    rssiARaw,
+                    EepromSettings.rssiAMin,
+                    EepromSettings.rssiAMax,
+                    0,
+                    100
+                ),
+                0,
+                100
+            );
+            
+            rssiB = constrain(
+                map(
+                    rssiBRaw,
+                    EepromSettings.rssiBMin,
+                    EepromSettings.rssiBMax,
+                    0,
+                    100
+                ),
+                0,
+                100
+            );
+            
+            rssiC = constrain(
+                map(
+                    rssiCRaw,
+                    EepromSettings.rssiCMin,
+                    EepromSettings.rssiCMax,
+                    0,
+                    100
+                ),
+                0,
+                100
+            );
+            
+            rssiD = constrain(
+                map(
+                    rssiDRaw,
+                    EepromSettings.rssiDMin,
+                    EepromSettings.rssiDMax,
+                    0,
+                    100
+                ),
+                0,
+                100
+            );
+          
+        }
 
         if (rssiLogTimer.hasTicked()) {
             for (uint8_t i = 0; i < RECEIVER_LAST_DATA_SIZE - 1; i++) {
                 rssiALast[i] = rssiALast[i + 1];
                 rssiBLast[i] = rssiBLast[i + 1];                
-//                if (EepromSettings.quadversity) {
-//                    rssiCLast[i] = rssiCLast[i + 1];
-//                    rssiDLast[i] = rssiDLast[i + 1];
-//                }
+                if (EepromSettings.quadversity) {
+                    rssiCLast[i] = rssiCLast[i + 1];
+                    rssiDLast[i] = rssiDLast[i + 1];
+                }
             }
 
             rssiALast[RECEIVER_LAST_DATA_SIZE - 1] = rssiA;
             rssiBLast[RECEIVER_LAST_DATA_SIZE - 1] = rssiB;
-//            if (EepromSettings.quadversity) {
-//                rssiCLast[RECEIVER_LAST_DATA_SIZE - 1] = rssiC;
-//                rssiDLast[RECEIVER_LAST_DATA_SIZE - 1] = rssiD;
-//            }
+            if (EepromSettings.quadversity) {
+                rssiCLast[RECEIVER_LAST_DATA_SIZE - 1] = rssiC;
+                rssiDLast[RECEIVER_LAST_DATA_SIZE - 1] = rssiD;
+            }
 
             rssiLogTimer.reset();
         }
+
+        hasRssiUpdated = true;
     }
 
     void switchDiversity() {
@@ -302,6 +313,7 @@ namespace Receiver {
     }
 
     void update() {
+
         if (rssiStableTimer.hasTicked()) {
 
             updateAntenaOnTime();
@@ -310,5 +322,6 @@ namespace Receiver {
 
             switchDiversity();
         }
+        
     }
 }

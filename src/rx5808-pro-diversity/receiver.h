@@ -8,7 +8,7 @@
 
 
 #define RECEIVER_LAST_DELAY 50
-#define RECEIVER_LAST_DATA_SIZE 64
+#define RECEIVER_LAST_DATA_SIZE 128 //64
 
 
 namespace Receiver {
@@ -55,6 +55,7 @@ namespace Receiver {
     void switchDiversity();
 
     bool isRssiStable();
+    extern bool hasRssiUpdated;
 
     void setup();
     void update();

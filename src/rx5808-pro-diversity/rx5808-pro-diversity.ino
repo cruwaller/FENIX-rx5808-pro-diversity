@@ -32,8 +32,7 @@
   SOFTWARE.
 */
 
-
-
+#include <EEPROM.h>
 
 #include "settings.h"
 #include "settings_internal.h"
@@ -48,70 +47,31 @@
 #include "temperature.h"
 #include "touchpad.h"
 
-
-
-
-#include <soc/rtc.h>
-#include "CompositeGraphics.h"
-#include "Image.h"
-#include "CompositeOutput.h"
-#include "luni.h"
-#include "font6x8.h"
-
-
-const int XRES = 324;
-const int YRES = 224;
-CompositeGraphics graphics(XRES, YRES);
-CompositeOutput composite(CompositeOutput::NTSC, XRES * 2, YRES * 2);
-Image<CompositeGraphics> luni0(luni::xres, luni::yres, luni::pixels);
-Font<CompositeGraphics> font(6, 8, font6x8::pixels);
-
 void setup()
 {
 
     Serial.begin(9600);
-
+    EEPROM.begin(2048);
     SPI.begin();
     
-    EepromSettings.load();
-
+    EepromSettings.setup();
     setupPins();
-//    Temperature::setup();
     StateMachine::setup();
     Ui::setup(); 
     TouchPad::setup(); 
 
-  // Has to be last setup() otherwise channel may not be set.
-  // RX possibly not botting quick enough if setup() is called earler.
-  Receiver::setup(); 
+    // Has to be last setup() otherwise channel may not be set.
+    // RX possibly not botting quick enough if setup() is called earler.
+    // delay() may be needed.
+    Receiver::setup(); 
 
-//  if (!EepromSettings.isCalibrated) {
-//      StateMachine::switchState(StateMachine::State::SETTINGS_RSSI); 
-//      Ui::switchOSDOutputState();    
-//  } else {
-      StateMachine::switchState(StateMachine::State::HOME); 
-//  }   
+    if (!EepromSettings.isCalibrated) {
+        StateMachine::switchState(StateMachine::State::SETTINGS_RSSI); 
+        Ui::tvOn();
+    } else {
+        StateMachine::switchState(StateMachine::State::HOME); 
+    }   
 
-
-  
-
-    //highest clockspeed needed
-    rtc_clk_cpu_freq_set(RTC_CPU_FREQ_240M);
-    
-    //initializing DMA buffers and I2S
-    composite.init();
-    //initializing graphics double buffer
-    graphics.init();
-    composite.stopOutput(); //stop i2s driver (no video output)
-    //select font
-    graphics.setFont(font);
-
-    //running composite output pinned to first core
-    xTaskCreatePinnedToCore(compositeCore, "c", 1024, NULL, 1, NULL, 0);
-    //rendering the actual graphics in the main loop is done on the second core by default
-
-    delay(1000);
-    ReceiverSpi::setSynthRegisterB(Channels::getSynthRegisterBFreq(5800));
 }
 
 void setupPins() {
@@ -139,81 +99,36 @@ void loop() {
 //        Voltage::update();
 //    #endif
   
-//    if (Ui::UiRefreshTimer.hasTicked()) {
-//        Ui::UiRefreshTimer.reset();
-        TouchPad::update(); 
+    TouchPad::update(); 
         
         if (Ui::isTvOn) {
-            draw();
-//            Temperature::update();
-//            StateMachine::update();
+          
+            Ui::display.begin(0);
+            StateMachine::update();
             Ui::update();
+            Ui::display.end();
+      
             EepromSettings.update();
         }
-//    }
     
     if (TouchPad::touchData.isActive) {
         Ui::UiTimeOut.reset();
     }
-    if (Ui::isTvOn && Ui::UiTimeOut.hasTicked()) {
-        Ui::switchOSDOutputState();  
-        composite.stopOutput();
+    
+    if (Ui::isTvOn &&
+        Ui::UiTimeOut.hasTicked() &&
+        StateMachine::currentState != StateMachine::State::SETTINGS_RSSI ) 
+    {
+        Ui::tvOff();  
     }
-    if (!Ui::isTvOn && TouchPad::touchData.buttonPrimary) {
-        Ui::switchOSDOutputState();
-        composite.startOutput();
+    
+    if (!Ui::isTvOn &&
+        TouchPad::touchData.buttonPrimary)
+    {
+        Ui::tvOn();
     }
   
     TouchPad::clearTouchData();   
 
 }
 
-void draw()
-{
-  //clearing background and starting to draw
-  graphics.begin(0);
-  //drawing an image
-  luni0.draw(graphics, 200, 10);
-
-  //drawing a frame
-  graphics.fillRect(27, 18, 160, 30, 10);
-  graphics.rect(27, 18, 160, 30, 20);
-
-  //setting text color, transparent background
-  graphics.setTextColor(50);
-  //text starting position
-  graphics.setCursor(30, 20);
-  //printing some lines of text
-  graphics.print("hello!");
-  graphics.print(" free memory: ");
-  graphics.print((int)heap_caps_get_free_size(MALLOC_CAP_DEFAULT));
-  graphics.print("\nrendered frame: ");
-  static int frame = 0;
-  graphics.print(frame, 10, 4); //base 10, 6 characters 
-  graphics.print("\n        in hex: ");
-  graphics.print(frame, 16, 4);
-  frame++;
-
-  //drawing some lines
-  for(int i = 0; i <= 100; i++)
-  {
-    graphics.line(50, i + 60, 50 + i, 160, i / 2);
-    graphics.line(150, 160 - i, 50 + i, 60, i / 2);
-  }
-  
-  //draw single pixel
-  graphics.dot(20, 190, 10);
-  
-  //finished drawing, swap back and front buffer to display it
-  graphics.end();
-
-}
-
-void compositeCore(void *data)
-{
-  while (true)
-  {
-    //just send the graphics frontbuffer whithout any interruption 
-    composite.sendFrameHalfResolution(&graphics.frame);
-  }
-}
