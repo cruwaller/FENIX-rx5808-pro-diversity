@@ -31,7 +31,8 @@ namespace Ui {
     CompositeGraphics display(XRES, YRES);
     CompositeOutput composite(CompositeOutput::NTSC, XRES * 2, YRES * 2);
     Image<CompositeGraphics> luni0(luni::xres, luni::yres, luni::pixels);
-    Font<CompositeGraphics> font(6, 8, font6x8::pixels);
+//    Font<CompositeGraphics> font(6, 8, font6x8::pixels);
+    Font<CompositeGraphics> font(8, 8, font8x8::pixels);
 
     void setup() {
         // tone will not work until begin is called.

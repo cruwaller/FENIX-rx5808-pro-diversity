@@ -23,6 +23,7 @@
 #include "CompositeOutput.h"
 #include "luni.h"
 #include "font6x8.h"
+#include "font8x8.h"
 #include <soc/rtc.h>
 
 #define SCREEN_WIDTH 324
