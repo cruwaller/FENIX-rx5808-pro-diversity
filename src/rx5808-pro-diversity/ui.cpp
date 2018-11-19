@@ -193,6 +193,13 @@ namespace Ui {
         display.line(TouchPad::touchData.cursorX + 7, TouchPad::touchData.cursorY + 13, TouchPad::touchData.cursorX + 11, TouchPad::touchData.cursorY + 12, 100);
         display.line(TouchPad::touchData.cursorX + 11, TouchPad::touchData.cursorY + 12, TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, 100);
 
+        display.setCursor(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY);
+        display.print("[");
+        display.print(TouchPad::touchData.cursorX);
+        display.print(", ");
+        display.print(TouchPad::touchData.cursorY);
+        display.print("]");
+        
     }
 
 //    void beep() { 

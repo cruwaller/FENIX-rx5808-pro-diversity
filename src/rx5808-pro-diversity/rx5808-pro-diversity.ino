@@ -71,7 +71,6 @@ void setup()
     } else {
         StateMachine::switchState(StateMachine::State::HOME); 
     }   
-
 }
 
 void setupPins() {

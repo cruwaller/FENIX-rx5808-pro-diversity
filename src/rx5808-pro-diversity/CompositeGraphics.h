@@ -88,8 +88,7 @@ class CompositeGraphics
     {
       if(*str >= 32 && *str < 128)
         font->drawCharLarge(*this, cursorX, cursorY, *str, frontColor, backColor, xMultiplier, yMultiplier);
-//      cursorX += font->xres*xMultiplier;
-      cursorX += (font->xres-2)*xMultiplier;
+      cursorX += font->xres*xMultiplier;
       if(cursorX + font->xres > xres || *str == '\n')
       {
         cursorX = cursorBaseX;

@@ -50,7 +50,7 @@ void HomeStateHandler::onUpdateDraw() {
     // Mode
 //    Ui::display.setTextSize(1);
     Ui::display.setTextColor(100);
-    Ui::display.setCursor( 8, 4);
+    Ui::display.setCursor( 8, 0);
 //    Ui::display.print(PSTR2("Mode: ")); 
     Ui::display.print("Mode: ");    
     if (!EepromSettings.quadversity) {
@@ -63,23 +63,23 @@ void HomeStateHandler::onUpdateDraw() {
     }    
 
 
-//    #ifdef FENIX_QUADVERSITY
-        // Voltage
-//        Ui::display.setCursor( 280, 4);
-        Ui::display.setCursor( 200, 4);
-        Ui::display.print("7");   
-//        Ui::display.print(Voltage::voltage);        
-        Ui::display.print(".");        
-        Ui::display.print("6");
-//        Ui::display.print(Voltage::voltageDec);
-        Ui::display.print("V");
-        
-        Ui::display.print(" / "); 
-//    #endif
+////    #ifdef FENIX_QUADVERSITY
+//        // Voltage
+////        Ui::display.setCursor( 280, 4);
+//        Ui::display.setCursor( 200, 4);
+//        Ui::display.print("7");   
+////        Ui::display.print(Voltage::voltage);        
+//        Ui::display.print(".");        
+//        Ui::display.print("6");
+////        Ui::display.print(Voltage::voltageDec);
+//        Ui::display.print("V");
+//        
+//        Ui::display.print(" / "); 
+////    #endif
 
-    #ifdef REALACC_RX5808_PRO_PLUS_OSD
-        Ui::setCursor( 322, 4);
-    #endif
+//    #ifdef REALACC_RX5808_PRO_PLUS_OSD
+        Ui::display.setCursor( 216, 0);
+//    #endif
 
     // Temperature
     Ui::display.print(Temperature::getTemperature());
@@ -105,15 +105,15 @@ void HomeStateHandler::onUpdateDraw() {
 
     // Horixontal line
 //    Ui::drawFastHLine( 0, 14, 447, WHITE);
-    Ui::display.line( 0, 14, SCREEN_WIDTH, 14, 100);
+    Ui::display.line( 0, 9, SCREEN_WIDTH, 9, 100);
     
     // Display Band and Channel
-    Ui::display.setCursor( 4, 16);
-    Ui::display.printLarge(Channels::getName(displayActiveChannel), 12, 15);
+    Ui::display.setCursor( 2, 15);
+    Ui::display.printLarge(Channels::getName(displayActiveChannel), 8, 12);
            
     // Display Frequency
-    Ui::display.setCursor( 4, 110);
-    Ui::display.printLarge(Channels::getFrequency(displayActiveChannel), 5, 5);
+    Ui::display.setCursor( 0, 105);
+    Ui::display.printLarge(Channels::getFrequency(displayActiveChannel), 4, 3);
     
 //    Ui::display.print(Channels::getFrequency(displayActiveChannel));
 
@@ -132,10 +132,10 @@ void HomeStateHandler::onUpdateDraw() {
 //
 //    // Channel labels
 //    if (!EepromSettings.quadversity) {
-    Ui::display.setCursor( 190, 23);
-    Ui::display.print("A");
-    Ui::display.setCursor( 190, 76);
-    Ui::display.print("B");
+    Ui::display.setCursor( 130, 12 + 28*0 + 3);
+    Ui::display.printLarge("A", 2, 2);
+    Ui::display.setCursor( 130, 12 + 28*2 + 3);
+    Ui::display.printLarge("B", 2, 2);
 //        Ui::drawBigCharacter( 190, 23, 
 //                              'A', 
 //                              3, 2);
@@ -161,12 +161,12 @@ void HomeStateHandler::onUpdateDraw() {
 //    
 //    // Channel selected square
 //    if (!EepromSettings.quadversity) {
-//      if (Receiver::activeReceiver == Receiver::ReceiverId::A) {
-//          Ui::drawRoundRect(185, 20, 34, 24, 2, WHITE);
-//      }
-//      if (Receiver::activeReceiver == Receiver::ReceiverId::B) {
-//          Ui::drawRoundRect(185, 20 + 28*2, 34, 24, 2, WHITE);
-//      }
+      if (Receiver::activeReceiver == Receiver::ReceiverId::A) {
+          Ui::display.rect(128, 10 + 28*0 + 3, 19, 19, 100);
+      }
+      if (Receiver::activeReceiver == Receiver::ReceiverId::B) {
+          Ui::display.rect(128, 10 + 28*2 + 3, 18, 18, 100);
+      }
 //    }
 //    if (EepromSettings.quadversity) {
 //      if (Receiver::activeReceiver == Receiver::ReceiverId::A) {
@@ -185,12 +185,12 @@ void HomeStateHandler::onUpdateDraw() {
 //
 //    // On percentage
 //    if (!EepromSettings.quadversity) {
-//        Ui::setCursor(225, 25);
-//        Ui::display.print( (100 * Receiver::antennaAOnTime) / (millis() / 1000) );
-//        Ui::display.print(PSTR2("%"));
-//        Ui::setCursor(225, 25+28*2);
-//        Ui::display.print( (100 * Receiver::antennaBOnTime) / (millis() / 1000) );
-//        Ui::display.print(PSTR2("%"));
+        Ui::display.setCursor(128, 30 + 28*0 + 3);
+        Ui::display.print( (100.0 * Receiver::antennaAOnTime) / (millis() / 1000) );
+        Ui::display.print("%");
+        Ui::display.setCursor(128, 32 + 28*2 + 3);
+        Ui::display.print( (100.0 * Receiver::antennaBOnTime) / (millis() / 1000) );
+        Ui::display.print("%");
 //    }
 //    if (EepromSettings.quadversity) {
 //        Ui::setCursor(225, 25);
@@ -209,11 +209,11 @@ void HomeStateHandler::onUpdateDraw() {
 //
 //    // Draw RSSI Plots
 //    if (!EepromSettings.quadversity) {
-          Ui::display.rect(195, 20 + 28*0 + 3, 64*2, 28*2-1, 100);
-          Ui::display.rect(195, 20 + 28*2 + 3, 64*2, 28*2-1, 100);
+          Ui::display.rect(195, 12 + 28*0 + 3, 64*2, 28*2-1, 100);
+          Ui::display.rect(195, 12 + 28*2 + 3, 64*2, 28*2-1, 100);
         for (uint8_t i=0; i < RECEIVER_LAST_DATA_SIZE-1; i++) {
-          Ui::display.line(195+1*i, (20 + 28*2)-Receiver::rssiALast[i]/2, 195+1*(i+1), (20 + 28*2)-Receiver::rssiALast[i+1]/2, 100);
-          Ui::display.line(195+1*i, (20 + 28*4)-Receiver::rssiBLast[i]/2, 195+1*(i+1), (20 + 28*4)-Receiver::rssiBLast[i+1]/2, 100);
+          Ui::display.line(195+1*i, (12 + 28*2)-Receiver::rssiALast[i]/2, 195+1*(i+1), (12 + 28*2)-Receiver::rssiALast[i+1]/2, 100);
+          Ui::display.line(195+1*i, (12 + 28*4)-Receiver::rssiBLast[i]/2, 195+1*(i+1), (12 + 28*4)-Receiver::rssiBLast[i+1]/2, 100);
         }
 //    }
 //    if (EepromSettings.quadversity) {
@@ -232,48 +232,59 @@ void HomeStateHandler::onUpdateDraw() {
 
     // Plot Spectrum 324 x 224
     for (uint8_t i=0; i<CHANNELS_SIZE; i++) {
-        Ui::display.fillRect(18+4*i, 214 - rssiData[i]*0.75, 4, rssiData[i]*0.75, rssiData[i]);
+        Ui::display.fillRect(18+4*i, 214 - rssiData[i]*0.8, 4, rssiData[i]*0.8, rssiData[i]);
     }
     Ui::display.line(0, 213, 323, 213, 100);
     Ui::display.setCursor( 1, 215);
     Ui::display.print(Channels::getFrequency(Channels::getOrderedIndex(0)));
-    Ui::display.setCursor( 299, 215);
+    Ui::display.setCursor( 290, 215);
     Ui::display.print(Channels::getFrequency(Channels::getOrderedIndex(CHANNELS_SIZE-1)));
-//      
-//    Ui::needDisplay();
+    // Marker triangle
+    uint8_t markerX = Channels::getOrderedIndexFromIndex(Receiver::activeChannel);
+    for (int i = 0; i < 7; i++) {
+        Ui::display.line(18+4*markerX, 214, 18+4*markerX+(-2+i), 219, 100);
+    }
+    
 }
 
 void HomeStateHandler::doTapAction() {
             
-  if (
-      TouchPad::touchData.cursorX > 15  && TouchPad::touchData.cursorX < 85 &&
-      TouchPad::touchData.cursorY > 20 && TouchPad::touchData.cursorY < 60
+  if ( // Down band
+      TouchPad::touchData.cursorX >= 0  && TouchPad::touchData.cursorX < 61 &&
+      TouchPad::touchData.cursorY > 8 && TouchPad::touchData.cursorY < 54
      ) {
           this->setChannel(-8);
         }
-  else if (
-      TouchPad::touchData.cursorX > 15  && TouchPad::touchData.cursorX < 85 &&
-      TouchPad::touchData.cursorY > 60 && TouchPad::touchData.cursorY < 100
+  else if ( // Up band
+      TouchPad::touchData.cursorX >= 0  && TouchPad::touchData.cursorX < 61 &&
+      TouchPad::touchData.cursorY > 54 && TouchPad::touchData.cursorY < 99
      ) {
           this->setChannel(8);
         }
-  else if (
-      TouchPad::touchData.cursorX > 85  && TouchPad::touchData.cursorX < 160 &&
-      TouchPad::touchData.cursorY > 20 && TouchPad::touchData.cursorY < 60
+  else if ( // Down channel
+      TouchPad::touchData.cursorX > 61  && TouchPad::touchData.cursorX < 122 &&
+      TouchPad::touchData.cursorY > 8 && TouchPad::touchData.cursorY < 54
      ) {
           this->setChannel(-1);
         }
-  else if (
-      TouchPad::touchData.cursorX > 85  && TouchPad::touchData.cursorX < 160 &&
-      TouchPad::touchData.cursorY > 60 && TouchPad::touchData.cursorY < 100
+  else if ( // Up channel
+      TouchPad::touchData.cursorX > 61  && TouchPad::touchData.cursorX < 122 &&
+      TouchPad::touchData.cursorY > 54 && TouchPad::touchData.cursorY < 99
      ) {
           this->setChannel(1);
+        }
+  else if ( // Change mode
+      TouchPad::touchData.cursorX < 130 &&
+      TouchPad::touchData.cursorY < 8
+     ) {
+          // Change mode
         }
   else if ( // Select channel from spectrum
       HomeStateHandler::isInBandScanRegion()
      ) {
+//          Ui::display.fillRect(18+4*i, 214 - rssiData[i]*0.8, 4, rssiData[i]*0.8, rssiData[i]);
           Receiver::setChannel(
-                              Channels::getOrderedIndex( (TouchPad::touchData.cursorX-40) / 5 )
+                              Channels::getOrderedIndex( (TouchPad::touchData.cursorX-18) / 4 )
                               );
           HomeStateHandler::centreFrequency();
           displayActiveChannel = Receiver::activeChannel;
