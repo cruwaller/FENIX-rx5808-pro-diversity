@@ -108,15 +108,15 @@ void StateMachine::SettingsStateHandler::onUpdateDraw() {
             break;
             
             case 1:    // Home Page
-              if (EepromSettings.selectedHomePage == 0) {
-//                  Ui::display.print(PSTR2("  Default  "));
-              }
-              if (EepromSettings.selectedHomePage == 1) {
-//                  Ui::display.print(PSTR2("  Simple   "));
-              }
-              if (EepromSettings.selectedHomePage == 2) {
-//                  Ui::display.print(PSTR2("  Stats    "));
-              }
+//              if (EepromSettings.selectedHomePage == 0) {
+////                  Ui::display.print(PSTR2("  Default  "));
+//              }
+//              if (EepromSettings.selectedHomePage == 1) {
+////                  Ui::display.print(PSTR2("  Simple   "));
+//              }
+//              if (EepromSettings.selectedHomePage == 2) {
+////                  Ui::display.print(PSTR2("  Stats    "));
+//              }
             break;
             
             case 2:    // Voltage Scale
@@ -144,40 +144,40 @@ void StateMachine::SettingsStateHandler::onUpdateDraw() {
             break;
             
             case 4:    // Save Screen
-              if (EepromSettings.saveScreenOn == 0) {
-//                  Ui::display.print(PSTR2("    Off    "));
-              }
-              if (EepromSettings.saveScreenOn == 1) {
-//                  Ui::display.print(PSTR2("  Default  "));
-              }
-              if (EepromSettings.saveScreenOn == 2) {
-//                  Ui::display.print(PSTR2("Betaflight "));
-              }
-              if (EepromSettings.saveScreenOn == 3) {
-//                  Ui::display.print(PSTR2(" RotorRiot "));
-              }
-              if (EepromSettings.saveScreenOn == 4) {
-//                  Ui::display.print(PSTR2("  Random   "));
-              }
-              if (EepromSettings.saveScreenOn == 5) {
-//                  Ui::display.print(PSTR2("  Custom   "));
-              }
+//              if (EepromSettings.saveScreenOn == 0) {
+////                  Ui::display.print(PSTR2("    Off    "));
+//              }
+//              if (EepromSettings.saveScreenOn == 1) {
+////                  Ui::display.print(PSTR2("  Default  "));
+//              }
+//              if (EepromSettings.saveScreenOn == 2) {
+////                  Ui::display.print(PSTR2("Betaflight "));
+//              }
+//              if (EepromSettings.saveScreenOn == 3) {
+////                  Ui::display.print(PSTR2(" RotorRiot "));
+//              }
+//              if (EepromSettings.saveScreenOn == 4) {
+////                  Ui::display.print(PSTR2("  Random   "));
+//              }
+//              if (EepromSettings.saveScreenOn == 5) {
+////                  Ui::display.print(PSTR2("  Custom   "));
+//              }
             break;
             
             case 5:    // Use OLED Screen
-              if (EepromSettings.useOledScreen) {
-//                  Ui::display.print(PSTR2("    Yes     "));
-              } else {
-//                  Ui::display.print(PSTR2("    No    "));
-              }
+//              if (EepromSettings.useOledScreen) {
+////                  Ui::display.print(PSTR2("    Yes     "));
+//              } else {
+////                  Ui::display.print(PSTR2("    No    "));
+//              }
             break;
             
             case 6:    // Use Fast Boot
-              if (EepromSettings.useFastBoot) {
-//                  Ui::display.print(PSTR2("    On     "));
-              } else {
-//                  Ui::display.print(PSTR2("    Off    "));
-              }
+//              if (EepromSettings.useFastBoot) {
+////                  Ui::display.print(PSTR2("    On     "));
+//              } else {
+////                  Ui::display.print(PSTR2("    Off    "));
+//              }
             break;
             
             case 7:    // Version
@@ -203,19 +203,19 @@ void StateMachine::SettingsStateHandler::onUpdateDraw() {
             break;
             
             case 11:    // Invert Display
-              if (EepromSettings.invertDisplay) {
-//                  Ui::display.print(PSTR2("    On     "));
-              } else {
-//                  Ui::display.print(PSTR2("    Off    "));
-              }
+//              if (EepromSettings.invertDisplay) {
+////                  Ui::display.print(PSTR2("    On     "));
+//              } else {
+////                  Ui::display.print(PSTR2("    Off    "));
+//              }
             break;
             
             case 12:    // Rotate OLED
-              if (EepromSettings.rotateOled) {
-//                  Ui::display.print(PSTR2("  Rotated  "));
-              } else {
-//                  Ui::display.print(PSTR2("  Normal   "));
-              }
+//              if (EepromSettings.rotateOled) {
+////                  Ui::display.print(PSTR2("  Rotated  "));
+//              } else {
+////                  Ui::display.print(PSTR2("  Normal   "));
+//              }
             break;
             
         }    

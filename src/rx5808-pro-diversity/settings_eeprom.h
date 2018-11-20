@@ -19,9 +19,6 @@ struct EepromSettings {
     StateMachine::State lastKnownState;
 
     uint8_t beepEnabled;
-
-    uint8_t searchManual;
-    uint8_t searchOrderByChannel;
     
     uint16_t rssiAMin;
     uint16_t rssiAMax;
@@ -40,13 +37,7 @@ struct EepromSettings {
     int spectatorChannels[8];
 
     uint8_t quadversity;
-    uint8_t saveScreenOn;
-    uint8_t useOledScreen;
-    uint8_t useFastBoot;
-    uint8_t selectedHomePage;
     uint8_t buttonBeep;
-    uint8_t invertDisplay;
-    uint8_t rotateOled;
 
     // Internal settings
     uint8_t spectatorFreqScanStep;
@@ -77,9 +68,6 @@ const struct {
     StateMachine::State lastKnownState = StateMachine::State::HOME;
 
     uint8_t beepEnabled = true;
-
-    uint8_t searchManual = false;
-    uint8_t searchOrderByChannel = false;
     
     uint16_t rssiAMin = RSSI_MIN_VAL;
     uint16_t rssiAMax = RSSI_MAX_VAL;
@@ -98,21 +86,15 @@ const struct {
     int spectatorChannels[8] = {-1, -1, -1, -1, -1, -1, -1, -1};
     
     uint8_t quadversity = false;
-    uint8_t saveScreenOn = 1;
-    uint8_t useOledScreen = false;
-    uint8_t useFastBoot = true;
-    uint8_t selectedHomePage = 0;
     uint8_t buttonBeep = true;
-    uint8_t invertDisplay = false;
-    uint8_t rotateOled = false;
 
     // Internal settings
     uint8_t spectatorFreqScanStep = 5;
     uint8_t spectatorFWHM = 20;
     uint8_t rssiSeekTreshold = 50;
     uint16_t rssiMinTuneTime = 30;
-    uint8_t rssiHysteresis = 2;
-    uint16_t rssiHysteresisPeriod = 5;
+    uint8_t rssiHysteresis = 0;
+    uint16_t rssiHysteresisPeriod = 1;
 
 } EepromDefaults;
 
