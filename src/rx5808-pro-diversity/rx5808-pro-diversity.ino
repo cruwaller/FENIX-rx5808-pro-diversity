@@ -46,10 +46,17 @@
 #include "temperature.h"
 #include "touchpad.h"
 
+#ifdef SPEED_TEST
+    uint32_t n = 0;
+    uint32_t previousTime = millis();
+#endif
+
 void setup()
 {
 
-    Serial.begin(9600);
+    #ifdef SPEED_TEST
+        Serial.begin(9600);
+    #endif
     
     EEPROM.begin(2048);
     SPI.begin();
@@ -101,15 +108,15 @@ void loop() {
   
     TouchPad::update(); 
         
-        if (Ui::isTvOn) {
-          
-            Ui::display.begin(0);
-            StateMachine::update();
-            Ui::update();
-            Ui::display.end();
+    if (Ui::isTvOn) {
       
-            EepromSettings.update();
-        }
+        Ui::display.begin(0);
+        StateMachine::update();
+        Ui::update();
+        Ui::display.end();
+  
+        EepromSettings.update();
+    }
     
     if (TouchPad::touchData.isActive) {
         Ui::UiTimeOut.reset();
@@ -128,6 +135,16 @@ void loop() {
         Ui::tvOn();
     }
   
-    TouchPad::clearTouchData();   
+    TouchPad::clearTouchData();  
+
+    #ifdef SPEED_TEST
+        n++;
+        if (millis() > previousTime + 1000) {
+            Serial.print(n);
+            Serial.println(" Hz");
+            previousTime = millis();
+            n = 0;
+        }
+    #endif
 
 }

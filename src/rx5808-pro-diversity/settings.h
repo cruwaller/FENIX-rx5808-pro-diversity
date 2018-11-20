@@ -96,4 +96,6 @@ SOFTWARE.
 
 #define BEEPER_CHIRP 25
 
+//#define SPEED_TEST
+
 #endif // file_defined
