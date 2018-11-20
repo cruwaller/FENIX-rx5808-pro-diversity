@@ -18,21 +18,21 @@ namespace Receiver {
     ReceiverId activeReceiver = ReceiverId::A;
     uint8_t activeChannel = EepromSettings.startChannel;
 
-    uint8_t rssiA = 0;
-    uint16_t rssiARaw = 0;
-    uint8_t rssiALast[RECEIVER_LAST_DATA_SIZE] = { 0 };
+    uint8_t  rssiA = 0;
+    uint32_t rssiARaw = 0;
+    uint8_t  rssiALast[RECEIVER_LAST_DATA_SIZE] = { 0 };
 
-    uint8_t rssiB = 0;
-    uint16_t rssiBRaw = 0;
-    uint8_t rssiBLast[RECEIVER_LAST_DATA_SIZE] = { 0 };
+    uint8_t  rssiB = 0;
+    uint32_t rssiBRaw = 0;
+    uint8_t  rssiBLast[RECEIVER_LAST_DATA_SIZE] = { 0 };
     
-    uint8_t rssiC = 0;
-    uint16_t rssiCRaw = 0;
-    uint8_t rssiCLast[RECEIVER_LAST_DATA_SIZE] = { 0 };
+    uint8_t  rssiC = 0;
+    uint32_t rssiCRaw = 0;
+    uint8_t  rssiCLast[RECEIVER_LAST_DATA_SIZE] = { 0 };
     
-    uint8_t rssiD = 0;
-    uint16_t rssiDRaw = 0;
-    uint8_t rssiDLast[RECEIVER_LAST_DATA_SIZE] = { 0 };
+    uint8_t  rssiD = 0;
+    uint32_t rssiDRaw = 0;
+    uint8_t  rssiDLast[RECEIVER_LAST_DATA_SIZE] = { 0 };
 
     uint16_t previousSwitchTime = 0;
     uint16_t antennaAOnTime = 0;
@@ -70,23 +70,13 @@ namespace Receiver {
 
     void setActiveReceiver(ReceiverId receiver) {
 //        if (!EepromSettings.quadversity) {
-//            #ifdef FENIX_QUADVERSITY
-//            digitalWrite(PIN_LED_A, receiver == ReceiverId::A);
-//            digitalWrite(PIN_LED_B, receiver == ReceiverId::B);
-//            #endif
-//    
-//            #ifdef REALACC_RX5808_PRO_PLUS_OSD
-//                digitalWrite(PIN_LED_A, receiver != ReceiverId::A);
-//                digitalWrite(PIN_LED_B, receiver != ReceiverId::B);
-                if (receiver == ReceiverId::A) {
-                    digitalWrite(PIN_RX_SWICTH, LOW);
-                }
-                if (receiver == ReceiverId::B){
-                    digitalWrite(PIN_RX_SWICTH, HIGH);
-                  
-                }
-//            #endif
-            
+            if (receiver == ReceiverId::A) {
+                digitalWrite(PIN_RX_SWICTH, LOW);
+            }
+            if (receiver == ReceiverId::B){
+                digitalWrite(PIN_RX_SWICTH, HIGH);
+              
+            }            
 //        } else if (EepromSettings.quadversity) {
 //            digitalWrite(PIN_LED_A, receiver == ReceiverId::A);
 //            digitalWrite(PIN_LED_B, receiver == ReceiverId::B);
@@ -102,7 +92,7 @@ namespace Receiver {
 
     void updateRssi() {
 
-        uint8_t RSSI_READS = 15; //15;  
+        uint8_t RSSI_READS = 15;
         
         rssiARaw = 0;
         for (uint8_t i = 0; i < RSSI_READS; i++) {                       
@@ -208,7 +198,7 @@ namespace Receiver {
     void switchDiversity() {
         ReceiverId nextReceiver = activeReceiver;
 
-          if (!EepromSettings.quadversity) {
+//          if (!EepromSettings.quadversity) {
             int8_t rssiDiff = (int8_t) rssiA - (int8_t) rssiB;
             uint8_t rssiDiffAbs = abs(rssiDiff);
             ReceiverId currentBestReceiver = activeReceiver;
@@ -233,8 +223,8 @@ namespace Receiver {
             } else {
                 diversityHysteresisTimer.reset();
             }            
-          }
-          
+//          }
+//          
 //          if (EepromSettings.quadversity) {
 //            int8_t rssiMax = max(max(rssiA, rssiB), max(rssiC, rssiD));
 //            uint8_t rssiDiff = 0;

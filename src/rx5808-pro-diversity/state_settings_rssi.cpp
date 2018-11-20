@@ -6,7 +6,6 @@
 #include "channels.h"
 
 #include "settings.h"
-#include "settings_internal.h"
 #include "settings_eeprom.h"
 
 #include "ui.h"

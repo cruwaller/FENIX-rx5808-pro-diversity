@@ -3,7 +3,6 @@
 #include "ui.h"
 #include "settings.h"
 #include "touchpad.h"
-//#include <Wire.h>
 
 //// Cirque's 7-bit I2C Slave Address
 //#define TOUCHPAD_SLAVE_ADDR  0x2A
@@ -35,18 +34,17 @@ namespace TouchPad {
 //            touchData.cursorX += touchData.xDelta;
             touchData.cursorY -= touchData.yDelta;
             
-            // SC_448x216
             if (touchData.cursorX < 1) {
                 touchData.cursorX = 1;
             }
-            if (touchData.cursorX > 430) {
-                touchData.cursorX = 430;
+            if (touchData.cursorX > SCREEN_WIDTH - 12) {
+                touchData.cursorX = SCREEN_WIDTH - 12;
             }
             if (touchData.cursorY < 1) {
                 touchData.cursorY = 1;
             }
-            if (touchData.cursorY > 196) {
-                touchData.cursorY = 196;
+            if (touchData.cursorY > SCREEN_HEIGHT - 19) {
+                touchData.cursorY = SCREEN_HEIGHT - 19;
             }
 
             if (touchData.buttonPrimary) {
@@ -84,9 +82,6 @@ namespace TouchPad {
     /*  Pinnacle-based TM0XX0XX Functions  */
     void Pinnacle_Init() {
 
-//      Wire.begin();
-//      Wire.setClock(400000);
-      
       SPI.begin();
   
       // Host clears SW_CC flag
@@ -94,11 +89,6 @@ namespace TouchPad {
     
       // Feed Enable
       RAP_Write(0x04, 0b00000001);
-    
-//      // Sample Rate (default 100 Hz)
-//      // Needs to be decrease and only check on UI update.
-//      // Higher rate introduces UI noise.
-//      RAP_Write(0x09, 0x14); // 20 Hz
       
     }
     

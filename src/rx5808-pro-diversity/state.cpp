@@ -27,9 +27,8 @@ void *operator new(size_t size, void *ptr){
 ;
 
 namespace StateMachine {
-//    static void onButtonChange(Button button, Buttons::PressType pressType);
+  
     static StateHandler *getStateHandler(State stateType);
-
 
     static uint8_t stateBuffer[STATE_BUFFER_SIZE];
     static StateHandler* currentHandler = nullptr;
@@ -38,7 +37,7 @@ namespace StateMachine {
 
 
     void setup() {
-//        Buttons::registerChangeFunc(onButtonChange);
+
     }
 
     void update() {
@@ -48,19 +47,12 @@ namespace StateMachine {
 
             // FIXME: This should probably be handled in the UI module but not
             // 100% on how to decouple them at this stage
-//            static Timer drawTimer = Timer(OLED_FRAMERATE);
             if (currentHandler
-//                && Ui::shouldDrawUpdate
-//                && drawTimer.hasTicked()
+
             ) {
-//                if (Ui::shouldFullRedraw) {
-//                    currentHandler->onInitialDraw();
-//                    Ui::shouldFullRedraw = false;
-//                }
 
                 currentHandler->onUpdateDraw();
-//                Ui::shouldDrawUpdate = false;
-//                drawTimer.reset();
+
             }
         }
     }
@@ -100,9 +92,4 @@ namespace StateMachine {
         #undef STATE_FACTORY
     }
 
-//    static void onButtonChange(Button button, Buttons::PressType pressType) {
-//        if (currentHandler != nullptr) {
-//            currentHandler->onButtonChange(button, pressType);
-//        }
-//    }
 }

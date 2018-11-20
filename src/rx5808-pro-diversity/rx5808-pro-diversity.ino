@@ -35,7 +35,6 @@
 #include <EEPROM.h>
 
 #include "settings.h"
-#include "settings_internal.h"
 #include "settings_eeprom.h"
 
 #include "channels.h"
@@ -51,6 +50,7 @@ void setup()
 {
 
     Serial.begin(9600);
+    
     EEPROM.begin(2048);
     SPI.begin();
     
@@ -61,7 +61,7 @@ void setup()
     TouchPad::setup(); 
 
     // Has to be last setup() otherwise channel may not be set.
-    // RX possibly not botting quick enough if setup() is called earler.
+    // RX possibly not booting quick enough if setup() is called earler.
     // delay() may be needed.
     Receiver::setup(); 
 
@@ -71,6 +71,7 @@ void setup()
     } else {
         StateMachine::switchState(StateMachine::State::HOME); 
     }   
+    
 }
 
 void setupPins() {
@@ -94,9 +95,9 @@ void loop() {
   
     Receiver::update();
     
-//    #ifdef FENIX_QUADVERSITY  
-//        Voltage::update();
-//    #endif
+    #ifdef USE_VOLTAGE_MONITORING  
+        Voltage::update();
+    #endif
   
     TouchPad::update(); 
         
@@ -130,4 +131,3 @@ void loop() {
     TouchPad::clearTouchData();   
 
 }
-

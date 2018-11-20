@@ -16,12 +16,13 @@
 using StateMachine::HomeStateHandler;
 
 void HomeStateHandler::onEnter() {
+  
     displayActiveChannel = Receiver::activeChannel;
-//    Ui::clear();
+
 }
 
 void HomeStateHandler::onUpdate() {
-//    Ui::needUpdate();
+
 }
 
 void HomeStateHandler::onInitialDraw() {
@@ -45,8 +46,6 @@ void HomeStateHandler::onUpdateDraw() {
         wasInBandScanRegion = false;
     }
     
-//    Ui::clear();
-//
     // Mode
 //    Ui::display.setTextSize(1);
     Ui::display.setTextColor(100);
@@ -63,23 +62,19 @@ void HomeStateHandler::onUpdateDraw() {
     }    
 
 
-////    #ifdef FENIX_QUADVERSITY
-//        // Voltage
-////        Ui::display.setCursor( 280, 4);
-//        Ui::display.setCursor( 200, 4);
+    #ifdef USE_VOLTAGE_MONITORING
+        // Voltage
+        Ui::display.setCursor( 140, 0);
 //        Ui::display.print("7");   
-////        Ui::display.print(Voltage::voltage);        
-//        Ui::display.print(".");        
+        Ui::display.print(Voltage::voltage);        
+        Ui::display.print(".");        
 //        Ui::display.print("6");
-////        Ui::display.print(Voltage::voltageDec);
-//        Ui::display.print("V");
-//        
-//        Ui::display.print(" / "); 
-////    #endif
-
-//    #ifdef REALACC_RX5808_PRO_PLUS_OSD
+        Ui::display.print(Voltage::voltageDec);
+        Ui::display.print("V");  
+        Ui::display.print(" / "); 
+    #else
         Ui::display.setCursor( 216, 0);
-//    #endif
+    #endif
 
     // Temperature
     Ui::display.print(Temperature::getTemperature());
@@ -104,7 +99,6 @@ void HomeStateHandler::onUpdateDraw() {
     Ui::display.print(secs);
 
     // Horixontal line
-//    Ui::drawFastHLine( 0, 14, 447, WHITE);
     Ui::display.line( 0, 9, SCREEN_WIDTH, 9, 100);
     
     // Display Band and Channel
@@ -115,34 +109,12 @@ void HomeStateHandler::onUpdateDraw() {
     Ui::display.setCursor( 0, 105);
     Ui::display.printLarge(Channels::getFrequency(displayActiveChannel), 4, 3);
     
-//    Ui::display.print(Channels::getFrequency(displayActiveChannel));
-
-//    Ui::drawBigNumber( 8, 100, 
-//                       Channels::getFrequency(displayActiveChannel) / 1000, 
-//                       5, 3);
-//    Ui::drawBigNumber( 48, 100, 
-//                       (Channels::getFrequency(displayActiveChannel) % 1000 ) / 100, 
-//                       5, 3);
-//    Ui::drawBigNumber( 88, 100, 
-//                       (Channels::getFrequency(displayActiveChannel) % 100 ) / 10, 
-//                       5, 3);
-//    Ui::drawBigNumber( 128, 100, 
-//                       Channels::getFrequency(displayActiveChannel) % 10, 
-//                       5, 3);
-//
 //    // Channel labels
 //    if (!EepromSettings.quadversity) {
     Ui::display.setCursor( 130, 12 + 28*0 + 3);
     Ui::display.printLarge("A", 2, 2);
     Ui::display.setCursor( 130, 12 + 28*2 + 3);
-    Ui::display.printLarge("B", 2, 2);
-//        Ui::drawBigCharacter( 190, 23, 
-//                              'A', 
-//                              3, 2);
-//        Ui::drawBigCharacter( 190, 23 + 28*2, 
-//                              'B', 
-//                              3, 2);
-//      
+    Ui::display.printLarge("B", 2, 2);//      
 //    }
 //    if (EepromSettings.quadversity) {
 //        Ui::drawBigCharacter( 190, 23, 
@@ -158,7 +130,7 @@ void HomeStateHandler::onUpdateDraw() {
 //                              'D', 
 //                              3, 2);      
 //    }
-//    
+    
 //    // Channel selected square
 //    if (!EepromSettings.quadversity) {
       if (Receiver::activeReceiver == Receiver::ReceiverId::A) {

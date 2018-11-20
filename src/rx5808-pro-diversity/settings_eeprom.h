@@ -5,7 +5,6 @@
 #include <stdint.h>
 
 #include "settings.h"
-#include "settings_internal.h"
 #include "receiver.h"
 #include "state.h"
 
@@ -56,10 +55,6 @@ struct EepromSettings {
     uint16_t rssiMinTuneTime;
     uint8_t rssiHysteresis;
     uint16_t rssiHysteresisPeriod;
-
-//    #ifndef EEPROM_AT24C02
-//       unsigned char customLogo[128*64/8];
-//    #endif
     
     void setup();
     void update();
@@ -119,9 +114,6 @@ const struct {
     uint8_t rssiHysteresis = 2;
     uint16_t rssiHysteresisPeriod = 5;
 
-//    #ifndef EEPROM_AT24C02
-//        unsigned char customLogo[128*64/8] = {0};
-//    #endif
 } EepromDefaults;
 
 

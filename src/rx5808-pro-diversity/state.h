@@ -6,7 +6,7 @@
 
 
 namespace StateMachine {
-//    #define STATE_COUNT 11
+
     enum class State : uint8_t {
         BOOT,
         HOME,
@@ -24,9 +24,6 @@ namespace StateMachine {
             virtual void onUpdate() {};
             virtual void onExit() {};
 
-//            virtual void onButtonChange(
-//                Button button,
-//                Buttons::PressType pressType) {};
     };
 
     extern State currentState;

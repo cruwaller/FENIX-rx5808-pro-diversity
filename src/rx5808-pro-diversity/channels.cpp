@@ -1,5 +1,3 @@
-
-
 #include "channels.h"
 #include "settings.h"
 #include "receiver.h"
@@ -204,7 +202,6 @@ namespace Channels {
         
         nameBuffer[0] = bandNames[band];
         nameBuffer[1] = channel;
-//        nameBuffer[2] = '\0';
         
         return nameBuffer;
     }

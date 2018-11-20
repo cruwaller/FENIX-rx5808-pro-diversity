@@ -18,7 +18,7 @@ namespace Voltage {
       
     void update() {
 
-        #ifdef FENIX_QUADVERSITY
+        #ifdef USE_VOLTAGE_MONITORING
       
             for (uint8_t i = 0; i < RSSI_READS; i++) {                       
                 voltageRaw += analogRead(PIN_VBAT);
