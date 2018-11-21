@@ -6,6 +6,7 @@
 #include "state_home.h"
 
 #include "receiver.h"
+#include "receiver_spi.h"
 #include "channels.h"
 #include "state.h"
 #include "ui.h"
@@ -283,9 +284,11 @@ void HomeStateHandler::doTapAction() {
               {
                   case StateMachine::DiversityMode::ANTENNA_A:
                       EepromSettings.diversityMode = StateMachine::DiversityMode::ANTENNA_B;
+//                      ReceiverSpi::rxStandby(Receiver::ReceiverId::A);
                       break;
                   case StateMachine::DiversityMode::ANTENNA_B:
                       EepromSettings.diversityMode = StateMachine::DiversityMode::DIVERSITY;
+//                      ReceiverSpi::rxPowerOn(Receiver::ReceiverId::A);
                       break;
                   case StateMachine::DiversityMode::DIVERSITY:
                       EepromSettings.diversityMode = StateMachine::DiversityMode::ANTENNA_A;

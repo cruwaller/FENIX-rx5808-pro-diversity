@@ -44,6 +44,14 @@ namespace ReceiverSpi {
     void setStateRegister(uint32_t value) {
         sendRegister(SPI_ADDRESS_STATE, value);
     }
+    
+    void rxStandby(Receiver::ReceiverId ReceiverId) {
+        sendRegister(SPI_ADDRESS_STATE, 0b00000000000000000011);
+    }
+  
+    void rxPowerOn(Receiver::ReceiverId ReceiverId) {
+        sendRegister(SPI_ADDRESS_STATE, 0b00000000000000000001);
+    }
 }
 
 
