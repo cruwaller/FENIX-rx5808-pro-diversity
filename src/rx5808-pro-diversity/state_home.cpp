@@ -214,7 +214,7 @@ void HomeStateHandler::onUpdateDraw() {
     // Marker triangle
     uint8_t markerX = Channels::getOrderedIndexFromIndex(Receiver::activeChannel);
     for (int i = 0; i < 7; i++) {
-        Ui::display.line(18+4*markerX, 214, 18+4*markerX+(-2+i), 219, 100);
+        Ui::display.line(18+4*markerX, 214, 18+4*markerX+(-3+i), 219, 100);
     }
     
 }
