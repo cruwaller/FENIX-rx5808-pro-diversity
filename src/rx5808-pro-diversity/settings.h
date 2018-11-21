@@ -27,7 +27,7 @@ SOFTWARE.
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
-#define VERSION_NUMBER 0001
+#define VERSION_NUMBER 0000
 
 // === Features ===============================================================
 
@@ -88,7 +88,7 @@ SOFTWARE.
 //#define RSSI_SEEK_TRESHOLD 50
 
 // Scan loops for setup run.
-#define RSSI_SETUP_RUN 3
+#define RSSI_SETUP_RUN 1
 
 // === Misc ====================================================================
 
