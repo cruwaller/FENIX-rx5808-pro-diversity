@@ -13,6 +13,7 @@
 #include "Image.h"
 #include "CompositeOutput.h"
 #include "font8x8.h"
+#include "cursor.h"
 #include <soc/rtc.h>
 
 #define SCREEN_WIDTH 324

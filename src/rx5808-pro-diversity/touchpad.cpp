@@ -37,14 +37,14 @@ namespace TouchPad {
             if (touchData.cursorX < 1) {
                 touchData.cursorX = 1;
             }
-            if (touchData.cursorX > SCREEN_WIDTH - 12) {
-                touchData.cursorX = SCREEN_WIDTH - 12;
+            if (touchData.cursorX > SCREEN_WIDTH - 1) {
+                touchData.cursorX = SCREEN_WIDTH - 1;
             }
             if (touchData.cursorY < 1) {
                 touchData.cursorY = 1;
             }
-            if (touchData.cursorY > SCREEN_HEIGHT - 19) {
-                touchData.cursorY = SCREEN_HEIGHT - 19;
+            if (touchData.cursorY > SCREEN_HEIGHT - 1) {
+                touchData.cursorY = SCREEN_HEIGHT - 1;
             }
 
             if (touchData.buttonPrimary) {

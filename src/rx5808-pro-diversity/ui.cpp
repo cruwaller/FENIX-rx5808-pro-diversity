@@ -73,38 +73,24 @@ namespace Ui {
         isTvOn = false;
     }
 
-    // This needs to be redone with a fill triangle... which needs to be added to the TTVout lib.
     void drawCursor() {
-        
-        // Black inner
-        display.line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX, TouchPad::touchData.cursorY + 16, 10);
-        display.line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX+1, TouchPad::touchData.cursorY + 16, 10);
-        display.line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX+2, TouchPad::touchData.cursorY + 15, 10);
-        display.line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX+3, TouchPad::touchData.cursorY + 14, 10);
-        display.line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX+4, TouchPad::touchData.cursorY + 13, 10);
-        
-        display.line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX+6, TouchPad::touchData.cursorY + 18, 10);
-        display.line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX+7, TouchPad::touchData.cursorY + 18, 10);
-        display.line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX+8, TouchPad::touchData.cursorY + 17, 10);
-        display.line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX+9, TouchPad::touchData.cursorY + 17, 10);
-        
-        display.line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX+7, TouchPad::touchData.cursorY + 13, 10);
-        display.line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX+8, TouchPad::touchData.cursorY + 13, 10);
-        display.line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX+9, TouchPad::touchData.cursorY + 13, 10);
-        display.line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX+10, TouchPad::touchData.cursorY + 13, 10);
-        display.line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX+11, TouchPad::touchData.cursorY + 13, 10);
-        
-        // White boarder
-        display.line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, TouchPad::touchData.cursorX, TouchPad::touchData.cursorY + 16, 100);
-        display.line(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY + 16, TouchPad::touchData.cursorX + 4, TouchPad::touchData.cursorY + 13, 100);
-        display.line(TouchPad::touchData.cursorX + 4, TouchPad::touchData.cursorY + 13, TouchPad::touchData.cursorX + 6, TouchPad::touchData.cursorY + 18, 100);
-        display.line(TouchPad::touchData.cursorX + 6, TouchPad::touchData.cursorY + 18, TouchPad::touchData.cursorX + 9, TouchPad::touchData.cursorY + 17, 100);
-        display.line(TouchPad::touchData.cursorX + 9, TouchPad::touchData.cursorY + 17, TouchPad::touchData.cursorX + 7, TouchPad::touchData.cursorY + 13, 100);
-        display.line(TouchPad::touchData.cursorX + 7, TouchPad::touchData.cursorY + 13, TouchPad::touchData.cursorX + 11, TouchPad::touchData.cursorY + 12, 100);
-        display.line(TouchPad::touchData.cursorX + 11, TouchPad::touchData.cursorY + 12, TouchPad::touchData.cursorX, TouchPad::touchData.cursorY, 100);
 
+        int i = 0;
+        for(int py = 0; py < Cursor::yres; py++) {
+            for(int px = 0; px < Cursor::xres; px++) {
+                int pixelValue = Cursor::pixels[i++];
+                if (pixelValue == 255) {
+                    display.dot(px + TouchPad::touchData.cursorX, py + TouchPad::touchData.cursorY, 100);
+                }
+                if (pixelValue == 1) {
+                    display.dot(px + TouchPad::touchData.cursorX, py + TouchPad::touchData.cursorY, 0);
+                }
+            }
+        }
+
+        // For testing print the cursor location.  Helps with positioning widgits.
         display.setCursor(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY);
-        display.print("[");
+        display.print("  [");
         display.print(TouchPad::touchData.cursorX);
         display.print(", ");
         display.print(TouchPad::touchData.cursorY);
