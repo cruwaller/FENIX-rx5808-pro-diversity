@@ -17,7 +17,7 @@ static void writeSerialData();
 namespace Receiver {
     ReceiverId activeReceiver = ReceiverId::A;
     uint8_t activeChannel = EepromSettings.startChannel;
-
+    
     uint16_t  rssiA = 0;
     uint32_t rssiARaw = 0;
     uint16_t  rssiALast[RECEIVER_LAST_DATA_SIZE] = { 0 };
@@ -69,20 +69,42 @@ namespace Receiver {
     }
 
     void setActiveReceiver(ReceiverId receiver) {
-//        if (!EepromSettings.quadversity) {
-            if (receiver == ReceiverId::A) {
-                digitalWrite(PIN_RX_SWICTH, LOW);
-            }
-            if (receiver == ReceiverId::B){
-                digitalWrite(PIN_RX_SWICTH, HIGH);
-              
-            }            
-//        } else if (EepromSettings.quadversity) {
-//            digitalWrite(PIN_LED_A, receiver == ReceiverId::A);
-//            digitalWrite(PIN_LED_B, receiver == ReceiverId::B);
-//            digitalWrite(PIN_LED_C, receiver == ReceiverId::C);
-//            digitalWrite(PIN_LED_D, receiver == ReceiverId::D);
-//        }
+        
+        switch (EepromSettings.diversityMode) {
+            case StateMachine::DiversityMode::ANTENNA_A:
+                receiver = ReceiverId::A;
+                break;
+
+            case StateMachine::DiversityMode::ANTENNA_B:
+                receiver = ReceiverId::B;
+                break;
+
+            case StateMachine::DiversityMode::ANTENNA_C:
+                receiver = ReceiverId::C;
+                break;
+
+            case StateMachine::DiversityMode::ANTENNA_D:
+                receiver = ReceiverId::D;
+                break;
+
+            case StateMachine::DiversityMode::DIVERSITY:
+                if (receiver == ReceiverId::A) {
+                    digitalWrite(PIN_RX_SWICTH, LOW);
+                }
+                if (receiver == ReceiverId::B){
+                    digitalWrite(PIN_RX_SWICTH, HIGH);
+                  
+                }   
+                break;
+
+            case StateMachine::DiversityMode::QUADVERSITY:
+//                digitalWrite(PIN_LED_A, receiver == ReceiverId::A);
+//                digitalWrite(PIN_LED_B, receiver == ReceiverId::B);
+//                digitalWrite(PIN_LED_C, receiver == ReceiverId::C);
+//                digitalWrite(PIN_LED_D, receiver == ReceiverId::D);
+                break;
+        }
+
         activeReceiver = receiver;
     }
 

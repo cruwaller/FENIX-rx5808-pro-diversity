@@ -26,6 +26,15 @@ namespace StateMachine {
 
     };
 
+    enum class DiversityMode : uint8_t {
+        ANTENNA_A,
+        ANTENNA_B,
+        ANTENNA_C,
+        ANTENNA_D,
+        DIVERSITY,
+        QUADVERSITY
+    };
+
     extern State currentState;
     extern State lastState;
 

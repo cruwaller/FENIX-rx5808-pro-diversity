@@ -47,20 +47,27 @@ void HomeStateHandler::onUpdateDraw() {
     }
     
     // Mode
-//    Ui::display.setTextSize(1);
     Ui::display.setTextColor(100);
     Ui::display.setCursor( 8, 0);
-//    Ui::display.print(PSTR2("Mode: ")); 
     Ui::display.print("Mode: ");    
-    if (!EepromSettings.quadversity) {
-//        Ui::display.print(PSTR2("Diversity"));
+    if (EepromSettings.diversityMode == StateMachine::DiversityMode::ANTENNA_A) {
+        Ui::display.print("Antenna A");
+    }   
+    if (EepromSettings.diversityMode == StateMachine::DiversityMode::ANTENNA_B) {
+        Ui::display.print("Antenna B");
+    }   
+    if (EepromSettings.diversityMode == StateMachine::DiversityMode::ANTENNA_C) {
+        Ui::display.print("Antenna C");
+    }   
+    if (EepromSettings.diversityMode == StateMachine::DiversityMode::ANTENNA_D) {
+        Ui::display.print("Antenna D");
+    }   
+    if (EepromSettings.diversityMode == StateMachine::DiversityMode::DIVERSITY) {
         Ui::display.print("Diversity");
     }
-    if (EepromSettings.quadversity) {
-//        Ui::display.print(PSTR2("Quadversity"));
+    if (EepromSettings.diversityMode == StateMachine::DiversityMode::QUADVERSITY) {
         Ui::display.print("Quadversity");
-    }    
-
+    }
 
     #ifdef USE_VOLTAGE_MONITORING
         // Voltage
@@ -249,7 +256,45 @@ void HomeStateHandler::doTapAction() {
       TouchPad::touchData.cursorX < 130 &&
       TouchPad::touchData.cursorY < 8
      ) {
-          // Change mode
+          if (EepromSettings.quadversity) {
+              switch ( EepromSettings.diversityMode )
+              {
+                  case StateMachine::DiversityMode::ANTENNA_A:
+                      EepromSettings.diversityMode = StateMachine::DiversityMode::ANTENNA_B;
+                      break;
+                  case StateMachine::DiversityMode::ANTENNA_B:
+                      EepromSettings.diversityMode = StateMachine::DiversityMode::ANTENNA_C;
+                      break;
+                  case StateMachine::DiversityMode::ANTENNA_C:
+                      EepromSettings.diversityMode = StateMachine::DiversityMode::ANTENNA_D;
+                      break;
+                  case StateMachine::DiversityMode::ANTENNA_D:
+                      EepromSettings.diversityMode = StateMachine::DiversityMode::DIVERSITY;
+                      break;
+                  case StateMachine::DiversityMode::DIVERSITY:
+                      EepromSettings.diversityMode = StateMachine::DiversityMode::QUADVERSITY;
+                      break;
+                  case StateMachine::DiversityMode::QUADVERSITY:
+                      EepromSettings.diversityMode = StateMachine::DiversityMode::ANTENNA_A;
+                      break;
+              }
+          } else {
+              switch ( EepromSettings.diversityMode )
+              {
+                  case StateMachine::DiversityMode::ANTENNA_A:
+                      EepromSettings.diversityMode = StateMachine::DiversityMode::ANTENNA_B;
+                      break;
+                  case StateMachine::DiversityMode::ANTENNA_B:
+                      EepromSettings.diversityMode = StateMachine::DiversityMode::DIVERSITY;
+                      break;
+                  case StateMachine::DiversityMode::DIVERSITY:
+                      EepromSettings.diversityMode = StateMachine::DiversityMode::ANTENNA_A;
+                      break;
+              }
+          }
+          
+          EepromSettings.markDirty();
+          
         }
   else if ( // Select channel from spectrum
       HomeStateHandler::isInBandScanRegion()
