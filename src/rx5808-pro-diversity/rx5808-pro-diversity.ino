@@ -90,11 +90,17 @@ void setupPins() {
     digitalWrite(PIN_SPI_SLAVE_SELECT_RX_B, HIGH);
 
     pinMode(PIN_RX_SWICTH, OUTPUT);
+    digitalWrite(PIN_RX_SWICTH, HIGH);
     
     pinMode(PIN_TOUCHPAD_SLAVE_SELECT, OUTPUT);
     digitalWrite(PIN_TOUCHPAD_SLAVE_SELECT, HIGH);
 
     pinMode(PIN_TOUCHPAD_DATA_READY, INPUT);
+
+    pinMode(PIN_RSSI_A, INPUT);
+    pinMode(PIN_RSSI_B, INPUT);
+    pinMode(PIN_RSSI_C, INPUT);
+    pinMode(PIN_RSSI_D, INPUT);
 
 }
 

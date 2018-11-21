@@ -27,7 +27,7 @@ SOFTWARE.
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
-#define VERSION_NUMBER 0001
+#define VERSION_NUMBER 0000
 
 // === Features ===============================================================
 

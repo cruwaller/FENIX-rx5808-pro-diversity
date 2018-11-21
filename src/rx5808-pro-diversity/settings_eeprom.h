@@ -94,7 +94,7 @@ const struct {
     uint8_t rssiSeekTreshold = 50;
     uint16_t rssiMinTuneTime = 30;
     uint8_t rssiHysteresis = 0;
-    uint16_t rssiHysteresisPeriod = 1;
+    uint16_t rssiHysteresisPeriod = 0;
 
 } EepromDefaults;
 

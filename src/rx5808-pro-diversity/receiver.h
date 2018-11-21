@@ -26,18 +26,18 @@ namespace Receiver {
     extern ReceiverId activeReceiver;
     extern uint8_t activeChannel;
 
-    extern uint8_t  rssiA;
+    extern uint16_t  rssiA;
     extern uint32_t rssiARaw;
-    extern uint8_t  rssiALast[RECEIVER_LAST_DATA_SIZE];
-    extern uint8_t  rssiB;
+    extern uint16_t  rssiALast[RECEIVER_LAST_DATA_SIZE];
+    extern uint16_t  rssiB;
     extern uint32_t rssiBRaw;
-    extern uint8_t  rssiBLast[RECEIVER_LAST_DATA_SIZE];
-    extern uint8_t  rssiC;
+    extern uint16_t  rssiBLast[RECEIVER_LAST_DATA_SIZE];
+    extern uint16_t  rssiC;
     extern uint32_t rssiCRaw;
-    extern uint8_t  rssiCLast[RECEIVER_LAST_DATA_SIZE];
-    extern uint8_t  rssiD;
+    extern uint16_t  rssiCLast[RECEIVER_LAST_DATA_SIZE];
+    extern uint16_t  rssiD;
     extern uint32_t rssiDRaw;
-    extern uint8_t  rssiDLast[RECEIVER_LAST_DATA_SIZE];
+    extern uint16_t  rssiDLast[RECEIVER_LAST_DATA_SIZE];
     
     extern uint16_t previousSwitchTime;
     extern uint16_t antennaAOnTime;

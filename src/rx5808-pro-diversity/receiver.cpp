@@ -18,21 +18,21 @@ namespace Receiver {
     ReceiverId activeReceiver = ReceiverId::A;
     uint8_t activeChannel = EepromSettings.startChannel;
 
-    uint8_t  rssiA = 0;
+    uint16_t  rssiA = 0;
     uint32_t rssiARaw = 0;
-    uint8_t  rssiALast[RECEIVER_LAST_DATA_SIZE] = { 0 };
+    uint16_t  rssiALast[RECEIVER_LAST_DATA_SIZE] = { 0 };
 
-    uint8_t  rssiB = 0;
+    uint16_t  rssiB = 0;
     uint32_t rssiBRaw = 0;
-    uint8_t  rssiBLast[RECEIVER_LAST_DATA_SIZE] = { 0 };
+    uint16_t  rssiBLast[RECEIVER_LAST_DATA_SIZE] = { 0 };
     
-    uint8_t  rssiC = 0;
+    uint16_t  rssiC = 0;
     uint32_t rssiCRaw = 0;
-    uint8_t  rssiCLast[RECEIVER_LAST_DATA_SIZE] = { 0 };
+    uint16_t  rssiCLast[RECEIVER_LAST_DATA_SIZE] = { 0 };
     
-    uint8_t  rssiD = 0;
+    uint16_t  rssiD = 0;
     uint32_t rssiDRaw = 0;
-    uint8_t  rssiDLast[RECEIVER_LAST_DATA_SIZE] = { 0 };
+    uint16_t  rssiDLast[RECEIVER_LAST_DATA_SIZE] = { 0 };
 
     uint16_t previousSwitchTime = 0;
     uint16_t antennaAOnTime = 0;
@@ -128,10 +128,10 @@ namespace Receiver {
                     EepromSettings.rssiAMin,
                     EepromSettings.rssiAMax,
                     0,
-                    100
+                    1000
                 ),
                 0,
-                100
+                1000
             );
             
             rssiB = constrain(
@@ -140,10 +140,10 @@ namespace Receiver {
                     EepromSettings.rssiBMin,
                     EepromSettings.rssiBMax,
                     0,
-                    100
+                    1000
                 ),
                 0,
-                100
+                1000
             );
             
             rssiC = constrain(
@@ -152,10 +152,10 @@ namespace Receiver {
                     EepromSettings.rssiCMin,
                     EepromSettings.rssiCMax,
                     0,
-                    100
+                    1000
                 ),
                 0,
-                100
+                1000
             );
             
             rssiD = constrain(
@@ -164,10 +164,10 @@ namespace Receiver {
                     EepromSettings.rssiDMin,
                     EepromSettings.rssiDMax,
                     0,
-                    100
+                    1000
                 ),
                 0,
-                100
+                1000
             );
           
         }

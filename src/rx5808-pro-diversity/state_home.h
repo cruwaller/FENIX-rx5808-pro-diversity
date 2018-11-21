@@ -23,7 +23,7 @@ namespace StateMachine {
             
             uint8_t orderedChanelIndex = 0;
             uint8_t lastChannelIndex = 0;
-            uint8_t rssiData[CHANNELS_SIZE] = { 0 };
+            uint16_t rssiData[CHANNELS_SIZE] = { 0 };
 
         public:
             void onEnter();

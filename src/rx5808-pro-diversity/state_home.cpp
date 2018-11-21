@@ -184,8 +184,8 @@ void HomeStateHandler::onUpdateDraw() {
           Ui::display.rect(195, 12 + 28*0 + 3, 64*2, 28*2-1, 100);
           Ui::display.rect(195, 12 + 28*2 + 3, 64*2, 28*2-1, 100);
         for (uint8_t i=0; i < RECEIVER_LAST_DATA_SIZE-1; i++) {
-          Ui::display.line(195+1*i, (12 + 28*2)-Receiver::rssiALast[i]/2, 195+1*(i+1), (12 + 28*2)-Receiver::rssiALast[i+1]/2, 100);
-          Ui::display.line(195+1*i, (12 + 28*4)-Receiver::rssiBLast[i]/2, 195+1*(i+1), (12 + 28*4)-Receiver::rssiBLast[i+1]/2, 100);
+          Ui::display.line(195+1*i, (12 + 28*2)-Receiver::rssiALast[i]/20, 195+1*(i+1), (12 + 28*2)-Receiver::rssiALast[i+1]/20, 100);
+          Ui::display.line(195+1*i, (12 + 28*4)-Receiver::rssiBLast[i]/20, 195+1*(i+1), (12 + 28*4)-Receiver::rssiBLast[i+1]/20, 100);
         }
 //    }
 //    if (EepromSettings.quadversity) {
@@ -204,7 +204,7 @@ void HomeStateHandler::onUpdateDraw() {
 
     // Plot Spectrum 324 x 224
     for (uint8_t i=0; i<CHANNELS_SIZE; i++) {
-        Ui::display.fillRect(18+4*i, 214 - rssiData[i]*0.8, 4, rssiData[i]*0.8, rssiData[i]);
+        Ui::display.fillRect(18+4*i, 214 - rssiData[i]*8/100, 4, rssiData[i]*8/100, rssiData[i]/10);
     }
     Ui::display.line(0, 213, 323, 213, 100);
     Ui::display.setCursor( 1, 215);
