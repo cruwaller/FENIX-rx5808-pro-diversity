@@ -226,9 +226,16 @@ void HomeStateHandler::onUpdateDraw() {
     }
 
     if (HomeStateHandler::isInBandScanRegion()) {
-        Ui::display.fillRect( TouchPad::touchData.cursorX - 17, TouchPad::touchData.cursorY - 9, 17, 9, 10);
-        Ui::display.setCursor( TouchPad::touchData.cursorX - 16, TouchPad::touchData.cursorY - 8 );
+        Ui::display.fillRect( TouchPad::touchData.cursorX - 33, TouchPad::touchData.cursorY - 17, 33, 17, 10);
+        Ui::display.setCursor( TouchPad::touchData.cursorX - 32, TouchPad::touchData.cursorY - 16 );
         Ui::display.print(Channels::getName( 
+                                            Channels::getOrderedIndex( 
+                                                                     (TouchPad::touchData.cursorX-18) / 4
+                                                                     )
+                                            )
+                          );
+        Ui::display.setCursor( TouchPad::touchData.cursorX - 32, TouchPad::touchData.cursorY - 8 );
+        Ui::display.print(Channels::getFrequency( 
                                             Channels::getOrderedIndex( 
                                                                      (TouchPad::touchData.cursorX-18) / 4
                                                                      )
