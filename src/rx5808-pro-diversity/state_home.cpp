@@ -224,6 +224,17 @@ void HomeStateHandler::onUpdateDraw() {
     for (int i = 0; i < 7; i++) {
         Ui::display.line(18+4*markerX, 214, 18+4*markerX+(-3+i), 219, 100);
     }
+
+    if (HomeStateHandler::isInBandScanRegion()) {
+        Ui::display.fillRect( TouchPad::touchData.cursorX - 17, TouchPad::touchData.cursorY - 9, 17, 9, 10);
+        Ui::display.setCursor( TouchPad::touchData.cursorX - 16, TouchPad::touchData.cursorY - 8 );
+        Ui::display.print(Channels::getName( 
+                                            Channels::getOrderedIndex( 
+                                                                     (TouchPad::touchData.cursorX-18) / 4
+                                                                     )
+                                            )
+                          );
+    }
     
 }
 
