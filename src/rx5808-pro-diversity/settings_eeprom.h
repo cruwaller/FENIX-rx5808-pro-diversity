@@ -5,8 +5,8 @@
 #include <stdint.h>
 
 #include "settings.h"
-#include "receiver.h"
 #include "state.h"
+#include "receiver.h"
 
 
 struct EepromSettings {
@@ -14,7 +14,7 @@ struct EepromSettings {
     
     uint8_t isCalibrated;
 
-    StateMachine::DiversityMode diversityMode;
+    Receiver::DiversityMode diversityMode;
     
     uint8_t startChannel;
     int lastKnownMenuItem;
@@ -65,7 +65,7 @@ const struct {
     
     uint8_t isCalibrated = false;
 
-    StateMachine::DiversityMode diversityMode = StateMachine::DiversityMode::DIVERSITY;
+    Receiver::DiversityMode diversityMode = Receiver::DiversityMode::DIVERSITY;
 
     uint8_t startChannel = 27;
     int lastKnownMenuItem = 0;

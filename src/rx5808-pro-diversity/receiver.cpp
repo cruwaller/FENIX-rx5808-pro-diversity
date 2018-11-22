@@ -71,23 +71,23 @@ namespace Receiver {
     void setActiveReceiver(ReceiverId receiver) {
         
         switch (EepromSettings.diversityMode) {
-            case StateMachine::DiversityMode::ANTENNA_A:
+            case Receiver::DiversityMode::ANTENNA_A:
                 receiver = ReceiverId::A;
                 break;
 
-            case StateMachine::DiversityMode::ANTENNA_B:
+            case Receiver::DiversityMode::ANTENNA_B:
                 receiver = ReceiverId::B;
                 break;
 
-            case StateMachine::DiversityMode::ANTENNA_C:
+            case Receiver::DiversityMode::ANTENNA_C:
                 receiver = ReceiverId::C;
                 break;
 
-            case StateMachine::DiversityMode::ANTENNA_D:
+            case Receiver::DiversityMode::ANTENNA_D:
                 receiver = ReceiverId::D;
                 break;
 
-            case StateMachine::DiversityMode::DIVERSITY:
+            case Receiver::DiversityMode::DIVERSITY:
                 if (receiver == ReceiverId::A) {
                     digitalWrite(PIN_RX_SWICTH, LOW);
                 }
@@ -97,7 +97,7 @@ namespace Receiver {
                 }   
                 break;
 
-            case StateMachine::DiversityMode::QUADVERSITY:
+            case Receiver::DiversityMode::QUADVERSITY:
 //                digitalWrite(PIN_LED_A, receiver == ReceiverId::A);
 //                digitalWrite(PIN_LED_B, receiver == ReceiverId::B);
 //                digitalWrite(PIN_LED_C, receiver == ReceiverId::C);

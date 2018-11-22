@@ -3,8 +3,6 @@
 
 
 #include <stdint.h>
-#include "settings.h"
-#include "settings_eeprom.h"
 
 
 #define RECEIVER_LAST_DELAY 50

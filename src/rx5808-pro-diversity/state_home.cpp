@@ -51,22 +51,22 @@ void HomeStateHandler::onUpdateDraw() {
     Ui::display.setTextColor(100);
     Ui::display.setCursor( 8, 0);
     Ui::display.print("Mode: ");    
-    if (EepromSettings.diversityMode == StateMachine::DiversityMode::ANTENNA_A) {
+    if (EepromSettings.diversityMode == Receiver::DiversityMode::ANTENNA_A) {
         Ui::display.print("Antenna A");
     }   
-    if (EepromSettings.diversityMode == StateMachine::DiversityMode::ANTENNA_B) {
+    if (EepromSettings.diversityMode == Receiver::DiversityMode::ANTENNA_B) {
         Ui::display.print("Antenna B");
     }   
-    if (EepromSettings.diversityMode == StateMachine::DiversityMode::ANTENNA_C) {
+    if (EepromSettings.diversityMode == Receiver::DiversityMode::ANTENNA_C) {
         Ui::display.print("Antenna C");
     }   
-    if (EepromSettings.diversityMode == StateMachine::DiversityMode::ANTENNA_D) {
+    if (EepromSettings.diversityMode == Receiver::DiversityMode::ANTENNA_D) {
         Ui::display.print("Antenna D");
     }   
-    if (EepromSettings.diversityMode == StateMachine::DiversityMode::DIVERSITY) {
+    if (EepromSettings.diversityMode == Receiver::DiversityMode::DIVERSITY) {
         Ui::display.print("Diversity");
     }
-    if (EepromSettings.diversityMode == StateMachine::DiversityMode::QUADVERSITY) {
+    if (EepromSettings.diversityMode == Receiver::DiversityMode::QUADVERSITY) {
         Ui::display.print("Quadversity");
     }
 
@@ -260,38 +260,38 @@ void HomeStateHandler::doTapAction() {
           if (EepromSettings.quadversity) {
               switch ( EepromSettings.diversityMode )
               {
-                  case StateMachine::DiversityMode::ANTENNA_A:
-                      EepromSettings.diversityMode = StateMachine::DiversityMode::ANTENNA_B;
+                  case Receiver::DiversityMode::ANTENNA_A:
+                      EepromSettings.diversityMode = Receiver::DiversityMode::ANTENNA_B;
                       break;
-                  case StateMachine::DiversityMode::ANTENNA_B:
-                      EepromSettings.diversityMode = StateMachine::DiversityMode::ANTENNA_C;
+                  case Receiver::DiversityMode::ANTENNA_B:
+                      EepromSettings.diversityMode = Receiver::DiversityMode::ANTENNA_C;
                       break;
-                  case StateMachine::DiversityMode::ANTENNA_C:
-                      EepromSettings.diversityMode = StateMachine::DiversityMode::ANTENNA_D;
+                  case Receiver::DiversityMode::ANTENNA_C:
+                      EepromSettings.diversityMode = Receiver::DiversityMode::ANTENNA_D;
                       break;
-                  case StateMachine::DiversityMode::ANTENNA_D:
-                      EepromSettings.diversityMode = StateMachine::DiversityMode::DIVERSITY;
+                  case Receiver::DiversityMode::ANTENNA_D:
+                      EepromSettings.diversityMode = Receiver::DiversityMode::DIVERSITY;
                       break;
-                  case StateMachine::DiversityMode::DIVERSITY:
-                      EepromSettings.diversityMode = StateMachine::DiversityMode::QUADVERSITY;
+                  case Receiver::DiversityMode::DIVERSITY:
+                      EepromSettings.diversityMode = Receiver::DiversityMode::QUADVERSITY;
                       break;
-                  case StateMachine::DiversityMode::QUADVERSITY:
-                      EepromSettings.diversityMode = StateMachine::DiversityMode::ANTENNA_A;
+                  case Receiver::DiversityMode::QUADVERSITY:
+                      EepromSettings.diversityMode = Receiver::DiversityMode::ANTENNA_A;
                       break;
               }
           } else {
               switch ( EepromSettings.diversityMode )
               {
-                  case StateMachine::DiversityMode::ANTENNA_A:
-                      EepromSettings.diversityMode = StateMachine::DiversityMode::ANTENNA_B;
+                  case Receiver::DiversityMode::ANTENNA_A:
+                      EepromSettings.diversityMode = Receiver::DiversityMode::ANTENNA_B;
 //                      ReceiverSpi::rxStandby(Receiver::ReceiverId::A);
                       break;
-                  case StateMachine::DiversityMode::ANTENNA_B:
-                      EepromSettings.diversityMode = StateMachine::DiversityMode::DIVERSITY;
+                  case Receiver::DiversityMode::ANTENNA_B:
+                      EepromSettings.diversityMode = Receiver::DiversityMode::DIVERSITY;
 //                      ReceiverSpi::rxPowerOn(Receiver::ReceiverId::A);
                       break;
-                  case StateMachine::DiversityMode::DIVERSITY:
-                      EepromSettings.diversityMode = StateMachine::DiversityMode::ANTENNA_A;
+                  case Receiver::DiversityMode::DIVERSITY:
+                      EepromSettings.diversityMode = Receiver::DiversityMode::ANTENNA_A;
                       break;
               }
           }

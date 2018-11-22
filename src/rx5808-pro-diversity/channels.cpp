@@ -3,7 +3,7 @@
 #include "receiver.h"
 #include "Arduino.h"
 #include "ui.h"
-
+#include "settings_eeprom.h"
 
 // Channels with their Mhz Values
 static const uint16_t channelFreqTable[] PROGMEM = {
