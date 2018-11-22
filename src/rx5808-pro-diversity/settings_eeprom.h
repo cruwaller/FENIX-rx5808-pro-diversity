@@ -95,8 +95,8 @@ const struct {
     // Internal settings
     uint8_t spectatorFreqScanStep = 5;
     uint8_t spectatorFWHM = 20;
-    uint8_t rssiSeekTreshold = 50;
-    uint16_t rssiMinTuneTime = 25;
+    uint16_t rssiSeekTreshold = 500;
+    uint16_t rssiMinTuneTime = 30;
     uint8_t rssiHysteresis = 0;
     uint16_t rssiHysteresisPeriod = 0;
 

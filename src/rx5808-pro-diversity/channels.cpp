@@ -228,30 +228,30 @@ namespace Channels {
   
         uint16_t upperFreq = freq;
         uint16_t lowerFreq = freq;
-        uint8_t rssi = 100;
+        uint16_t rssi = 1000;
         
         while (rssi > EepromSettings.rssiSeekTreshold) {
           upperFreq = upperFreq + 1;
           Receiver::setChannelByFreq(upperFreq);
           while (!Receiver::isRssiStable()) {
-            delay(5);
+            delay(1);
           }
           Receiver::updateRssi();
-            rssi = (Receiver::rssiA + Receiver::rssiB)/2; 
+          rssi = (Receiver::rssiA + Receiver::rssiB)/2; 
           if (EepromSettings.quadversity) {
             rssi = ((Receiver::rssiA + Receiver::rssiB)/2 + (Receiver::rssiC +  Receiver::rssiD)/2) / 2; 
           }
         }
         
-        rssi  = 100;
+        rssi  = 1000;
         while (rssi > EepromSettings.rssiSeekTreshold) {
           lowerFreq = lowerFreq - 1;
           Receiver::setChannelByFreq(lowerFreq);
           while (!Receiver::isRssiStable()) {
-            delay(5);
+            delay(1);
           }
           Receiver::updateRssi();
-            rssi = (Receiver::rssiA + Receiver::rssiB)/2; 
+          rssi = (Receiver::rssiA + Receiver::rssiB)/2; 
           if (EepromSettings.quadversity) {
             rssi = ((Receiver::rssiA + Receiver::rssiB)/2 + (Receiver::rssiC +  Receiver::rssiD)/2) / 2; 
           }

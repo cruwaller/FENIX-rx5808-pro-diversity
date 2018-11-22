@@ -302,7 +302,6 @@ void HomeStateHandler::doTapAction() {
   else if ( // Select channel from spectrum
       HomeStateHandler::isInBandScanRegion()
      ) {
-//          Ui::display.fillRect(18+4*i, 214 - rssiData[i]*0.8, 4, rssiData[i]*0.8, rssiData[i]);
           Receiver::setChannel(
                               Channels::getOrderedIndex( (TouchPad::touchData.cursorX-18) / 4 )
                               );
@@ -363,7 +362,7 @@ void HomeStateHandler::centreFrequency() {
 
   uint16_t activeChannelFreq = Channels::getFrequency(Receiver::activeChannel);
   uint16_t centerFreq = Channels::getCenterFreq(activeChannelFreq);
-  Receiver::setChannelByFreq(centerFreq);
+  Receiver::setChannel(Channels::getClosestChannel(centerFreq));
   
   wasInBandScanRegion = false;
 }
