@@ -21,6 +21,14 @@ namespace TouchPad {
     } relData_t;
 
     extern relData_t touchData;
+
+    enum class Gesture : uint8_t {
+        Up,
+        Down,
+        Left,
+        Right,
+        Nope
+    };
     
     void setup();
     void update();
@@ -33,7 +41,10 @@ namespace TouchPad {
     void Assert_SS();
     void DeAssert_SS();
     bool isDataAvailable();
-    
+
+    Gesture isGesture();
+    void doGesture(Gesture currentGesture);
+    void setChannel(int channelIncrement);    
     
 }
 

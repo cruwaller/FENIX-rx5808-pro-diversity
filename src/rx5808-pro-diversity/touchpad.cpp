@@ -1,7 +1,10 @@
 #include <Arduino.h>
 
 #include "ui.h"
+#include "channels.h"
+#include "receiver.h"
 #include "settings.h"
+#include "settings_eeprom.h"
 #include "touchpad.h"
 
 //// Cirque's 7-bit I2C Slave Address
@@ -13,6 +16,12 @@
         
 namespace TouchPad {
 
+    const int sizeOfGestureArray = 8;
+    int xGestureArray[sizeOfGestureArray] = {0};
+    int yGestureArray[sizeOfGestureArray] = {0};
+    int xSwipeThreshold = 130;
+    int ySwipeThreshold = 200;
+    
     relData_t touchData;
       
     void setup() {
@@ -47,6 +56,13 @@ namespace TouchPad {
                 touchData.cursorY = SCREEN_HEIGHT - 1;
             }
 
+            if (!Ui::isTvOn) {
+                Gesture currentGesture = isGesture();
+                if (currentGesture != Gesture::Nope) {
+                    doGesture(currentGesture);
+                }
+            }
+
             if (touchData.buttonPrimary) {
 //                Ui::beep();
             }
@@ -64,8 +80,9 @@ namespace TouchPad {
 //            Serial.print(touchData.xSign);
 //            Serial.print('\t');
 //            Serial.println(touchData.ySign);
-          
+        
         }
+        
     }
     
     void clearTouchData() {
@@ -171,6 +188,119 @@ namespace TouchPad {
     bool isDataAvailable()
     {
       return digitalRead(PIN_TOUCHPAD_DATA_READY);
+    }
+
+    Gesture isGesture() {
+      
+        for (int i = 0; i < sizeOfGestureArray - 1; i++) {
+            xGestureArray[sizeOfGestureArray-1-i] = xGestureArray[sizeOfGestureArray-2-i]; 
+            yGestureArray[sizeOfGestureArray-1-i] = yGestureArray[sizeOfGestureArray-2-i]; 
+        }
+        xGestureArray[0] = TouchPad::touchData.xDelta;
+        yGestureArray[0] = TouchPad::touchData.yDelta;
+        
+        int xSumArray = 0;
+        int ySumArray = 0;
+        for (int i = 0; i < sizeOfGestureArray - 1; i++) {
+            xSumArray += xGestureArray[i];
+            ySumArray += yGestureArray[i];
+        }
+        
+        if (xSumArray > xSwipeThreshold) {
+//            Serial.println("Swipe Left");
+            for (int i = 0; i < sizeOfGestureArray - 1; i++) {
+                xGestureArray[i] = 0;
+                yGestureArray[i] = 0;
+            }
+
+            return Gesture::Left;
+        }
+        
+        if (xSumArray < -xSwipeThreshold) {
+//            Serial.println("Swipe Right");
+            for (int i = 0; i < sizeOfGestureArray - 1; i++) {
+                xGestureArray[i] = 0;
+                yGestureArray[i] = 0;
+            }
+
+            return Gesture::Right;
+        }
+        
+        if (ySumArray > ySwipeThreshold) {
+//            Serial.println("Swipe Up");
+            for (int i = 0; i < sizeOfGestureArray - 1; i++) {
+                xGestureArray[i] = 0;
+                yGestureArray[i] = 0;
+            }
+
+            return Gesture::Up;
+        }
+        
+        if (ySumArray < -ySwipeThreshold) {
+//            Serial.println("Swipe Down");
+            for (int i = 0; i < sizeOfGestureArray - 1; i++) {
+                xGestureArray[i] = 0;
+                yGestureArray[i] = 0;
+            }
+
+            return Gesture::Down;
+        }
+            
+    }
+
+    void doGesture(Gesture currentGesture) {
+        switch (currentGesture) {
+          case Gesture::Left:
+              setChannel(-1);
+              break;
+          case Gesture::Right:
+              setChannel(1);
+              break;
+          case Gesture::Up:
+              break;
+          case Gesture::Down:
+              break;
+        }
+    }
+    
+    void setChannel(int channelIncrement) {
+    
+        int band = Receiver::activeChannel / 8;
+        int channel = Receiver::activeChannel % 8;
+        
+        if (channelIncrement == 8) {
+          band = band + 1;
+        }
+        
+        if (channelIncrement == -8) {
+          band = band - 1;
+        }
+        
+        if (channelIncrement == 1 ) {
+          channel = channel + 1;
+          if (channel > 7) {
+            channel = 0;
+          }
+        }
+        
+        if (channelIncrement == -1 ) {
+          channel = channel - 1;
+          if (channel < 0) {
+            channel = 7;
+          }
+        }
+        
+        int newChannelIndex = band * 8 + channel;
+    
+        if (newChannelIndex >= CHANNELS_SIZE) {
+          newChannelIndex = newChannelIndex - CHANNELS_SIZE;
+        }
+        if (newChannelIndex < 0) {
+          newChannelIndex = newChannelIndex + CHANNELS_SIZE;
+        }
+        Receiver::setChannel(newChannelIndex);
+        EepromSettings.startChannel = newChannelIndex;
+        EepromSettings.markDirty();
     }
     
 }

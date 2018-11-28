@@ -54,6 +54,8 @@
 void setup()
 {
 
+    Serial.begin(9600);
+    
     #ifdef SPEED_TEST
         Serial.begin(9600);
     #endif
@@ -112,8 +114,8 @@ void loop() {
         Voltage::update();
     #endif
   
-    TouchPad::update(); 
-        
+    TouchPad::update();
+    
     if (Ui::isTvOn) {
       
         Ui::display.begin(0);
