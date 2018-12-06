@@ -6,7 +6,7 @@
 
 # Wiring
 
-<img src="docs/img/schematic.png" width="50%">
+<img src="docs/img/schematic.png" width="100%">
 
 # Contributing
 Any contributions are welcome!
