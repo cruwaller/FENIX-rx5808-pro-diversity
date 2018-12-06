@@ -6,17 +6,10 @@
 
 # Wiring
 
-<img src="docs/img/photos/module_wiring.jpg" width="30%"> <img src="docs/img/photos/touchpad_wiring.jpg" width="30%"> <img src="docs/img/photos/touchpad_stuck_on_module.jpg" width="30%">
-
-# Hardware
-
-- **Realacc-RX5808-PRO-PLUS-OSD**
-- **Eachine PRO58 RX Diversity** UNTESTED The Realacc hex should work (with and without the resistor mod) since the pinouts are the same. Please report back if you have this module and able to test.
+<img src="docs/img/schematic.png" width="50%">
 
 # Contributing
 Any contributions are welcome!
-
-Please see the [wiki](https://github.com/JyeSmith/FENIX-rx5808-pro-diversity/wiki/Contributing) on how to setup the development environment.
 
 ## Recognition
 
