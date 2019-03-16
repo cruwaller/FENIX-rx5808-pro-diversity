@@ -73,10 +73,12 @@ namespace Receiver {
         switch (EepromSettings.diversityMode) {
             case Receiver::DiversityMode::ANTENNA_A:
                 receiver = ReceiverId::A;
+                digitalWrite(PIN_RX_SWICTH, LOW);
                 break;
 
             case Receiver::DiversityMode::ANTENNA_B:
                 receiver = ReceiverId::B;
+                digitalWrite(PIN_RX_SWICTH, HIGH);
                 break;
 
             case Receiver::DiversityMode::ANTENNA_C:
