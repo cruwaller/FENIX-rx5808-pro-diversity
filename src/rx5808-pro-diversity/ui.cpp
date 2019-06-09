@@ -11,7 +11,7 @@ namespace Ui {
   
     bool isTvOn = false;
 
-    Timer UiTimeOut = Timer(3000);
+    Timer UiTimeOut = Timer(2000);
 
     int XRES = 324;
     int YRES = 224;
@@ -88,13 +88,13 @@ namespace Ui {
             }
         }
 
-        // For testing print the cursor location.  Helps with positioning widgits.
-        display.setCursor(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY);
-        display.print("  [");
-        display.print(TouchPad::touchData.cursorX);
-        display.print(", ");
-        display.print(TouchPad::touchData.cursorY);
-        display.print("]");
+//        // For testing print the cursor location.  Helps with positioning widgits.
+//        display.setCursor(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY);
+//        display.print("  [");
+//        display.print(TouchPad::touchData.cursorX);
+//        display.print(", ");
+//        display.print(TouchPad::touchData.cursorY);
+//        display.print("]");
         
     }
 
@@ -114,5 +114,3 @@ namespace Ui {
 //    }
     
 }
-
-

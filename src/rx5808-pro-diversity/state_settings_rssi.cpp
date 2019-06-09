@@ -27,6 +27,11 @@ void StateMachine::SettingsRssiStateHandler::onUpdate() {
     if (!Receiver::isRssiStable() || !Receiver::hasRssiUpdated)
         return;
 
+    for (int i = 0; i < 100; i++) {
+        Receiver::rssiARaw = 0.9 * Receiver::rssiARaw + 0.1 * analogRead(PIN_RSSI_A);
+        Receiver::rssiBRaw = 0.9 * Receiver::rssiBRaw + 0.1 * analogRead(PIN_RSSI_B);
+    }
+
     switch (internalState) {
         case InternalState::SCANNING_LOW:
             if ( Channels::getFrequency(Receiver::activeChannel) >= 5658) { // Only use min max above R1 to stay within RX5808 freq range

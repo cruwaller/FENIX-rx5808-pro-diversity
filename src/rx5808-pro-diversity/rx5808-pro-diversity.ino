@@ -33,10 +33,9 @@
 */
 
 #include <EEPROM.h>
-
 #include "settings.h"
 #include "settings_eeprom.h"
-
+#include "state_home.h"
 #include "channels.h"
 #include "receiver.h"
 #include "receiver_spi.h"
@@ -45,21 +44,22 @@
 #include "voltage.h"
 #include "temperature.h"
 #include "touchpad.h"
+#include "receiver_spi.h"
 
 #ifdef SPEED_TEST
-    uint32_t n = 0;
+    uint32_t n = 0; 
     uint32_t previousTime = millis();
 #endif
 
 void setup()
 {
 
-    Serial.begin(9600);
+//    Serial.begin(115200);
     
     #ifdef SPEED_TEST
-        Serial.begin(9600);
+        Serial.begin(115200);
     #endif
-    
+
     EEPROM.begin(2048);
     SPI.begin();
     
@@ -80,42 +80,46 @@ void setup()
     } else {
         StateMachine::switchState(StateMachine::State::HOME); 
     }   
-    
+
 }
 
 void setupPins() {
 
+    // Rx and Tx set as input so that they are high impedance when conencted to goggles.
+    pinMode(1, INPUT);
+    pinMode(3, INPUT);
+    
     pinMode(PIN_SPI_SLAVE_SELECT_RX_A, OUTPUT);
     digitalWrite(PIN_SPI_SLAVE_SELECT_RX_A, HIGH);
     
     pinMode(PIN_SPI_SLAVE_SELECT_RX_B, OUTPUT);
     digitalWrite(PIN_SPI_SLAVE_SELECT_RX_B, HIGH);
-
-    pinMode(PIN_RX_SWICTH, OUTPUT);
-    digitalWrite(PIN_RX_SWICTH, HIGH);
     
     pinMode(PIN_TOUCHPAD_SLAVE_SELECT, OUTPUT);
     digitalWrite(PIN_TOUCHPAD_SLAVE_SELECT, HIGH);
+
+    pinMode(PIN_RX_SWITCH, OUTPUT);
+    digitalWrite(PIN_RX_SWITCH, LOW);
 
     pinMode(PIN_TOUCHPAD_DATA_READY, INPUT);
 
     pinMode(PIN_RSSI_A, INPUT);
     pinMode(PIN_RSSI_B, INPUT);
-    pinMode(PIN_RSSI_C, INPUT);
-    pinMode(PIN_RSSI_D, INPUT);
+//    pinMode(PIN_RSSI_C, INPUT);
+//    pinMode(PIN_RSSI_D, INPUT);
 
 }
 
 void loop() {
-  
-    Receiver::update();
     
+    Receiver::update();
+
     #ifdef USE_VOLTAGE_MONITORING  
         Voltage::update();
     #endif
-  
+ 
     TouchPad::update();
-    
+
     if (Ui::isTvOn) {
       
         Ui::display.begin(0);
@@ -147,12 +151,12 @@ void loop() {
 
     #ifdef SPEED_TEST
         n++;
-        if (millis() > previousTime + 1000) {
+        uint32_t nowTime = millis();
+        if (nowTime > previousTime + 1000) {
             Serial.print(n);
             Serial.println(" Hz");
-            previousTime = millis();
+            previousTime = nowTime;
             n = 0;
         }
     #endif
-
 }

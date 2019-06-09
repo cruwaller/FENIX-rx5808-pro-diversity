@@ -12,9 +12,9 @@
 #include "timer.h"
 
 
-void *operator new(size_t size, void *ptr){
-  return ptr;
-}
+//void *operator new(size_t size, void *ptr){
+//  return ptr;
+//}
 
 #define MAX(a, b) (a > b ? a : b)
 

@@ -84,7 +84,7 @@ void HomeStateHandler::onUpdateDraw() {
         Ui::display.setCursor( 216, 0);
     #endif
 
-    // Temperature
+    // Temperature // Doesnt currently work within ESP32 Arduino.
     Ui::display.print(Temperature::getTemperature());
     Ui::display.print("C"); 
     
@@ -246,30 +246,38 @@ void HomeStateHandler::onUpdateDraw() {
 }
 
 void HomeStateHandler::doTapAction() {
+
             
-  if ( // Down band
-      TouchPad::touchData.cursorX >= 0  && TouchPad::touchData.cursorX < 61 &&
-      TouchPad::touchData.cursorY > 8 && TouchPad::touchData.cursorY < 54
+  if ( // Calibrate
+      TouchPad::touchData.cursorX >= 210  &&
+      TouchPad::touchData.cursorY < 9
      ) {
-          this->setChannel(-8);
+        EepromSettings.initDefaults();
+        ESP.restart();
         }
   else if ( // Up band
       TouchPad::touchData.cursorX >= 0  && TouchPad::touchData.cursorX < 61 &&
-      TouchPad::touchData.cursorY > 54 && TouchPad::touchData.cursorY < 99
+      TouchPad::touchData.cursorY > 8 && TouchPad::touchData.cursorY < 54
      ) {
           this->setChannel(8);
         }
-  else if ( // Down channel
-      TouchPad::touchData.cursorX > 61  && TouchPad::touchData.cursorX < 122 &&
-      TouchPad::touchData.cursorY > 8 && TouchPad::touchData.cursorY < 54
+  else if ( // Down band
+      TouchPad::touchData.cursorX >= 0  && TouchPad::touchData.cursorX < 61 &&
+      TouchPad::touchData.cursorY > 54 && TouchPad::touchData.cursorY < 99
      ) {
-          this->setChannel(-1);
+          this->setChannel(-8);
         }
   else if ( // Up channel
       TouchPad::touchData.cursorX > 61  && TouchPad::touchData.cursorX < 122 &&
-      TouchPad::touchData.cursorY > 54 && TouchPad::touchData.cursorY < 99
+      TouchPad::touchData.cursorY > 8 && TouchPad::touchData.cursorY < 54
      ) {
           this->setChannel(1);
+        }
+  else if ( // Down channel
+      TouchPad::touchData.cursorX > 61  && TouchPad::touchData.cursorX < 122 &&
+      TouchPad::touchData.cursorY > 54 && TouchPad::touchData.cursorY < 99
+     ) {
+          this->setChannel(-1);
         }
   else if ( // Change mode
       TouchPad::touchData.cursorX < 130 &&
@@ -419,4 +427,3 @@ void HomeStateHandler::bandScanUpdate() {
     }
     
 }
-

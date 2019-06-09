@@ -31,7 +31,6 @@ namespace StateMachine {
 
             void onInitialDraw();
             void onUpdateDraw();
-
     };
 }
 

@@ -36,12 +36,13 @@ namespace TouchPad {
     void update() {
 
         if(isDataAvailable()) {
-          
+
             Pinnacle_getRelative(&touchData);
 
-            touchData.cursorX -= touchData.xDelta; // Reversed for testing
-//            touchData.cursorX += touchData.xDelta;
-            touchData.cursorY -= touchData.yDelta;
+                touchData.cursorX += touchData.xDelta;
+                touchData.cursorY -= touchData.yDelta;
+//                touchData.cursorX -= touchData.xDelta;
+//                touchData.cursorY += touchData.yDelta;
             
             if (touchData.cursorX < 1) {
                 touchData.cursorX = 1;
@@ -63,9 +64,9 @@ namespace TouchPad {
                 }
             }
 
-            if (touchData.buttonPrimary) {
-//                Ui::beep();
-            }
+//            if (touchData.buttonPrimary) {
+////                Ui::beep();
+//            }
             
 //            Serial.print(touchData.buttonPrimary);
 //            Serial.print('\t');
@@ -103,7 +104,7 @@ namespace TouchPad {
   
       // Host clears SW_CC flag
       Pinnacle_ClearFlags();
-    
+      
       // Feed Enable
       RAP_Write(0x04, 0b00000001);
       
@@ -121,8 +122,10 @@ namespace TouchPad {
 
       
       result->isActive = true;
-      result->buttonPrimary = data[0] & 0b00000001;
-      result->buttonSecondary = data[0] & 0b00000010;
+//      result->buttonPrimary = data[0] & 0b00000001;
+//      result->buttonSecondary = data[0] & 0b00000010;
+      result->buttonPrimary = data[0] & 0b00000010;
+      result->buttonSecondary = data[0] & 0b00000001;
       result->buttonAuxiliary = data[0] & 0b00000100;
       result->xDelta = (int8_t)data[2];
       result->yDelta = (int8_t)data[1];
@@ -214,9 +217,7 @@ namespace TouchPad {
             }
 
             return Gesture::Left;
-        }
-        
-        if (xSumArray < -xSwipeThreshold) {
+        } else if (xSumArray < -xSwipeThreshold) {
 //            Serial.println("Swipe Right");
             for (int i = 0; i < sizeOfGestureArray - 1; i++) {
                 xGestureArray[i] = 0;
@@ -224,9 +225,7 @@ namespace TouchPad {
             }
 
             return Gesture::Right;
-        }
-        
-        if (ySumArray > ySwipeThreshold) {
+        } else if (ySumArray > ySwipeThreshold) {
 //            Serial.println("Swipe Up");
             for (int i = 0; i < sizeOfGestureArray - 1; i++) {
                 xGestureArray[i] = 0;
@@ -234,9 +233,7 @@ namespace TouchPad {
             }
 
             return Gesture::Up;
-        }
-        
-        if (ySumArray < -ySwipeThreshold) {
+        } else if (ySumArray < -ySwipeThreshold) {
 //            Serial.println("Swipe Down");
             for (int i = 0; i < sizeOfGestureArray - 1; i++) {
                 xGestureArray[i] = 0;
@@ -244,6 +241,8 @@ namespace TouchPad {
             }
 
             return Gesture::Down;
+        } else {
+            return Gesture::Nope;
         }
             
     }
@@ -251,14 +250,14 @@ namespace TouchPad {
     void doGesture(Gesture currentGesture) {
         switch (currentGesture) {
           case Gesture::Left:
-              setChannel(-1);
               break;
           case Gesture::Right:
-              setChannel(1);
               break;
           case Gesture::Up:
+              setChannel(-1);
               break;
           case Gesture::Down:
+              setChannel(1);
               break;
         }
     }

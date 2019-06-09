@@ -73,12 +73,12 @@ namespace Receiver {
         switch (EepromSettings.diversityMode) {
             case Receiver::DiversityMode::ANTENNA_A:
                 receiver = ReceiverId::A;
-                digitalWrite(PIN_RX_SWICTH, LOW);
+                digitalWrite(PIN_RX_SWITCH, LOW);
                 break;
 
             case Receiver::DiversityMode::ANTENNA_B:
                 receiver = ReceiverId::B;
-                digitalWrite(PIN_RX_SWICTH, HIGH);
+                digitalWrite(PIN_RX_SWITCH, HIGH);
                 break;
 
             case Receiver::DiversityMode::ANTENNA_C:
@@ -91,10 +91,10 @@ namespace Receiver {
 
             case Receiver::DiversityMode::DIVERSITY:
                 if (receiver == ReceiverId::A) {
-                    digitalWrite(PIN_RX_SWICTH, LOW);
+                    digitalWrite(PIN_RX_SWITCH, LOW);
                 }
                 if (receiver == ReceiverId::B){
-                    digitalWrite(PIN_RX_SWICTH, HIGH);
+                    digitalWrite(PIN_RX_SWITCH, HIGH);
                   
                 }   
                 break;
@@ -115,7 +115,7 @@ namespace Receiver {
     }
 
     void updateRssi() {
-
+  
         uint8_t RSSI_READS = 3; //15;
         
         rssiARaw = 0;
@@ -130,19 +130,19 @@ namespace Receiver {
         }
         rssiBRaw /= RSSI_READS;
 
-        if (EepromSettings.quadversity) {
-            rssiCRaw = 0;
-            for (uint8_t i = 0; i < RSSI_READS; i++) {                       
-                rssiCRaw += analogRead(PIN_RSSI_C);
-            }
-            rssiCRaw /= RSSI_READS;
-            
-            rssiDRaw = 0;
-            for (uint8_t i = 0; i < RSSI_READS; i++) {                       
-                rssiDRaw += analogRead(PIN_RSSI_D);
-            }
-            rssiDRaw /= RSSI_READS;
-        }
+//        if (EepromSettings.quadversity) {
+//            rssiCRaw = 0;
+//            for (uint8_t i = 0; i < RSSI_READS; i++) {                       
+//                rssiCRaw += analogRead(PIN_RSSI_C);
+//            }
+//            rssiCRaw /= RSSI_READS;
+//            
+//            rssiDRaw = 0;
+//            for (uint8_t i = 0; i < RSSI_READS; i++) {                       
+//                rssiDRaw += analogRead(PIN_RSSI_D);
+//            }
+//            rssiDRaw /= RSSI_READS;
+//        }
 
         if (StateMachine::currentState != StateMachine::State::SETTINGS_RSSI) {
           
@@ -170,29 +170,29 @@ namespace Receiver {
                 1000
             );
             
-            rssiC = constrain(
-                map(
-                    rssiCRaw,
-                    EepromSettings.rssiCMin,
-                    EepromSettings.rssiCMax,
-                    0,
-                    1000
-                ),
-                0,
-                1000
-            );
-            
-            rssiD = constrain(
-                map(
-                    rssiDRaw,
-                    EepromSettings.rssiDMin,
-                    EepromSettings.rssiDMax,
-                    0,
-                    1000
-                ),
-                0,
-                1000
-            );
+//            rssiC = constrain(
+//                map(
+//                    rssiCRaw,
+//                    EepromSettings.rssiCMin,
+//                    EepromSettings.rssiCMax,
+//                    0,
+//                    1000
+//                ),
+//                0,
+//                1000
+//            );
+//            
+//            rssiD = constrain(
+//                map(
+//                    rssiDRaw,
+//                    EepromSettings.rssiDMin,
+//                    EepromSettings.rssiDMax,
+//                    0,
+//                    1000
+//                ),
+//                0,
+//                1000
+//            );
           
         }
 
@@ -214,9 +214,9 @@ namespace Receiver {
             }
 
             rssiLogTimer.reset();
+        hasRssiUpdated = true;
         }
 
-        hasRssiUpdated = true;
     }
 
     void switchDiversity() {
