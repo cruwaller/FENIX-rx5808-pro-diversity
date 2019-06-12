@@ -122,10 +122,10 @@ namespace TouchPad {
 
       
       result->isActive = true;
-//      result->buttonPrimary = data[0] & 0b00000001;
-//      result->buttonSecondary = data[0] & 0b00000010;
-      result->buttonPrimary = data[0] & 0b00000010;
-      result->buttonSecondary = data[0] & 0b00000001;
+      result->buttonPrimary = data[0] & 0b00000001;
+      result->buttonSecondary = data[0] & 0b00000010;
+//      result->buttonPrimary = data[0] & 0b00000010;
+//      result->buttonSecondary = data[0] & 0b00000001;
       result->buttonAuxiliary = data[0] & 0b00000100;
       result->xDelta = (int8_t)data[2];
       result->yDelta = (int8_t)data[1];
