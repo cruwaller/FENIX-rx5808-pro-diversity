@@ -39,25 +39,25 @@ namespace TouchPad {
 
             Pinnacle_getRelative(&touchData);
 
+            if (Ui::isTvOn) {
                 touchData.cursorX += touchData.xDelta;
                 touchData.cursorY -= touchData.yDelta;
 //                touchData.cursorX -= touchData.xDelta;
 //                touchData.cursorY += touchData.yDelta;
-            
-            if (touchData.cursorX < 1) {
-                touchData.cursorX = 1;
-            }
-            if (touchData.cursorX > SCREEN_WIDTH - 1) {
-                touchData.cursorX = SCREEN_WIDTH - 1;
-            }
-            if (touchData.cursorY < 1) {
-                touchData.cursorY = 1;
-            }
-            if (touchData.cursorY > SCREEN_HEIGHT - 1) {
-                touchData.cursorY = SCREEN_HEIGHT - 1;
-            }
 
-            if (!Ui::isTvOn) {
+                if (touchData.cursorX < 1) {
+                    touchData.cursorX = 1;
+                }
+                if (touchData.cursorX > SCREEN_WIDTH - 1) {
+                    touchData.cursorX = SCREEN_WIDTH - 1;
+                }
+                if (touchData.cursorY < 1) {
+                    touchData.cursorY = 1;
+                }
+                if (touchData.cursorY > SCREEN_HEIGHT - 1) {
+                    touchData.cursorY = SCREEN_HEIGHT - 1;
+                }
+            } else {
                 Gesture currentGesture = isGesture();
                 if (currentGesture != Gesture::Nope) {
                     doGesture(currentGesture);
@@ -299,7 +299,7 @@ namespace TouchPad {
         }
         Receiver::setChannel(newChannelIndex);
         EepromSettings.startChannel = newChannelIndex;
-        EepromSettings.markDirty();
+        EepromSettings.save();
     }
     
 }
