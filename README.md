@@ -66,7 +66,7 @@ The spectrum displays the RSSI detected for each of the 72 channels/bands.  A pe
 
 https://easyeda.com/jyesmith/esp32-fatshark-module-v3
 
-<img src="PCB/schematic.png" width="50%"> <img src="PCB/PCB.png" width="50%">
+<img src="PCB/Schematic.png" width="50%"> <img src="PCB/PCB.png" width="50%">
 
 The touchpad works better with a cover.  I use a piece of electric tape.
 
