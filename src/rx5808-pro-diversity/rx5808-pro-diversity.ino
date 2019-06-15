@@ -139,6 +139,7 @@ void loop() {
         StateMachine::currentState != StateMachine::State::SETTINGS_RSSI ) 
     {
         Ui::tvOff();  
+        EepromSettings.update();
     }
     
     if (!Ui::isTvOn &&
