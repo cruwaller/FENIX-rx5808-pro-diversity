@@ -1,3 +1,5 @@
+https://discord.gg/gG2sjjK
+
 Diversity receiver designed around an ESP32 and touchpad UI.
 
   *   15 kHz antenna switching rate e.g. once every NTSC video line.
