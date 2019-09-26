@@ -31,7 +31,7 @@ Cycle through channels 1-8 by tapping on the upper or lower half of the channel 
 
 Tapping on mode cycles through diversity, antenna A, and antenna B modes.
 
-**Spectrum analyser **
+**Spectrum analyser**
 
 Moving the cursor to the lower half of the screen starts the spectrum analyser.
 
