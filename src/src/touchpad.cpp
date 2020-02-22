@@ -30,7 +30,9 @@ namespace TouchPad {
     
         touchData.cursorX = 200;
         touchData.cursorY = 100;
-
+        touchData.timeLastButtonPress = 0;        
+        touchData.switchButtonOrder = false;        
+        touchData.switchButtonOrder = false;     
     }  
     
     void update() {
@@ -122,10 +124,27 @@ namespace TouchPad {
 
       
       result->isActive = true;
+      
+      bool buttonOrderChecked;
+      bool switchButtonOrder;
+
       result->buttonPrimary = data[0] & 0b00000001;
       result->buttonSecondary = data[0] & 0b00000010;
-//      result->buttonPrimary = data[0] & 0b00000010;
-//      result->buttonSecondary = data[0] & 0b00000001;
+
+        // Some touch pads reverse the primary/secondard order.
+        // Hacky fix to detect rapis button pressing and reverse order.
+        if(!switchButtonOrder && (millis() - result->timeLastButtonPress < 10))
+        {
+          switchButtonOrder = true;
+          result->timeLastButtonPress = millis();
+        }
+        if(switchButtonOrder)
+        {
+          result->buttonPrimary = data[0] & 0b00000010;
+          result->buttonSecondary = data[0] & 0b00000001;
+        }
+        ///////////////////////////////////////////////////////////////
+      
       result->buttonAuxiliary = data[0] & 0b00000100;
       result->xDelta = (int8_t)data[2];
       result->yDelta = (int8_t)data[1];

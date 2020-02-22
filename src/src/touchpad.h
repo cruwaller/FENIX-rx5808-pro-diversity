@@ -18,6 +18,10 @@ namespace TouchPad {
       bool ySign; 
       int16_t cursorX;
       int16_t cursorY;
+
+      int32_t timeLastButtonPress;
+      bool buttonOrderChecked;
+      bool switchButtonOrder;
     } relData_t;
 
     extern relData_t touchData;
