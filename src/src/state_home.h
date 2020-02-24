@@ -6,7 +6,6 @@
 #include "settings.h"
 #include "receiver.h"
 
-
 namespace StateMachine {
     class HomeStateHandler : public StateMachine::StateHandler {
         private:
