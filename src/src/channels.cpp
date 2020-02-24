@@ -18,6 +18,112 @@ static const uint16_t channelFreqTable[] PROGMEM = {
     5653, 5693, 5733, 5773, 5813, 5853, 5893, 5933  // H
 };
 
+#ifdef CHANNELS_48
+// All Channels of the above List ordered by Mhz
+static const uint8_t channelFreqOrderedIndex[] PROGMEM = {
+        40, // 5362
+        41, // 5399
+        42, // 5436
+        43, // 5473
+        44, // 5510
+        45, // 5547
+        46, // 5584
+        47, // 5621
+        19, // 5645
+        32, // 5658
+        18, // 5665
+        17, // 5685
+        33, // 5695
+        16, // 5705
+         7, // 5725
+        34, // 5732
+         8, // 5733
+        24, // 5740
+         6, // 5745
+         9, // 5752
+        25, // 5760
+         5, // 5765
+        35, // 5769
+        10, // 5771
+        26, // 5780
+         4, // 5785
+        11, // 5790
+        27, // 5800
+         3, // 5805
+        36, // 5806
+        12, // 5809
+        28, // 5820
+         2, // 5825
+        13, // 5828
+        29, // 5840
+        37, // 5843
+         1, // 5845
+        14, // 5847
+        30, // 5860
+         0, // 5865
+        15, // 5866
+        31, // 5880
+        38, // 5880
+        20, // 5885
+        21, // 5905
+        39, // 5917
+        22, // 5925
+        23  // 5945
+};
+
+static const uint8_t channelIndexToOrderedIndex[] PROGMEM = {
+        39,
+        36,
+        32,
+        28,
+        25,
+        21,
+        18,
+        14,
+        16,
+        19,
+        23,
+        26,
+        30,
+        33,
+        37,
+        40,
+        13,
+        11,
+        10,
+         8,
+        43,
+        44,
+        46,
+        47,
+        17,
+        20,
+        24,
+        27,
+        31,
+        34,
+        38,
+        41,
+         9,
+        12,
+        15,
+        22,
+        29,
+        35,
+        42,
+        45,
+         0,
+         1,
+         2,
+         3,
+         4,
+         5,
+         6,
+         7
+};
+#endif
+
+#ifdef CHANNELS_72
 // All Channels of the above List ordered by Mhz
 static const uint8_t channelFreqOrderedIndex[] PROGMEM = {
         48, //5325
@@ -168,7 +274,7 @@ static const uint8_t channelIndexToOrderedIndex[] PROGMEM = {
         66,
         70
 };
-
+#endif
 
 namespace Channels {
     const uint16_t getSynthRegisterB(uint8_t index) {

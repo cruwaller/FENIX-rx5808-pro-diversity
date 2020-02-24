@@ -14,6 +14,14 @@
 #include "voltage.h"
 #include "touchpad.h"
 
+// For scalling graphics accross screen
+#ifdef CHANNELS_72
+    uint8_t CHANNELS_SIZE_DIVIDER = 4;
+#endif
+#ifdef CHANNELS_48
+    uint8_t CHANNELS_SIZE_DIVIDER = 6;
+#endif
+
 using StateMachine::HomeStateHandler;
 
 void HomeStateHandler::onEnter() {
@@ -212,32 +220,33 @@ void HomeStateHandler::onUpdateDraw() {
 
     // Plot Spectrum 324 x 224
     for (uint8_t i=0; i<CHANNELS_SIZE; i++) {
-        Ui::display.fillRect(18+4*i, 214 - rssiData[i]*8/100, 4, rssiData[i]*8/100, rssiData[i]/10);
+        Ui::display.fillRect(18+CHANNELS_SIZE_DIVIDER*i, 214 - rssiData[i]*8/100, CHANNELS_SIZE_DIVIDER, rssiData[i]*8/100, rssiData[i]/10);
     }
     Ui::display.line(0, 213, 323, 213, 100);
     Ui::display.setCursor( 1, 215);
     Ui::display.print(Channels::getFrequency(Channels::getOrderedIndex(0)));
     Ui::display.setCursor( 290, 215);
     Ui::display.print(Channels::getFrequency(Channels::getOrderedIndex(CHANNELS_SIZE-1)));
+
     // Marker triangle
     uint8_t markerX = Channels::getOrderedIndexFromIndex(Receiver::activeChannel);
     for (int i = 0; i < 7; i++) {
-        Ui::display.line(18+4*markerX, 214, 18+4*markerX+(-3+i), 219, 100);
+        Ui::display.line(18+CHANNELS_SIZE_DIVIDER*markerX, 214, 18+CHANNELS_SIZE_DIVIDER*markerX+(-3+i), 219, 100);
     }
 
-    if (HomeStateHandler::isInBandScanRegion()) {
+    if (HomeStateHandler::isInBandScanRegion() && TouchPad::touchData.cursorX > 18 && TouchPad::touchData.cursorX < (324+CHANNELS_SIZE_DIVIDER-18)) {
         Ui::display.fillRect( TouchPad::touchData.cursorX - 33, TouchPad::touchData.cursorY - 17, 33, 17, 10);
         Ui::display.setCursor( TouchPad::touchData.cursorX - 32, TouchPad::touchData.cursorY - 16 );
         Ui::display.print(Channels::getName( 
                                             Channels::getOrderedIndex( 
-                                                                     (TouchPad::touchData.cursorX-18) / 4
+                                                                     (TouchPad::touchData.cursorX-18) / CHANNELS_SIZE_DIVIDER
                                                                      )
                                             )
                           );
         Ui::display.setCursor( TouchPad::touchData.cursorX - 32, TouchPad::touchData.cursorY - 8 );
         Ui::display.print(Channels::getFrequency( 
                                             Channels::getOrderedIndex( 
-                                                                     (TouchPad::touchData.cursorX-18) / 4
+                                                                     (TouchPad::touchData.cursorX-18) / CHANNELS_SIZE_DIVIDER
                                                                      )
                                             )
                           );
@@ -329,7 +338,7 @@ void HomeStateHandler::doTapAction() {
       HomeStateHandler::isInBandScanRegion()
      ) {
           Receiver::setChannel(
-                              Channels::getOrderedIndex( (TouchPad::touchData.cursorX-18) / 4 )
+                              Channels::getOrderedIndex( (TouchPad::touchData.cursorX-18) / CHANNELS_SIZE_DIVIDER )
                               );
           HomeStateHandler::centreFrequency();
           displayActiveChannel = Receiver::activeChannel;
