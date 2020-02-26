@@ -45,43 +45,24 @@
 #include "temperature.h"
 #include "touchpad.h"
 #include "receiver_spi.h"
-
-// #include <esp_now.h>
-// #include <WiFi.h>
+#include <esp_now.h>
+#include <WiFi.h>
+#include "ExpressLRS_Protocol.h"
 
 #ifdef SPEED_TEST
     uint32_t n = 0; 
     uint32_t previousTime = millis();
 #endif
 
-// uint8_t broadcastAddress[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-
-// typedef struct struct_message {
-//     float temp;
-//     float hum;
-//     float pres;
-// } struct_message;
-
-// struct_message BME280Readings;
-// // struct_message incomingReadings;
-// int incomingReadings;
-
-// void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
-//   Serial.print("\r\nLast Packet Send Status:\t");
-//   Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
-// }
-
-// void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
-//   memcpy(&incomingReadings, incomingData, sizeof(incomingReadings));
-//   Serial.print("Data received: ");
-//   Serial.println(incomingReadings);
-// }
+/* 
+    esp-now setup for communicating to https://github.com/AlessandroAU/ExpressLRS
+    broadcastAddress is the mac of your receiving esp32/esp8266
+*/
+uint8_t broadcastAddress[] = {0x84, 0x0D, 0x8E, 0x13, 0x3F, 0x38}; // 84:0D:8E:13:3F:38
 
 void setup()
 {
 
-   Serial.begin(115200);
-    
     #ifdef SPEED_TEST
         Serial.begin(115200);
     #endif
@@ -107,28 +88,26 @@ void setup()
         StateMachine::switchState(StateMachine::State::HOME); 
     }
 
-    
+    /* 
+        esp-now setup for communicating to https://github.com/AlessandroAU/ExpressLRS
+    */
 
-    // WiFi.mode(WIFI_STA);
+    WiFi.mode(WIFI_STA);
 
-    // if (esp_now_init() != ESP_OK) {
-    //     Serial.println("Error initializing ESP-NOW");
-    //     return;
-    // }
+    if (esp_now_init() != ESP_OK) {
+        // Serial.println("Error initializing ESP-NOW");
+        return;
+    }
 
-    // // esp_now_register_send_cb(OnDataSent);
-    // // esp_now_register_recv_cb(OnDataRecv);
-    
-    // esp_now_peer_info_t peerInfo;
-    // memcpy(peerInfo.peer_addr, broadcastAddress, 6);
-    // peerInfo.channel = 0;  
-    // peerInfo.encrypt = false;
-    // if (esp_now_add_peer(&peerInfo) != ESP_OK){
-    //     Serial.println("Failed to add peer");
-    //     return;
-    // }
+    esp_now_peer_info_t injectorInfo;
+    memcpy(injectorInfo.peer_addr, broadcastAddress, 6);
+    injectorInfo.channel = 0;  
+    injectorInfo.encrypt = false;
 
-
+    if (esp_now_add_peer(&injectorInfo) != ESP_OK){
+        // Serial.println("Failed to add peer");
+        return;
+    }
 }
 
 void setupPins() {
@@ -158,19 +137,7 @@ void setupPins() {
 
 }
 
-// int lastSentNow = 0;
-
 void loop() {
-
-    // if(millis() > lastSentNow+1000)
-    // {
-    //     BME280Readings.temp = 1;
-    //     BME280Readings.hum = 2;
-    //     BME280Readings.pres = 3;
-    //     esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &BME280Readings, sizeof(BME280Readings));
-    //     delay(1000);    
-    //     lastSentNow = millis();
-    // }
 
     Receiver::update();
 
@@ -220,4 +187,10 @@ void loop() {
             n = 0;
         }
     #endif
+}
+
+void sendToExLRS(group g, task t, uint8_t data)
+{
+    uint8_t nowDataOutput[3] = {g, t, data};
+    esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &nowDataOutput, sizeof(nowDataOutput));
 }

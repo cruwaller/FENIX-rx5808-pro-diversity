@@ -13,9 +13,9 @@
 #include "temperature.h"
 #include "voltage.h"
 #include "touchpad.h"
+#include "ExpressLRS_Protocol.h"
 
-#include <esp_now.h>
-#include <WiFi.h>
+extern void sendToExLRS(group g, task t, uint8_t data);
 
 using StateMachine::HomeStateHandler;
 
@@ -308,53 +308,24 @@ void HomeStateHandler::doTapAction() {
                       EepromSettings.diversityMode = Receiver::DiversityMode::ANTENNA_A;
                       break;
               }
-          } else {
-
-                int nowDataOutput = 1;
-        
+          } else {        
               switch ( EepromSettings.diversityMode )
               {
                   case Receiver::DiversityMode::ANTENNA_A:
                       EepromSettings.diversityMode = Receiver::DiversityMode::ANTENNA_B;
 //                      ReceiverSpi::rxStandby(Receiver::ReceiverId::A);
-                      nowDataOutput = 1;
+sendToExLRS(ExLRS, setMode, 0);
                       break;
                   case Receiver::DiversityMode::ANTENNA_B:
                       EepromSettings.diversityMode = Receiver::DiversityMode::DIVERSITY;
 //                      ReceiverSpi::rxPowerOn(Receiver::ReceiverId::A);
-                      nowDataOutput = 2;
+sendToExLRS(ExLRS, setMode, 1);
                       break;
                   case Receiver::DiversityMode::DIVERSITY:
                       EepromSettings.diversityMode = Receiver::DiversityMode::ANTENNA_A;
-                      nowDataOutput = 3;
+sendToExLRS(ExLRS, setMode, 2);
                       break;
               }
-
-
-   WiFi.mode(WIFI_STA);
-
-    if (esp_now_init() != ESP_OK) {
-        Serial.println("Error initializing ESP-NOW");
-        return;
-    }
-    
-    esp_now_peer_info_t peerInfo;
-    uint8_t broadcastAddress[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xF};
-    memcpy(peerInfo.peer_addr, broadcastAddress, 6);
-    peerInfo.channel = 0;  
-    peerInfo.encrypt = false;
-    if (esp_now_add_peer(&peerInfo) != ESP_OK){
-        Serial.println("Failed to add peer");
-        return;
-    }
-
-    esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &nowDataOutput, sizeof(nowDataOutput));
-
-    delay(1000);
-
-    esp_now_deinit();
-
-    WiFi.mode(WIFI_MODE_NULL);
 
           }
           
