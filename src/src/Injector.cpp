@@ -1,28 +1,30 @@
-#include <esp_now.h>
-#include <WiFi.h> 
+#include <ESP8266WiFi.h>
+#include <espnow.h>
 
-void OnDataRecv(const uint8_t *mac_addr, const uint8_t *data, int data_len)
+void OnDataRecv(uint8_t * mac_addr, uint8_t *data, uint8_t data_len)
 {
   for(int i=0; i<data_len; i++)
   {
-    Serial.print(data[i]);
+    Serial.write(data[i]);
   }
 } 
 
 void setup()
 {
-  Serial.begin(115200); 
-//   Serial.begin(115200, true); // Use inverted for r9m
+  Serial.begin(400000); 
+  /*
+    Use inverted for r9m
+  */
+  // Serial.begin(115200, SERIAL_8N1, SERIAL_FULL, 1, true); // https://github.com/dok-net/arduino-esp8266/blob/master/cores/esp8266/HardwareSerial.h#L92
 
     /*
         Uncomment below to print mac address.  Add this to VRx setup().
     */
-//   WiFi.mode(WIFI_MODE_STA);
-//   Serial.println(WiFi.macAddress());
+  // Serial.println(WiFi.macAddress());
 
   WiFi.mode(WIFI_STA);
 
-  if(esp_now_init() != ESP_OK)
+  if(esp_now_init() != 0)
   {
     ESP.restart();
   }

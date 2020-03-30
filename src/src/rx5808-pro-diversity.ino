@@ -58,7 +58,7 @@
     esp-now setup for communicating to https://github.com/AlessandroAU/ExpressLRS
     broadcastAddress is the mac of your receiving esp32/esp8266
 */
-uint8_t broadcastAddress[] = {0x84, 0x0D, 0x8E, 0x13, 0x3F, 0x38}; // 84:0D:8E:13:3F:38
+uint8_t broadcastAddress[] = {0x50, 0x02, 0x91, 0xDA, 0x56, 0xCA}; // 50:02:91:DA:56:CA
 
 void setup()
 {
