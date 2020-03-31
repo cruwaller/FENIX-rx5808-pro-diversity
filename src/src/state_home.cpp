@@ -282,6 +282,7 @@ void HomeStateHandler::doTapAction() {
   else if ( // Menu
       TouchPad::touchData.cursorX > 314  && TouchPad::touchData.cursorY < 8
      ) {
+          EepromSettings.save();
           StateMachine::switchState(StateMachine::State::MENU);
         }
   else if ( // Change mode

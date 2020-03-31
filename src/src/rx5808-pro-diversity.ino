@@ -48,6 +48,7 @@
 #include <esp_now.h>
 #include <WiFi.h>
 #include "ExpressLRS_Protocol.h"
+#include "WebUpdater.h"
 
 #ifdef SPEED_TEST
     uint32_t n = 0; 
@@ -59,6 +60,8 @@
     broadcastAddress is the mac of your receiving esp8266
 */
 uint8_t broadcastAddress[] = {0x50, 0x02, 0x91, 0xDA, 0x56, 0xCA}; // 50:02:91:DA:56:CA
+bool updatingOTA = false;
+uint32_t previousLEDTime = 0;
 
 void setup()
 {
@@ -88,26 +91,35 @@ void setup()
         StateMachine::switchState(StateMachine::State::HOME); 
     }
 
+
+    if (EepromSettings.otaUpdateRequested)
+    {
+        BeginWebUpdate();
+        EepromSettings.otaUpdateRequested = false;
+        EepromSettings.save();
+        updatingOTA = true;
+    } else
     /* 
         esp-now setup for communicating to https://github.com/AlessandroAU/ExpressLRS
     */
+    {
+        WiFi.mode(WIFI_STA);
 
-    WiFi.mode(WIFI_STA);
+        if (esp_now_init() != ESP_OK) {
+            // Serial.println("Error initializing ESP-NOW");
+            return;
+        }
 
-    if (esp_now_init() != ESP_OK) {
-        // Serial.println("Error initializing ESP-NOW");
-        return;
-    }
+        esp_now_peer_info_t injectorInfo;
+        memcpy(injectorInfo.peer_addr, broadcastAddress, 6);
+        injectorInfo.channel = 0;  
+        injectorInfo.encrypt = false;
 
-    esp_now_peer_info_t injectorInfo;
-    memcpy(injectorInfo.peer_addr, broadcastAddress, 6);
-    injectorInfo.channel = 0;  
-    injectorInfo.encrypt = false;
-
-    if (esp_now_add_peer(&injectorInfo) != ESP_OK){
-        // Serial.println("Failed to add peer");
-        return;
-    }
+        if (esp_now_add_peer(&injectorInfo) != ESP_OK){
+            // Serial.println("Failed to add peer");
+            return;
+        }
+    }  
 }
 
 void setupPins() {
@@ -139,54 +151,65 @@ void setupPins() {
 
 void loop() {
 
-    Receiver::update();
-
-    #ifdef USE_VOLTAGE_MONITORING  
-        Voltage::update();
-    #endif
- 
-    TouchPad::update();
-
-    if (Ui::isTvOn) {
-      
-        Ui::display.begin(0);
-        StateMachine::update();
-        Ui::update();
-        Ui::display.end();
-  
-        EepromSettings.update();
-    }
-    
-    if (TouchPad::touchData.isActive) {
-        Ui::UiTimeOut.reset();
-    }
-    
-    if (Ui::isTvOn &&
-        Ui::UiTimeOut.hasTicked() &&
-        StateMachine::currentState != StateMachine::State::SETTINGS_RSSI ) 
+    if (updatingOTA)
     {
-        Ui::tvOff();  
-        EepromSettings.update();
-    }
-    
-    if (!Ui::isTvOn &&
-        TouchPad::touchData.buttonPrimary)
-    {
-        Ui::tvOn();
-    }
-  
-    TouchPad::clearTouchData();  
-
-    #ifdef SPEED_TEST
-        n++;
-        uint32_t nowTime = millis();
-        if (nowTime > previousTime + 1000) {
-            Serial.print(n);
-            Serial.println(" Hz");
-            previousTime = nowTime;
-            n = 0;
+        HandleWebUpdate();
+        if (millis() > previousLEDTime+100)
+        {
+            digitalWrite(PIN_RX_SWITCH, !digitalRead(PIN_RX_SWITCH));
+            previousLEDTime = millis();
         }
-    #endif
+    } else
+    {
+        Receiver::update();
+
+        #ifdef USE_VOLTAGE_MONITORING  
+            Voltage::update();
+        #endif
+    
+        TouchPad::update();
+
+        if (Ui::isTvOn) {
+        
+            Ui::display.begin(0);
+            StateMachine::update();
+            Ui::update();
+            Ui::display.end();
+    
+            EepromSettings.update();
+        }
+        
+        if (TouchPad::touchData.isActive) {
+            Ui::UiTimeOut.reset();
+        }
+        
+        if (Ui::isTvOn &&
+            Ui::UiTimeOut.hasTicked() &&
+            StateMachine::currentState != StateMachine::State::SETTINGS_RSSI ) 
+        {
+            Ui::tvOff();  
+            EepromSettings.update();
+        }
+        
+        if (!Ui::isTvOn &&
+            TouchPad::touchData.buttonPrimary)
+        {
+            Ui::tvOn();
+        }
+    
+        TouchPad::clearTouchData();  
+
+        #ifdef SPEED_TEST
+            n++;
+            uint32_t nowTime = millis();
+            if (nowTime > previousTime + 1000) {
+                Serial.print(n);
+                Serial.println(" Hz");
+                previousTime = nowTime;
+                n = 0;
+            }
+        #endif
+    }
 }
 
 void sendToExLRS(group g, task t, uint8_t data)

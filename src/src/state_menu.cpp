@@ -25,63 +25,65 @@ void StateMachine::MenuStateHandler::onUpdate() {
 
 void StateMachine::MenuStateHandler::doTapAction() {
     
-    if ( // Home
-        TouchPad::touchData.cursorX > 47  && TouchPad::touchData.cursorX < 47+50 &&
-        TouchPad::touchData.cursorY > 57 && TouchPad::touchData.cursorY < 107
-    )
-    {
-        StateMachine::switchState(StateMachine::State::HOME); 
-    }
-     else if ( // ExpressLRS Settings
-      TouchPad::touchData.cursorX > 47+60  && TouchPad::touchData.cursorX < 47+60+50 &&
-      TouchPad::touchData.cursorY > 57 && TouchPad::touchData.cursorY < 107
-     )
-     {
-        StateMachine::switchState(StateMachine::State::EXPRESSLRS); 
-     }
-     else if ( // item 3
-      TouchPad::touchData.cursorX > 47+120  && TouchPad::touchData.cursorX < 47+120+50 &&
-      TouchPad::touchData.cursorY > 57 && TouchPad::touchData.cursorY < 107
-     )
-     {
-        
-     }
-     else if ( // item 4
-      TouchPad::touchData.cursorX > 47+180  && TouchPad::touchData.cursorX < 47+180+50 &&
-      TouchPad::touchData.cursorY > 57 && TouchPad::touchData.cursorY < 107
-     )
-     {
-        
-     }
-     else if ( // item 5
+   if ( // Home
       TouchPad::touchData.cursorX > 47  && TouchPad::touchData.cursorX < 47+50 &&
-      TouchPad::touchData.cursorY > 117 && TouchPad::touchData.cursorY < 167
-     )
-     {
-        
-     }
-     else if ( // item 6
-      TouchPad::touchData.cursorX > 47+60  && TouchPad::touchData.cursorX < 47+60+50 &&
-      TouchPad::touchData.cursorY > 117 && TouchPad::touchData.cursorY < 167
-     )
-     {
-        
-     }
-     else if ( // item 7
-      TouchPad::touchData.cursorX > 47+120  && TouchPad::touchData.cursorX < 47+120+50 &&
-      TouchPad::touchData.cursorY > 117 && TouchPad::touchData.cursorY < 167
-     )
-     {
-        
-     }
-     else if ( // Calibration
-      TouchPad::touchData.cursorX > 47+180  && TouchPad::touchData.cursorX < 47+180+50 &&
-      TouchPad::touchData.cursorY > 117 && TouchPad::touchData.cursorY < 167
-     )
-     {
-        EepromSettings.initDefaults();
-        ESP.restart();
-     }
+      TouchPad::touchData.cursorY > 57 && TouchPad::touchData.cursorY < 107
+   )
+   {
+      StateMachine::switchState(StateMachine::State::HOME); 
+   }
+   else if ( // ExpressLRS Settings
+   TouchPad::touchData.cursorX > 47+60  && TouchPad::touchData.cursorX < 47+60+50 &&
+   TouchPad::touchData.cursorY > 57 && TouchPad::touchData.cursorY < 107
+   )
+   {
+      StateMachine::switchState(StateMachine::State::EXPRESSLRS); 
+   }
+   else if ( // item 3
+   TouchPad::touchData.cursorX > 47+120  && TouchPad::touchData.cursorX < 47+120+50 &&
+   TouchPad::touchData.cursorY > 57 && TouchPad::touchData.cursorY < 107
+   )
+   {
+      
+   }
+   else if ( // item 4
+   TouchPad::touchData.cursorX > 47+180  && TouchPad::touchData.cursorX < 47+180+50 &&
+   TouchPad::touchData.cursorY > 57 && TouchPad::touchData.cursorY < 107
+   )
+   {
+      
+   }
+   else if ( // item 5
+   TouchPad::touchData.cursorX > 47  && TouchPad::touchData.cursorX < 47+50 &&
+   TouchPad::touchData.cursorY > 117 && TouchPad::touchData.cursorY < 167
+   )
+   {
+      
+   }
+   else if ( // item 6
+   TouchPad::touchData.cursorX > 47+60  && TouchPad::touchData.cursorX < 47+60+50 &&
+   TouchPad::touchData.cursorY > 117 && TouchPad::touchData.cursorY < 167
+   )
+   {
+      
+   }
+   else if ( // Calibration
+   TouchPad::touchData.cursorX > 47+120  && TouchPad::touchData.cursorX < 47+120+50 &&
+   TouchPad::touchData.cursorY > 117 && TouchPad::touchData.cursorY < 167
+   )
+   {
+      EepromSettings.initDefaults();
+      ESP.restart();
+   }
+   else if ( // WiFi OTA Update
+   TouchPad::touchData.cursorX > 47+180  && TouchPad::touchData.cursorX < 47+180+50 &&
+   TouchPad::touchData.cursorY > 117 && TouchPad::touchData.cursorY < 167
+   )
+   {
+      EepromSettings.otaUpdateRequested = true;
+      EepromSettings.save();
+      ESP.restart();
+   }
      
 }
 
@@ -173,8 +175,8 @@ void StateMachine::MenuStateHandler::onUpdateDraw() {
       Ui::display.rect(47+180-5, 117-5, 60, 60, 100);
       Ui::display.setCursor( 120, 193);
       Ui::display.print("WiFi Update");
-      Ui::display.setCursor( 90, 207);
-      Ui::display.print("SSID:FENIX PW:FENIX");
+      Ui::display.setCursor( 70, 207);
+      Ui::display.print("SSID:FENIX  IP:192.168.4.1");
    }
 
 }

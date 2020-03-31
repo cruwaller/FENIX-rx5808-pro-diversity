@@ -13,6 +13,7 @@ struct EepromSettings {
     uint8_t versionNumber;
     
     uint8_t isCalibrated;
+    uint8_t otaUpdateRequested;
 
     Receiver::DiversityMode diversityMode;
     
@@ -64,6 +65,7 @@ const struct {
     uint8_t versionNumber = VERSION_NUMBER;
     
     uint8_t isCalibrated = false;
+    uint8_t otaUpdateRequested = false;    
 
     Receiver::DiversityMode diversityMode = Receiver::DiversityMode::DIVERSITY;
 
