@@ -6,6 +6,8 @@
 #include "state_settings.h"
 #include "state_settings_internal.h"
 #include "state_settings_rssi.h"
+#include "state_menu.h"
+#include "state_expresslrs.h"
 
 #include "ui.h"
 #include "settings_eeprom.h"
@@ -22,8 +24,10 @@
     MAX(sizeof(HomeStateHandler), \
     MAX(sizeof(SettingsStateHandler), \
     MAX(sizeof(SettingsInternalStateHandler), \
-        sizeof(SettingsRssiStateHandler) \   
-    )))
+    MAX(sizeof(SettingsRssiStateHandler), \   
+    MAX(sizeof(MenuStateHandler), \   
+        sizeof(ExLRSStateHandler) \   
+    )))))
 ;
 
 namespace StateMachine {
@@ -84,6 +88,8 @@ namespace StateMachine {
             STATE_FACTORY(State::SETTINGS, SettingsStateHandler);
             STATE_FACTORY(State::SETTINGS_INTERNAL, SettingsInternalStateHandler);
             STATE_FACTORY(State::SETTINGS_RSSI, SettingsRssiStateHandler);
+            STATE_FACTORY(State::MENU, MenuStateHandler);
+            STATE_FACTORY(State::EXPRESSLRS, ExLRSStateHandler);            
 
             default:
                 return nullptr;

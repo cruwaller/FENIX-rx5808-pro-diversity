@@ -131,19 +131,19 @@ namespace TouchPad {
       result->buttonPrimary = data[0] & 0b00000001;
       result->buttonSecondary = data[0] & 0b00000010;
 
-        // Some touch pads reverse the primary/secondard order.
-        // Hacky fix to detect rapis button pressing and reverse order.
-        if(!switchButtonOrder && (millis() - result->timeLastButtonPress < 10))
-        {
-          switchButtonOrder = true;
-          result->timeLastButtonPress = millis();
-        }
-        if(switchButtonOrder)
-        {
-          result->buttonPrimary = data[0] & 0b00000010;
-          result->buttonSecondary = data[0] & 0b00000001;
-        }
-        ///////////////////////////////////////////////////////////////
+        // // Some touch pads reverse the primary/secondard order.
+        // // Hacky fix to detect rapis button pressing and reverse order.
+        // if(!switchButtonOrder && (millis() - result->timeLastButtonPress < 10))
+        // {
+        //   switchButtonOrder = true;
+        //   result->timeLastButtonPress = millis();
+        // }
+        // if(switchButtonOrder)
+        // {
+        //   result->buttonPrimary = data[0] & 0b00000010;
+        //   result->buttonSecondary = data[0] & 0b00000001;
+        // }
+        // ///////////////////////////////////////////////////////////////
       
       result->buttonAuxiliary = data[0] & 0b00000100;
       result->xDelta = (int8_t)data[2];

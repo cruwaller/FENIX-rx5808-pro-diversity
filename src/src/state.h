@@ -12,7 +12,9 @@ namespace StateMachine {
         HOME,
         SETTINGS,
         SETTINGS_INTERNAL,
-        SETTINGS_RSSI
+        SETTINGS_RSSI,
+        MENU,
+        EXPRESSLRS
     };
 
     class StateHandler {

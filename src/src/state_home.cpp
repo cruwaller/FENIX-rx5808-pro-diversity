@@ -75,7 +75,7 @@ void HomeStateHandler::onUpdateDraw() {
 
     #ifdef USE_VOLTAGE_MONITORING
         // Voltage
-        Ui::display.setCursor( 140, 0);
+        Ui::display.setCursor( 129, 0);
 //        Ui::display.print("7");   
         Ui::display.print(Voltage::voltage);        
         Ui::display.print(".");        
@@ -84,7 +84,7 @@ void HomeStateHandler::onUpdateDraw() {
         Ui::display.print("V");  
         Ui::display.print(" / "); 
     #else
-        Ui::display.setCursor( 216, 0);
+        Ui::display.setCursor( 205, 0);
     #endif
 
     // Temperature // Doesnt currently work within ESP32 Arduino.
@@ -108,6 +108,11 @@ void HomeStateHandler::onUpdateDraw() {
         Ui::display.print("0");       
     }
     Ui::display.print(secs);
+
+    // Menu Icon
+    Ui::display.line( 315, 1, 322, 1, 100);
+    Ui::display.line( 315, 4, 322, 4, 100);
+    Ui::display.line( 315, 7, 322, 7, 100);
 
     // Horixontal line
     Ui::display.line( 0, 9, SCREEN_WIDTH, 9, 100);
@@ -250,15 +255,7 @@ void HomeStateHandler::onUpdateDraw() {
 
 void HomeStateHandler::doTapAction() {
 
-            
-  if ( // Calibrate
-      TouchPad::touchData.cursorX >= 210  &&
-      TouchPad::touchData.cursorY < 9
-     ) {
-        EepromSettings.initDefaults();
-        ESP.restart();
-        }
-  else if ( // Up band
+  if ( // Up band
       TouchPad::touchData.cursorX >= 0  && TouchPad::touchData.cursorX < 61 &&
       TouchPad::touchData.cursorY > 8 && TouchPad::touchData.cursorY < 54
      ) {
@@ -281,6 +278,11 @@ void HomeStateHandler::doTapAction() {
       TouchPad::touchData.cursorY > 54 && TouchPad::touchData.cursorY < 99
      ) {
           this->setChannel(-1);
+        }
+  else if ( // Menu
+      TouchPad::touchData.cursorX > 314  && TouchPad::touchData.cursorY < 8
+     ) {
+          StateMachine::switchState(StateMachine::State::MENU);
         }
   else if ( // Change mode
       TouchPad::touchData.cursorX < 130 &&
@@ -314,16 +316,13 @@ void HomeStateHandler::doTapAction() {
                   case Receiver::DiversityMode::ANTENNA_A:
                       EepromSettings.diversityMode = Receiver::DiversityMode::ANTENNA_B;
 //                      ReceiverSpi::rxStandby(Receiver::ReceiverId::A);
-sendToExLRS(ExLRS, setMode, 0);
                       break;
                   case Receiver::DiversityMode::ANTENNA_B:
                       EepromSettings.diversityMode = Receiver::DiversityMode::DIVERSITY;
 //                      ReceiverSpi::rxPowerOn(Receiver::ReceiverId::A);
-sendToExLRS(ExLRS, setMode, 1);
                       break;
                   case Receiver::DiversityMode::DIVERSITY:
                       EepromSettings.diversityMode = Receiver::DiversityMode::ANTENNA_A;
-sendToExLRS(ExLRS, setMode, 2);
                       break;
               }
 
