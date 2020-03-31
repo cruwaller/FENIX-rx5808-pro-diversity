@@ -53,7 +53,7 @@ The spectrum displays the RSSI detected for each of the 72 channels/bands.  A pe
      *   https://www.aliexpress.com/item/5-pcs-RF-Coaxial-Long-SMA-Female-Straight-Edge-15mm-tooth-PCB-Connector-Adapter/32913905715.html
   *   1 x SPDT Analog Switch TS5A3159ADBVR SOT-23
      *   http://www.ti.com/lit/ds/symlink/ts5a3159a.pdf
-  *   3.3V Regulator AMS1117-2.5
+  *   3.3V Regulator AMS1117-3.3
   *   2 x 10uF 0603 SMD Capacitors
   *   1 x 0.1uF 0603 SMD Capacitor
   *   1 x 10k 0603 SMD Resistors (EN pullup)
