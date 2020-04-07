@@ -15,7 +15,7 @@
 #include "touchpad.h"
 #include "ExpressLRS_Protocol.h"
 
-extern void sendToExLRS(group g, task t, uint8_t data);
+// extern void sendToExLRS(group g, task t, uint8_t data);
 
 // For scalling graphics accross screen
 #ifdef CHANNELS_72

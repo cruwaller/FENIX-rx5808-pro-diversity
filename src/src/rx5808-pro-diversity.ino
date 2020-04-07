@@ -212,8 +212,60 @@ void loop() {
     }
 }
 
-void sendToExLRS(group g, task t, uint8_t data)
+uint8_t crc8_dvb_s2(uint8_t crc, unsigned char a)
 {
-    uint8_t nowDataOutput[3] = {g, t, data};
-    esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &nowDataOutput, sizeof(nowDataOutput));
+    crc ^= a;
+    for (int ii = 0; ii < 8; ++ii) {
+        if (crc & 0x80) {
+            crc = (crc << 1) ^ 0xD5;
+        } else {
+            crc = crc << 1;
+        }
+    }
+    return crc;
 }
+
+// sendToExLRS(function, payloadSize, (uint8_t *) &payload);
+void sendToExLRS(uint16_t function, uint16_t payloadSize, const uint8_t *payload)
+{
+    uint8_t nowDataOutput[9 + payloadSize] = {0};
+    
+    nowDataOutput[0] = '$';
+    nowDataOutput[1] = 'X';
+    nowDataOutput[2] = '<';
+    nowDataOutput[3] = '0';
+    nowDataOutput[4] = function & 0xff;
+    nowDataOutput[5] = (function >> 8) & 0xff;
+    nowDataOutput[6] = payloadSize & 0xff;
+    nowDataOutput[7] = (payloadSize >> 8) & 0xff;
+
+    for (int i = 0; i < payloadSize; i++)
+    {
+        nowDataOutput[8 + i] = payload[i];
+    }
+
+    uint8_t ck2 = 0;
+    for(int i = 3; i < payloadSize+8; i++)
+    {
+        ck2=crc8_dvb_s2(ck2, nowDataOutput[i]);
+    }
+    nowDataOutput[payloadSize+8] = ck2;
+
+    esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &nowDataOutput, sizeof(nowDataOutput));
+    // esp_err_t esp_now_send(const uint8_t *peer_addr, const uint8_t *data, size_t len);
+}
+
+/*
+uint16 Function - ['E', 'x'] (e.g. Dec = 17784, Hex = [0x45, 0x78], Bytes = [69, 120])
+
+ExLRS function (uint8) and payload
+
+    Mode - 0x00, uint8 mode number 0, 1, 2, 3, 4
+    Tx power - 0x01, uint16 mW
+    TLM rate - 0x02, uint8 0, 2, 4, 8, 16, 32, 64, 128
+
+E.g. MSP V2 for setting ExLRS Tx power to 1W.
+
+[$, X, <, flag, function, function, payload size, payload size, ExLRS function, Tx power, Tx power, CRC]
+[$, X, <, 0x00, E, x, 0x03, 0x00, 0x01, 0xE8, 0x03, CRC]
+*/
