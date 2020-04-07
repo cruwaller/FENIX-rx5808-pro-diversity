@@ -225,7 +225,6 @@ uint8_t crc8_dvb_s2(uint8_t crc, unsigned char a)
     return crc;
 }
 
-// sendToExLRS(function, payloadSize, (uint8_t *) &payload);
 void sendToExLRS(uint16_t function, uint16_t payloadSize, const uint8_t *payload)
 {
     uint8_t nowDataOutput[9 + payloadSize] = {0};
@@ -252,20 +251,4 @@ void sendToExLRS(uint16_t function, uint16_t payloadSize, const uint8_t *payload
     nowDataOutput[payloadSize+8] = ck2;
 
     esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &nowDataOutput, sizeof(nowDataOutput));
-    // esp_err_t esp_now_send(const uint8_t *peer_addr, const uint8_t *data, size_t len);
 }
-
-/*
-uint16 Function - ['E', 'x'] (e.g. Dec = 17784, Hex = [0x45, 0x78], Bytes = [69, 120])
-
-ExLRS function (uint8) and payload
-
-    Mode - 0x00, uint8 mode number 0, 1, 2, 3, 4
-    Tx power - 0x01, uint16 mW
-    TLM rate - 0x02, uint8 0, 2, 4, 8, 16, 32, 64, 128
-
-E.g. MSP V2 for setting ExLRS Tx power to 1W.
-
-[$, X, <, flag, function, function, payload size, payload size, ExLRS function, Tx power, Tx power, CRC]
-[$, X, <, 0x00, E, x, 0x03, 0x00, 0x01, 0xE8, 0x03, CRC]
-*/
