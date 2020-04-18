@@ -6,7 +6,6 @@
 #include "touchpad.h"
 #include "ExpressLRS_Protocol.h"
 
-// extern void sendToExLRS(group g, task t, uint8_t data);
 extern void sendToExLRS(uint16_t function, uint16_t payloadSize, const uint8_t *payload);
 
 void StateMachine::ExLRSStateHandler::onEnter()

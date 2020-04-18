@@ -15,7 +15,7 @@
 #include "touchpad.h"
 #include "ExpressLRS_Protocol.h"
 
-// extern void sendToExLRS(group g, task t, uint8_t data);
+extern void sendToExLRS(uint16_t function, uint16_t payloadSize, const uint8_t *payload);
 
 // For scalling graphics accross screen
 #ifdef CHANNELS_72
@@ -96,7 +96,8 @@ void HomeStateHandler::onUpdateDraw() {
     #endif
 
     // Temperature // Doesnt currently work within ESP32 Arduino.
-    Ui::display.print(Temperature::getTemperature());
+    // Ui::display.print(Temperature::getTemperature());
+    Ui::display.print(displayActiveChannel);
     Ui::display.print("C"); 
     
     Ui::display.print(" / "); 
@@ -269,24 +270,32 @@ void HomeStateHandler::doTapAction() {
       TouchPad::touchData.cursorY > 8 && TouchPad::touchData.cursorY < 54
      ) {
           this->setChannel(8);
+          uint8_t payload[4] = {displayActiveChannel, 0, 1, 0};
+          sendToExLRS(MSP_SET_VTX_CONFIG, sizeof(payload), (uint8_t *) &payload);
         }
   else if ( // Down band
       TouchPad::touchData.cursorX >= 0  && TouchPad::touchData.cursorX < 61 &&
       TouchPad::touchData.cursorY > 54 && TouchPad::touchData.cursorY < 99
      ) {
           this->setChannel(-8);
+          uint8_t payload[4] = {displayActiveChannel, 0, 1, 0};
+          sendToExLRS(MSP_SET_VTX_CONFIG, sizeof(payload), (uint8_t *) &payload);
         }
   else if ( // Up channel
       TouchPad::touchData.cursorX > 61  && TouchPad::touchData.cursorX < 122 &&
       TouchPad::touchData.cursorY > 8 && TouchPad::touchData.cursorY < 54
      ) {
           this->setChannel(1);
+          uint8_t payload[4] = {displayActiveChannel, 0, 1, 0};
+          sendToExLRS(MSP_SET_VTX_CONFIG, sizeof(payload), (uint8_t *) &payload);
         }
   else if ( // Down channel
       TouchPad::touchData.cursorX > 61  && TouchPad::touchData.cursorX < 122 &&
       TouchPad::touchData.cursorY > 54 && TouchPad::touchData.cursorY < 99
      ) {
           this->setChannel(-1);
+          uint8_t payload[4] = {displayActiveChannel, 0, 1, 0};
+          sendToExLRS(MSP_SET_VTX_CONFIG, sizeof(payload), (uint8_t *) &payload);
         }
   else if ( // Menu
       TouchPad::touchData.cursorX > 314  && TouchPad::touchData.cursorY < 8
@@ -394,6 +403,8 @@ void HomeStateHandler::setChannel(int channelIncrement) {
     EepromSettings.startChannel = newChannelIndex;
     EepromSettings.markDirty();
     centred = false;
+
+    displayActiveChannel = Receiver::activeChannel;
 }
 
 // Frequency 'Centring' function.

@@ -29,6 +29,9 @@ SOFTWARE.
 
 #define VERSION_NUMBER 0002
 
+#define MSP_VTX_CONFIG      88 //out message         Get vtx settings - betaflight
+#define MSP_SET_VTX_CONFIG  89 //in message          Set vtx settings - betaflight
+
 // === Features ===============================================================
 
 // You can use any of the arduino analog pins to measure the voltage of the
