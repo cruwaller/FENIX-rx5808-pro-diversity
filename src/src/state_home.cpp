@@ -230,7 +230,7 @@ void HomeStateHandler::onUpdateDraw() {
 
     // Plot Spectrum 324 x 224
     for (uint8_t i=0; i<CHANNELS_SIZE; i++) {
-        Ui::display.fillRect(18+CHANNELS_SIZE_DIVIDER*i, 214 - rssiData[i]*8/100, CHANNELS_SIZE_DIVIDER, rssiData[i]*8/100, rssiData[i]/10);
+        Ui::display.fillRect(18+CHANNELS_SIZE_DIVIDER*i, 214 - Receiver::rssiBandScanData[i]*8/100, CHANNELS_SIZE_DIVIDER, Receiver::rssiBandScanData[i]*8/100, Receiver::rssiBandScanData[i]/10);
     }
     Ui::display.line(0, 213, 323, 213, 100);
     Ui::display.setCursor( 1, 215);
@@ -440,10 +440,10 @@ void HomeStateHandler::bandScanUpdate() {
     if (Receiver::isRssiStable() && Receiver::hasRssiUpdated) {
     
         if (!EepromSettings.quadversity) {
-            rssiData[orderedChanelIndex] = max(Receiver::rssiA, Receiver::rssiB);
+            Receiver::rssiBandScanData[orderedChanelIndex] = max(Receiver::rssiA, Receiver::rssiB);
         }
         if (EepromSettings.quadversity) {
-            rssiData[orderedChanelIndex] = max(Receiver::rssiA, max(Receiver::rssiB, max(Receiver::rssiC, Receiver::rssiD)));
+            Receiver::rssiBandScanData[orderedChanelIndex] = max(Receiver::rssiA, max(Receiver::rssiB, max(Receiver::rssiC, Receiver::rssiD)));
         }
     
         orderedChanelIndex = orderedChanelIndex + 1;

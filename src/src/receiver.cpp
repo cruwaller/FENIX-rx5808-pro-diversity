@@ -34,6 +34,8 @@ namespace Receiver {
     uint32_t rssiDRaw = 0;
     uint16_t  rssiDLast[RECEIVER_LAST_DATA_SIZE] = { 0 };
 
+    uint16_t rssiBandScanData[CHANNELS_SIZE] = { 0 };
+
     uint16_t previousSwitchTime = 0;
     uint16_t antennaAOnTime = 0;
     uint16_t antennaBOnTime = 0;

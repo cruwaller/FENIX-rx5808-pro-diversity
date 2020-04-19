@@ -3,6 +3,7 @@
 
 
 #include <stdint.h>
+#include "channels.h"
 
 
 #define RECEIVER_LAST_DELAY 50
@@ -45,6 +46,8 @@ namespace Receiver {
     extern uint16_t  rssiD;
     extern uint32_t rssiDRaw;
     extern uint16_t  rssiDLast[RECEIVER_LAST_DATA_SIZE];
+    
+    extern uint16_t rssiBandScanData[CHANNELS_SIZE];
     
     extern uint16_t previousSwitchTime;
     extern uint16_t antennaAOnTime;
