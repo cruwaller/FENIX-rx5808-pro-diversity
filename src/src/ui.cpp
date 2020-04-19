@@ -88,13 +88,13 @@ namespace Ui {
             }
         }
 
-       // For testing print the cursor location.  Helps with positioning widgits.
-       display.setCursor(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY);
-       display.print("  [");
-       display.print(TouchPad::touchData.cursorX);
-       display.print(", ");
-       display.print(TouchPad::touchData.cursorY);
-       display.print("]");
+    //    // For testing print the cursor location.  Helps with positioning widgits.
+    //    display.setCursor(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY);
+    //    display.print("  [");
+    //    display.print(TouchPad::touchData.cursorX);
+    //    display.print(", ");
+    //    display.print(TouchPad::touchData.cursorY);
+    //    display.print("]");
         
     }
 

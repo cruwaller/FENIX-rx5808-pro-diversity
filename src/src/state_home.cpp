@@ -97,8 +97,7 @@ void HomeStateHandler::onUpdateDraw() {
     #endif
 
     // Temperature // Doesnt currently work within ESP32 Arduino.
-    // Ui::display.print(Temperature::getTemperature());
-    Ui::display.print(displayActiveChannel);
+    Ui::display.print(Temperature::getTemperature());
     Ui::display.print("C"); 
     
     Ui::display.print(" / "); 
