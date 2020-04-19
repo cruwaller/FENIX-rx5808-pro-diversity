@@ -44,6 +44,7 @@ void HomeStateHandler::onInitialDraw() {
 void HomeStateHandler::onUpdateDraw() {
 
     if (TouchPad::touchData.buttonPrimary) {
+      TouchPad::touchData.buttonPrimary = false;
       this->doTapAction();
     }
     

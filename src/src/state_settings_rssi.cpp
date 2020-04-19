@@ -21,6 +21,7 @@ void StateMachine::SettingsRssiStateHandler::onUpdate() {
     onUpdateDraw();
     
     if (TouchPad::touchData.buttonPrimary && internalState!=InternalState::SCANNING_LOW) {
+      TouchPad::touchData.buttonPrimary = false;
       doTapAction();
     }
   

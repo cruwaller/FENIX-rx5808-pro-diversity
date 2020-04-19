@@ -194,6 +194,7 @@ void loop() {
         if (!Ui::isTvOn &&
             TouchPad::touchData.buttonPrimary)
         {
+            TouchPad::touchData.buttonPrimary = false;
             Ui::tvOn();
         }
     

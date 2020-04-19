@@ -26,6 +26,7 @@ void StateMachine::ExLRSStateHandler::onUpdateDraw()
 
     if (TouchPad::touchData.buttonPrimary)
     {
+        TouchPad::touchData.buttonPrimary = false;
         this->doTapAction();
     }
 

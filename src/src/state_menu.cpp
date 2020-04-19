@@ -19,6 +19,7 @@ void StateMachine::MenuStateHandler::onEnter() {
 void StateMachine::MenuStateHandler::onUpdate() {
     onUpdateDraw();
     if (TouchPad::touchData.buttonPrimary) {
+      TouchPad::touchData.buttonPrimary = false;
       this->doTapAction();
     }
 }
