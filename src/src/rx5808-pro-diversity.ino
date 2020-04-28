@@ -147,6 +147,8 @@ void setupPins() {
 //    pinMode(PIN_RSSI_C, INPUT);
 //    pinMode(PIN_RSSI_D, INPUT);
 
+    analogSetPinAttenuation(PIN_VBAT, ADC_2_5db);
+
 }
 
 void loop() {
@@ -162,14 +164,14 @@ void loop() {
     } else
     {
         Receiver::update();
-
-        #ifdef USE_VOLTAGE_MONITORING  
-            Voltage::update();
-        #endif
     
         TouchPad::update();
 
         if (Ui::isTvOn) {
+
+        #ifdef USE_VOLTAGE_MONITORING  
+            Voltage::update();
+        #endif
         
             Ui::display.begin(0);
             StateMachine::update();

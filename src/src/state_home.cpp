@@ -84,23 +84,22 @@ void HomeStateHandler::onUpdateDraw() {
 
     #ifdef USE_VOLTAGE_MONITORING
         // Voltage
-        Ui::display.setCursor( 129, 0);
-//        Ui::display.print("7");   
-        Ui::display.print(Voltage::voltage);        
-        Ui::display.print(".");        
-//        Ui::display.print("6");
+        if (Voltage::voltage > 9) {
+            Ui::display.setCursor( 173, 0);
+        } else {
+            Ui::display.setCursor( 181, 0);
+        }
+        Ui::display.print(Voltage::voltage);
+        Ui::display.print(".");
         Ui::display.print(Voltage::voltageDec);
-        Ui::display.print("V");  
-        Ui::display.print(" / "); 
+        Ui::display.print("V ");
     #else
-        Ui::display.setCursor( 205, 0);
+        Ui::display.setCursor( 221, 0);
     #endif
 
     // Temperature // Doesnt currently work within ESP32 Arduino.
     Ui::display.print(Temperature::getTemperature());
-    Ui::display.print("C"); 
-    
-    Ui::display.print(" / "); 
+    Ui::display.print("C ");
 
     // On Time
     uint8_t hours = millis() / 1000 / 60 / 60;
