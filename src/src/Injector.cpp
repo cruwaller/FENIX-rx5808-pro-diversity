@@ -13,13 +13,15 @@ void setup()
 {
   Serial.begin(400000); 
   /*
+    CURRENTLY NOT REQUIRED! LEAVE SERIAL UNINVERTED WITH DIRECT CONNECTION TO UART2 PINS
     Use inverted for r9m
   */
   // Serial.begin(115200, SERIAL_8N1, SERIAL_FULL, 1, true); // https://github.com/dok-net/arduino-esp8266/blob/master/cores/esp8266/HardwareSerial.h#L92
 
-    /*
-        Uncomment below to print mac address.  Add this to VRx setup().
-    */
+  /*
+      Uncomment below to print mac address.  Add this to VRx setup().
+  */
+  // Serial.begin(115200); 
   // Serial.println(WiFi.macAddress());
 
   WiFi.mode(WIFI_STA);

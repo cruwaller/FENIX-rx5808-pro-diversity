@@ -59,7 +59,8 @@
     esp-now setup for communicating to https://github.com/AlessandroAU/ExpressLRS
     broadcastAddress is the mac of your receiving esp8266
 */
-uint8_t broadcastAddress[] = {0x50, 0x02, 0x91, 0xDA, 0x56, 0xCA}; // 50:02:91:DA:56:CA
+uint8_t broadcastAddress[] = {0x50, 0x02, 0x91, 0xDA, 0x56, 0xCA};   // esp32 tx 50:02:91:DA:56:CA
+uint8_t broadcastAddress2[] = {0x50, 0x02, 0x91, 0xDA, 0x37, 0x84};  // r9 tx    50:02:91:DA:37:84
 bool updatingOTA = false;
 uint32_t previousLEDTime = 0;
 
@@ -111,7 +112,19 @@ void setup()
         }
 
         esp_now_peer_info_t injectorInfo;
+
+        // Adds broadcastAddress
         memcpy(injectorInfo.peer_addr, broadcastAddress, 6);
+        injectorInfo.channel = 0;  
+        injectorInfo.encrypt = false;
+
+        if (esp_now_add_peer(&injectorInfo) != ESP_OK){
+            // Serial.println("Failed to add peer");
+            return;
+        }
+
+        // Adds second broadcastAddress
+        memcpy(injectorInfo.peer_addr, broadcastAddress2, 6);
         injectorInfo.channel = 0;  
         injectorInfo.encrypt = false;
 
@@ -253,5 +266,7 @@ void sendToExLRS(uint16_t function, uint16_t payloadSize, const uint8_t *payload
     }
     nowDataOutput[payloadSize+8] = ck2;
 
-    esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &nowDataOutput, sizeof(nowDataOutput));
+    esp_err_t result;
+    result = esp_now_send(broadcastAddress, (uint8_t *) &nowDataOutput, sizeof(nowDataOutput));
+    result = esp_now_send(broadcastAddress2, (uint8_t *) &nowDataOutput, sizeof(nowDataOutput));
 }
