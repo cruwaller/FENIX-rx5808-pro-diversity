@@ -51,17 +51,19 @@
 #include "WebUpdater.h"
 
 #ifdef SPEED_TEST
-    uint32_t n = 0; 
+    uint32_t n = 0;
     uint32_t previousTime = millis();
 #endif
 
-/* 
+/*
     esp-now setup for communicating to https://github.com/AlessandroAU/ExpressLRS
     broadcastAddress is the mac of your receiving esp8266
 */
-uint8_t broadcastAddress[] = {0x50, 0x02, 0x91, 0xDA, 0x56, 0xCA,   // esp32 tx 50:02:91:DA:56:CA
-                              0x50, 0x02, 0x91, 0xDA, 0x37, 0x84};  // r9 tx    50:02:91:DA:37:84
-                              
+uint8_t broadcastAddress[][ESP_NOW_ETH_ALEN] = {
+    {0x50, 0x02, 0x91, 0xDA, 0x56, 0xCA},   // esp32 tx 50:02:91:DA:56:CA
+    {0x50, 0x02, 0x91, 0xDA, 0x37, 0x84},   // r9 tx    50:02:91:DA:37:84
+};
+
 bool updatingOTA = false;
 uint32_t previousLEDTime = 0;
 
@@ -74,23 +76,23 @@ void setup()
 
     EEPROM.begin(2048);
     SPI.begin();
-    
+
     EepromSettings.setup();
     setupPins();
     StateMachine::setup();
-    Ui::setup(); 
-    TouchPad::setup(); 
+    Ui::setup();
+    TouchPad::setup();
 
     // Has to be last setup() otherwise channel may not be set.
     // RX possibly not booting quick enough if setup() is called earler.
     // delay() may be needed.
-    Receiver::setup(); 
+    Receiver::setup();
 
     if (!EepromSettings.isCalibrated) {
-        StateMachine::switchState(StateMachine::State::SETTINGS_RSSI); 
+        StateMachine::switchState(StateMachine::State::SETTINGS_RSSI);
         Ui::tvOn();
     } else {
-        StateMachine::switchState(StateMachine::State::HOME); 
+        StateMachine::switchState(StateMachine::State::HOME);
     }
 
 
@@ -101,7 +103,7 @@ void setup()
         EepromSettings.save();
         updatingOTA = true;
     } else
-    /* 
+    /*
         esp-now setup for communicating to https://github.com/AlessandroAU/ExpressLRS
     */
     {
@@ -113,19 +115,15 @@ void setup()
         }
 
         // Adds broadcastAddress
-        esp_now_peer_info_t injectorInfo;
-        for (int i = 0; i < sizeof(broadcastAddress) / 6; i++)
-        {
-            memcpy(injectorInfo.peer_addr, broadcastAddress + (6 * i), 6);
-            injectorInfo.channel = 0;  
-            injectorInfo.encrypt = false;
-
-            if (esp_now_add_peer(&injectorInfo) != ESP_OK){
+        esp_now_peer_info_t injectorInfo = {.channel = 0, .encrypt = false};
+        for (int i = 0; i < sizeof(broadcastAddress) / ESP_NOW_ETH_ALEN; i++) {
+            memcpy(injectorInfo.peer_addr, broadcastAddress[i], ESP_NOW_ETH_ALEN);
+            if (esp_now_add_peer(&injectorInfo) != ESP_OK) {
                 // Serial.println("Failed to add peer");
-                return;
+                //return;
             }
         }
-    }  
+    }
 }
 
 void setupPins() {
@@ -133,13 +131,13 @@ void setupPins() {
     // Rx and Tx set as input so that they are high impedance when conencted to goggles.
     pinMode(1, INPUT);
     pinMode(3, INPUT);
-    
+
     pinMode(PIN_SPI_SLAVE_SELECT_RX_A, OUTPUT);
     digitalWrite(PIN_SPI_SLAVE_SELECT_RX_A, HIGH);
-    
+
     pinMode(PIN_SPI_SLAVE_SELECT_RX_B, OUTPUT);
     digitalWrite(PIN_SPI_SLAVE_SELECT_RX_B, HIGH);
-    
+
     pinMode(PIN_TOUCHPAD_SLAVE_SELECT, OUTPUT);
     digitalWrite(PIN_TOUCHPAD_SLAVE_SELECT, HIGH);
 
@@ -170,43 +168,43 @@ void loop() {
     } else
     {
         Receiver::update();
-    
+
         TouchPad::update();
 
         if (Ui::isTvOn) {
 
-        #ifdef USE_VOLTAGE_MONITORING  
+        #ifdef USE_VOLTAGE_MONITORING
             Voltage::update();
         #endif
-        
+
             Ui::display.begin(0);
             StateMachine::update();
             Ui::update();
             Ui::display.end();
-    
+
             EepromSettings.update();
         }
-        
+
         if (TouchPad::touchData.isActive) {
             Ui::UiTimeOut.reset();
         }
-        
+
         if (Ui::isTvOn &&
             Ui::UiTimeOut.hasTicked() &&
-            StateMachine::currentState != StateMachine::State::SETTINGS_RSSI ) 
+            StateMachine::currentState != StateMachine::State::SETTINGS_RSSI )
         {
-            Ui::tvOff();  
+            Ui::tvOff();
             EepromSettings.update();
         }
-        
+
         if (!Ui::isTvOn &&
             TouchPad::touchData.buttonPrimary)
         {
             TouchPad::touchData.buttonPrimary = false;
             Ui::tvOn();
         }
-    
-        TouchPad::clearTouchData();  
+
+        TouchPad::clearTouchData();
 
         #ifdef SPEED_TEST
             n++;
@@ -237,7 +235,7 @@ uint8_t crc8_dvb_s2(uint8_t crc, unsigned char a)
 void sendToExLRS(uint16_t function, uint16_t payloadSize, const uint8_t *payload)
 {
     uint8_t nowDataOutput[9 + payloadSize] = {0};
-    
+
     nowDataOutput[0] = '$';
     nowDataOutput[1] = 'X';
     nowDataOutput[2] = '<';
