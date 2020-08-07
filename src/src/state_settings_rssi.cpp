@@ -11,7 +11,7 @@
 #include "ui.h"
 
 #include "touchpad.h"
-    
+
 void StateMachine::SettingsRssiStateHandler::onEnter() {
     internalState = InternalState::WAIT_FOR_LOW;
 }
@@ -19,12 +19,12 @@ void StateMachine::SettingsRssiStateHandler::onEnter() {
 void StateMachine::SettingsRssiStateHandler::onUpdate() {
 
     onUpdateDraw();
-    
+
     if (TouchPad::touchData.buttonPrimary && internalState!=InternalState::SCANNING_LOW) {
       TouchPad::touchData.buttonPrimary = false;
       doTapAction();
     }
-  
+
     if (!Receiver::isRssiStable() || !Receiver::hasRssiUpdated)
         return;
 
@@ -38,34 +38,38 @@ void StateMachine::SettingsRssiStateHandler::onUpdate() {
             if ( Channels::getFrequency(Receiver::activeChannel) >= 5658) { // Only use min max above R1 to stay within RX5808 freq range
                 if (Receiver::rssiARaw < EepromSettings.rssiAMin)
                     EepromSettings.rssiAMin = Receiver::rssiARaw;
-    
+
                 if (Receiver::rssiARaw > EepromSettings.rssiAMax) {
                     EepromSettings.rssiAMax = Receiver::rssiARaw;
                     bestChannel = Receiver::activeChannel;
                 }
                 if (Receiver::rssiBRaw < EepromSettings.rssiBMin)
                     EepromSettings.rssiBMin = Receiver::rssiBRaw;
-                    
+
                 if (Receiver::rssiBRaw > EepromSettings.rssiBMax)
                     EepromSettings.rssiBMax = Receiver::rssiBRaw;
-    
+
+#if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
                 if (EepromSettings.quadversity) {
                     if (Receiver::rssiCRaw < EepromSettings.rssiCMin)
                         EepromSettings.rssiCMin = Receiver::rssiCRaw;
                     if (Receiver::rssiCRaw > EepromSettings.rssiCMax)
                         EepromSettings.rssiCMax = Receiver::rssiCRaw;
-                        
+
                     if (Receiver::rssiDRaw < EepromSettings.rssiDMin)
                         EepromSettings.rssiDMin = Receiver::rssiDRaw;
                     if (Receiver::rssiDRaw > EepromSettings.rssiDMax)
                         EepromSettings.rssiDMax = Receiver::rssiDRaw;
                 }
+#endif
             }
-        break;
+            break;
+        default:
+            break;
     }
 
     Receiver::setChannel((Receiver::activeChannel + 1) % CHANNELS_SIZE);
-    
+
     if (internalState==InternalState::SCANNING_LOW || internalState==InternalState::SCANNING_HIGH) {
 
         Ui::display.setTextColor(100);
@@ -74,9 +78,9 @@ void StateMachine::SettingsRssiStateHandler::onUpdate() {
 
         uint8_t progressBar = (SCREEN_WIDTH-100-2) * (currentSweep * CHANNELS_SIZE + Receiver::activeChannel) / (RSSI_SETUP_RUN * CHANNELS_SIZE);
         Ui::display.fillRect(52, 152, progressBar, 20, 100);
-  
+
     }
-          
+
     if (Receiver::activeChannel == 0) {
         currentSweep++;
 
@@ -103,24 +107,27 @@ void StateMachine::SettingsRssiStateHandler::doTapAction() {
             EepromSettings.rssiCMax = 0;
             EepromSettings.rssiDMin = UINT16_MAX;
             EepromSettings.rssiDMax = 0;
-        break;
+            break;
 
         case InternalState::DONE:
             EepromSettings.isCalibrated = true;
-            
+
             EepromSettings.save();
 
             Receiver::setChannel(
               Channels::getClosestChannel(
                 Channels::getCenterFreq(
                   Channels::getFrequency(bestChannel))));
-            
+
             EepromSettings.lastKnownMenuItem = 0;
             EepromSettings.markDirty();
 
             StateMachine::switchState(StateMachine::State::HOME);
-            
-        break;
+
+            break;
+
+        default:
+            break;
     }
 
 }
@@ -135,7 +142,7 @@ void StateMachine::SettingsRssiStateHandler::onUpdateDraw() {
 
     switch (internalState) {
       case InternalState::WAIT_FOR_LOW:
-    
+
           Ui::display.setTextColor(100);
           Ui::display.setCursor( 40, 40);
           Ui::display.print("Your module is not calibrated.");
@@ -167,7 +174,7 @@ void StateMachine::SettingsRssiStateHandler::onUpdateDraw() {
           Ui::display.print("All done!");
 
           Ui::display.setCursor(0, CHAR_HEIGHT * 2);
-          
+
           Ui::display.setCursor( 60, 60);
           Ui::display.print("A: ");
           Ui::display.print(EepromSettings.rssiAMin);
@@ -178,6 +185,7 @@ void StateMachine::SettingsRssiStateHandler::onUpdateDraw() {
           Ui::display.print(EepromSettings.rssiBMin);
           Ui::display.print(" -> ");
           Ui::display.print(EepromSettings.rssiBMax);
+#if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
           if (EepromSettings.quadversity) {
               Ui::display.setCursor( 60, 80);
               Ui::display.print("C: ");
@@ -190,9 +198,12 @@ void StateMachine::SettingsRssiStateHandler::onUpdateDraw() {
               Ui::display.print(" -> ");
               Ui::display.print(EepromSettings.rssiDMax);
           }
-
+#endif
           Ui::display.setCursor( 60, 90);
           Ui::display.print("Tap to save.");
+      break;
+
+      default:
       break;
     }
 }

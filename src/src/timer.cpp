@@ -12,11 +12,11 @@ const bool Timer::hasTicked() {
     if (this->ticked)
         return true;
 
-    if (millis() >= this->nextTick) {
+    int32_t _ticked = this->nextTick - millis();
+    if (_ticked <= 0) {
         this->ticked = true;
         return true;
     }
-
     return false;
 }
 

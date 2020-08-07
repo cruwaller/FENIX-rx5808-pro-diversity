@@ -280,7 +280,7 @@ namespace Channels {
     const uint16_t getSynthRegisterB(uint8_t index) {
         return getSynthRegisterBFreq(getFrequency(index));
     }
-    
+
     const uint16_t getSynthRegisterBFreq(uint16_t f) {
       return ((((f - 479) / 2) / 32) << 7) | (((f - 479) / 2) % 32);
     }
@@ -288,7 +288,7 @@ namespace Channels {
     const uint16_t getFrequency(uint8_t index) {
         return pgm_read_word_near(channelFreqTable + index);
     }
-    
+
     // Returns channel name as a string.
     char bandNames[] = {
         65,    // A  https://www.arduino.cc/en/Reference/ASCIIchart
@@ -305,10 +305,10 @@ namespace Channels {
     char *getName(uint8_t index) {
         uint8_t band = index / 8;
         uint8_t channel = 48 + (index % 8) + 1;   // https://www.arduino.cc/en/Reference/ASCIIchart
-        
+
         nameBuffer[0] = bandNames[band];
         nameBuffer[1] = channel;
-        
+
         return nameBuffer;
     }
 
@@ -319,7 +319,7 @@ namespace Channels {
     const uint8_t getOrderedIndexFromIndex(uint8_t index) {
         return pgm_read_byte_near(channelIndexToOrderedIndex + index);
     }
-    
+
     const uint16_t getCenterFreq(uint16_t freq) {
 
 //        // Centering notification
@@ -329,13 +329,13 @@ namespace Channels {
 //        Ui::setTextColor(WHITE);
 //        Ui::setCursor(33, 62);
 //        Ui::display.print(PSTR2("Centering..."));
-//        Ui::needDisplay(); 
+//        Ui::needDisplay();
 //        Ui::update();
-  
+
         uint16_t upperFreq = freq;
         uint16_t lowerFreq = freq;
         uint16_t rssi = 1000;
-        
+
         while (rssi > EepromSettings.rssiSeekTreshold) {
           upperFreq = upperFreq + 1;
           Receiver::setChannelByFreq(upperFreq);
@@ -343,12 +343,14 @@ namespace Channels {
             delay(1);
           }
           Receiver::updateRssi();
-          rssi = (Receiver::rssiA + Receiver::rssiB)/2; 
+          rssi = (Receiver::rssiA + Receiver::rssiB)/2;
+#if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
           if (EepromSettings.quadversity) {
-            rssi = ((Receiver::rssiA + Receiver::rssiB)/2 + (Receiver::rssiC +  Receiver::rssiD)/2) / 2; 
+            rssi = ((Receiver::rssiA + Receiver::rssiB)/2 + (Receiver::rssiC +  Receiver::rssiD)/2) / 2;
           }
+#endif
         }
-        
+
         rssi  = 1000;
         while (rssi > EepromSettings.rssiSeekTreshold) {
           lowerFreq = lowerFreq - 1;
@@ -357,24 +359,26 @@ namespace Channels {
             delay(1);
           }
           Receiver::updateRssi();
-          rssi = (Receiver::rssiA + Receiver::rssiB)/2; 
+          rssi = (Receiver::rssiA + Receiver::rssiB)/2;
+#if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
           if (EepromSettings.quadversity) {
-            rssi = ((Receiver::rssiA + Receiver::rssiB)/2 + (Receiver::rssiC +  Receiver::rssiD)/2) / 2; 
+            rssi = ((Receiver::rssiA + Receiver::rssiB)/2 + (Receiver::rssiC +  Receiver::rssiD)/2) / 2;
           }
+#endif
         }
-        
+
 //        Ui::clearRect(26, 27, 76, 12);
-        
-        return (lowerFreq + upperFreq) / 2; 
+
+        return (lowerFreq + upperFreq) / 2;
     }
 
     const uint8_t getClosestChannel(uint16_t freq) {
 
         uint8_t closestChannel = 0;
         for (int j=0; j<CHANNELS_SIZE; j++) {
-            if ( 
-                max( Channels::getFrequency(j), freq ) - min( Channels::getFrequency(j), freq ) <= 
-                max( Channels::getFrequency(closestChannel), freq ) - min( Channels::getFrequency(closestChannel), freq )  
+            if (
+                max( Channels::getFrequency(j), freq ) - min( Channels::getFrequency(j), freq ) <=
+                max( Channels::getFrequency(closestChannel), freq ) - min( Channels::getFrequency(closestChannel), freq )
                 ) {
               closestChannel = j;
             }

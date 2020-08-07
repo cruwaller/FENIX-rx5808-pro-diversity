@@ -39,9 +39,10 @@ void StateMachine::ExLRSStateHandler::onUpdateDraw()
     Ui::display.print(" / ");
 
     // On Time
-    uint8_t hours = millis() / 1000 / 60 / 60;
-    uint8_t mins = millis() / 1000 / 60 - hours * 60 * 60;
-    uint8_t secs = millis() / 1000 - hours * 60 * 60 - mins * 60;
+    uint32_t sec_now = millis() / 1000;
+    uint8_t hours = sec_now / 60 / 60;
+    uint8_t mins = sec_now / 60 - hours * 60 * 60;
+    uint8_t secs = sec_now - hours * 60 * 60 - mins * 60;
     Ui::display.print(hours);
     Ui::display.print(":");
     if (mins < 10)
@@ -174,7 +175,7 @@ void StateMachine::ExLRSStateHandler::doTapAction()
             sendToExLRS(FUNC_Ex, sizeof(payload), (uint8_t *) &payload);
         }
     }
-    
+
     if ( // power
         TouchPad::touchData.cursorY > 36 && TouchPad::touchData.cursorY < 51)
     {
@@ -209,7 +210,7 @@ void StateMachine::ExLRSStateHandler::doTapAction()
             sendToExLRS(FUNC_Ex, sizeof(payload), (uint8_t *) &payload);
         }
     }
-    
+
     if ( // TLM
         TouchPad::touchData.cursorY > 56 && TouchPad::touchData.cursorY < 71)
     {

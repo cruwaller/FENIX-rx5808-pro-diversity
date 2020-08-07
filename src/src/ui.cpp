@@ -8,7 +8,7 @@
 #include "touchpad.h"
 
 namespace Ui {
-  
+
     bool isTvOn = false;
 
     Timer UiTimeOut = Timer(2000);
@@ -21,34 +21,35 @@ namespace Ui {
 
     void setup() {
 
-    //highest clockspeed needed
-    rtc_clk_cpu_freq_set(RTC_CPU_FREQ_240M);
-    
-    //initializing DMA buffers and I2S
-    composite.init();
-    //initializing graphics double buffer
-    display.init();
-    composite.stopOutput(); //stop i2s driver (no video output)
-    //select font
-    display.setFont(font);
+        // highest clockspeed needed
+        rtc_clk_cpu_freq_set(RTC_CPU_FREQ_240M);
+        //rtc_clk_cpu_freq_config_set();
 
-    //running composite output pinned to first core
-    xTaskCreatePinnedToCore(compositeCore, "c", 1024, NULL, 255, NULL, 0); //increase priority to remove osd jitter with esp-now
-    //rendering the actual graphics in the main loop is done on the second core by default
-    
-    }    
+        //initializing DMA buffers and I2S
+        composite.init();
+        //initializing graphics double buffer
+        display.init();
+        composite.stopOutput(); //stop i2s driver (no video output)
+        //select font
+        display.setFont(font);
+
+        //running composite output pinned to first core
+        xTaskCreatePinnedToCore(compositeCore, "c", 1024, NULL, 255, NULL, 0); //increase priority to remove osd jitter with esp-now
+        //rendering the actual graphics in the main loop is done on the second core by default
+
+    }
 
     void update() {
 
         drawCursor();
-        
+
     }
 
     void compositeCore(void *data)
     {
       while (true)
       {
-        //just send the graphics frontbuffer whithout any interruption 
+        //just send the graphics frontbuffer whithout any interruption
         composite.sendFrameHalfResolution(&display.frame);
       }
     }
@@ -56,20 +57,20 @@ namespace Ui {
     void tvOn() {
 
         ReceiverSpi::setPowerDownRegister(0b01010000110000010011);
-        
+
         composite.startOutput();
-        
+
         isTvOn = true;
     }
 
-    void tvOff() { 
+    void tvOff() {
 
         ReceiverSpi::setPowerDownRegister(0b00010000110000010011);
 
         Receiver::setChannel(Receiver::activeChannel);
-        
+
         composite.stopOutput();
-         
+
         isTvOn = false;
     }
 
@@ -95,14 +96,14 @@ namespace Ui {
     //    display.print(", ");
     //    display.print(TouchPad::touchData.cursorY);
     //    display.print("]");
-        
+
     }
 
-//    void beep() { 
+//    void beep() {
 //        uint16_t freq = 5000; // frequency in Hz
 //        display.tone(freq, BEEPER_CHIRP);
 //    }
-//    void beep(uint16_t freq) { 
+//    void beep(uint16_t freq) {
 //        display.tone(freq, BEEPER_CHIRP);
 //    }
 
@@ -112,5 +113,5 @@ namespace Ui {
 //      drawFastHLine(x-r, y, 2*r+1, color);
 //      drawFastVLine(x, y-r, 2*r+1, color);
 //    }
-    
+
 }

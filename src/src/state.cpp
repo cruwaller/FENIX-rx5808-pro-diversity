@@ -24,14 +24,14 @@
     MAX(sizeof(HomeStateHandler), \
     MAX(sizeof(SettingsStateHandler), \
     MAX(sizeof(SettingsInternalStateHandler), \
-    MAX(sizeof(SettingsRssiStateHandler), \   
-    MAX(sizeof(MenuStateHandler), \   
-        sizeof(ExLRSStateHandler) \   
+    MAX(sizeof(SettingsRssiStateHandler), \
+    MAX(sizeof(MenuStateHandler), \
+        sizeof(ExLRSStateHandler) \
     )))))
 ;
 
 namespace StateMachine {
-  
+
     static StateHandler *getStateHandler(State stateType);
 
     static uint8_t stateBuffer[STATE_BUFFER_SIZE];
@@ -45,7 +45,7 @@ namespace StateMachine {
     }
 
     void update() {
-  
+
         if (currentHandler) {
             currentHandler->onUpdate();
 
@@ -74,7 +74,7 @@ namespace StateMachine {
             currentHandler->onEnter();
             currentHandler->onInitialDraw();
         }
-    
+
     }
 
     static StateHandler *getStateHandler(State state) {
@@ -89,7 +89,7 @@ namespace StateMachine {
             STATE_FACTORY(State::SETTINGS_INTERNAL, SettingsInternalStateHandler);
             STATE_FACTORY(State::SETTINGS_RSSI, SettingsRssiStateHandler);
             STATE_FACTORY(State::MENU, MenuStateHandler);
-            STATE_FACTORY(State::EXPRESSLRS, ExLRSStateHandler);            
+            STATE_FACTORY(State::EXPRESSLRS, ExLRSStateHandler);
 
             default:
                 return nullptr;

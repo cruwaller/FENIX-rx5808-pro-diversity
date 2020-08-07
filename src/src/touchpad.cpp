@@ -13,7 +13,7 @@
 // Masks for Cirque Register Access Protocol (RAP)
 #define TOUCHPAD_WRITE_MASK  0x80
 #define TOUCHPAD_READ_MASK   0xA0
-        
+
 namespace TouchPad {
 
     const int sizeOfGestureArray = 8;
@@ -21,25 +21,28 @@ namespace TouchPad {
     int yGestureArray[sizeOfGestureArray] = {0};
     int xSwipeThreshold = 130;
     int ySwipeThreshold = 200;
-    
+
     relData_t touchData;
-      
+
+    SPISettings spi_settings(10000000, MSBFIRST, SPI_MODE1);
+
     void setup() {
 
         Pinnacle_Init();
-    
+
         touchData.cursorX = 200;
         touchData.cursorY = 100;
-        touchData.timeLastButtonPress = 0;        
-        touchData.switchButtonOrder = false;        
-        touchData.switchButtonOrder = false;     
-    }  
-    
+        touchData.timeLastButtonPress = 0;
+        touchData.switchButtonOrder = false;
+        touchData.switchButtonOrder = false;
+    }
+
     void update() {
 
         if(isDataAvailable()) {
 
             Pinnacle_getRelative(&touchData);
+            Ui::UiTimeOut.reset(); // reset since touch is active
 
             if (Ui::isTvOn) {
                 touchData.cursorX += touchData.xDelta;
@@ -69,13 +72,13 @@ namespace TouchPad {
 //            if (touchData.buttonPrimary) {
 ////                Ui::beep();
 //            }
-            
+
 //            Serial.print(touchData.buttonPrimary);
 //            Serial.print('\t');
 //            Serial.print(touchData.buttonSecondary);
 //            Serial.print('\t');
 //            Serial.print(touchData.buttonAuxiliary);
-//            Serial.print('\t');  
+//            Serial.print('\t');
 //            Serial.print(touchData.xDelta);
 //            Serial.print('\t');
 //            Serial.print(touchData.yDelta);
@@ -83,13 +86,12 @@ namespace TouchPad {
 //            Serial.print(touchData.xSign);
 //            Serial.print('\t');
 //            Serial.println(touchData.ySign);
-        
+
         }
-        
+
     }
-    
+
     void clearTouchData() {
-        touchData.isActive = false;
         touchData.buttonPrimary = 0;
         touchData.buttonSecondary = 0;
         touchData.buttonAuxiliary = 0;
@@ -102,31 +104,25 @@ namespace TouchPad {
     /*  Pinnacle-based TM0XX0XX Functions  */
     void Pinnacle_Init() {
 
-      SPI.begin();
-  
       // Host clears SW_CC flag
       Pinnacle_ClearFlags();
-      
+
       // Feed Enable
       RAP_Write(0x04, 0b00000001);
-      
+
     }
-    
+
     // Reads X, Y, and Scroll-Wheel deltas from Pinnacle, as well as button states
     // NOTE: this function should be called immediately after DR is asserted (HIGH)
     void Pinnacle_getRelative(relData_t * result) {
-      
+
       uint8_t data[3] = { 0,0,0 };
-    
+
       RAP_ReadBytes(0x12, data, 3);
-    
+
       Pinnacle_ClearFlags();
 
-      
-      result->isActive = true;
-      
-      bool buttonOrderChecked;
-      bool switchButtonOrder;
+      //bool switchButtonOrder;
 
       result->buttonPrimary = data[0] & 0b00000001;
       result->buttonSecondary = data[0] & 0b00000010;
@@ -144,32 +140,32 @@ namespace TouchPad {
         //   result->buttonSecondary = data[0] & 0b00000001;
         // }
         // ///////////////////////////////////////////////////////////////
-      
+
       result->buttonAuxiliary = data[0] & 0b00000100;
       result->xDelta = (int8_t)data[2];
       result->yDelta = (int8_t)data[1];
       result->xSign = data[0] & 0b00010000;
       result->ySign = data[0] & 0b00100000;
-    
+
     }
-    
+
     // Clears Status1 register flags (SW_CC and SW_DR)
     void Pinnacle_ClearFlags() {
-      
+
       RAP_Write(0x02, 0x00);
-      
-      delayMicroseconds(50);
-      
+
+      delayMicroseconds(50); // TODO: needed??
+
     }
-    
+
     /*  RAP Functions */
     // Reads <count> Pinnacle registers starting at <address>
     //void RAP_ReadBytes(byte address, byte * data, byte count)
     void RAP_ReadBytes(uint8_t address, uint8_t * data, uint8_t count) {
         byte cmdByte = TOUCHPAD_READ_MASK | address;   // Form the READ command byte
-      
-        SPI.beginTransaction(SPISettings(10000000, MSBFIRST, SPI_MODE1));
-      
+
+        SPI.beginTransaction(spi_settings);
+
         Assert_SS();
         SPI.transfer(cmdByte);  // Signal a RAP-read operation starting at <address>
         SPI.transfer(0xFC);     // Filler byte
@@ -179,21 +175,21 @@ namespace TouchPad {
           data[i] =  SPI.transfer(0xFC);  // Each subsequent SPI transfer gets another register's contents
         }
         DeAssert_SS();
-      
+
         SPI.endTransaction();
     }
-    
+
     // Writes single-byte <data> to <address>
     void RAP_Write(uint8_t address, uint8_t data) {
         byte cmdByte = TOUCHPAD_WRITE_MASK | address;  // Form the WRITE command byte
-      
-        SPI.beginTransaction(SPISettings(10000000, MSBFIRST, SPI_MODE1));
-      
+
+        SPI.beginTransaction(spi_settings);
+
         Assert_SS();
         SPI.transfer(cmdByte);  // Signal a write to register at <address>
         SPI.transfer(data);    // Send <value> to be written to register
         DeAssert_SS();
-      
+
         SPI.endTransaction();
     }
 
@@ -201,33 +197,33 @@ namespace TouchPad {
     {
       digitalWrite(PIN_TOUCHPAD_SLAVE_SELECT, LOW);
     }
-    
+
     void DeAssert_SS()
     {
       digitalWrite(PIN_TOUCHPAD_SLAVE_SELECT, HIGH);
     }
-    
+
     bool isDataAvailable()
     {
       return digitalRead(PIN_TOUCHPAD_DATA_READY);
     }
 
     Gesture isGesture() {
-      
+
         for (int i = 0; i < sizeOfGestureArray - 1; i++) {
-            xGestureArray[sizeOfGestureArray-1-i] = xGestureArray[sizeOfGestureArray-2-i]; 
-            yGestureArray[sizeOfGestureArray-1-i] = yGestureArray[sizeOfGestureArray-2-i]; 
+            xGestureArray[sizeOfGestureArray-1-i] = xGestureArray[sizeOfGestureArray-2-i];
+            yGestureArray[sizeOfGestureArray-1-i] = yGestureArray[sizeOfGestureArray-2-i];
         }
         xGestureArray[0] = TouchPad::touchData.xDelta;
         yGestureArray[0] = TouchPad::touchData.yDelta;
-        
+
         int xSumArray = 0;
         int ySumArray = 0;
         for (int i = 0; i < sizeOfGestureArray - 1; i++) {
             xSumArray += xGestureArray[i];
             ySumArray += yGestureArray[i];
         }
-        
+
         if (xSumArray > xSwipeThreshold) {
 //            Serial.println("Swipe Left");
             for (int i = 0; i < sizeOfGestureArray - 1; i++) {
@@ -263,7 +259,7 @@ namespace TouchPad {
         } else {
             return Gesture::Nope;
         }
-            
+
     }
 
     void doGesture(Gesture currentGesture) {
@@ -278,38 +274,40 @@ namespace TouchPad {
           case Gesture::Down:
               setChannel(1);
               break;
+          default:
+              break;
         }
     }
-    
+
     void setChannel(int channelIncrement) {
-    
+
         int band = Receiver::activeChannel / 8;
         int channel = Receiver::activeChannel % 8;
-        
+
         if (channelIncrement == 8) {
           band = band + 1;
         }
-        
+
         if (channelIncrement == -8) {
           band = band - 1;
         }
-        
+
         if (channelIncrement == 1 ) {
           channel = channel + 1;
           if (channel > 7) {
             channel = 0;
           }
         }
-        
+
         if (channelIncrement == -1 ) {
           channel = channel - 1;
           if (channel < 0) {
             channel = 7;
           }
         }
-        
+
         int newChannelIndex = band * 8 + channel;
-    
+
         if (newChannelIndex >= CHANNELS_SIZE) {
           newChannelIndex = newChannelIndex - CHANNELS_SIZE;
         }
@@ -320,5 +318,5 @@ namespace TouchPad {
         EepromSettings.startChannel = newChannelIndex;
         EepromSettings.save();
     }
-    
+
 }

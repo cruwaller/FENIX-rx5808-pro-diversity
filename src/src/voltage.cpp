@@ -17,11 +17,13 @@ uint16_t prevVoltageRaw = 0;
 void update()
 {
     voltageRaw = 0;
+#ifdef PIN_VBAT
     for (uint8_t i = 0; i < 8; i++)
     {
         voltageRaw += analogRead(PIN_VBAT);
     }
     voltageRaw /= 8;
+#endif
 
     if (prevVoltageRaw == 0)
         prevVoltageRaw = voltageRaw;

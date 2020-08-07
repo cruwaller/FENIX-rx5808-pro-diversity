@@ -12,7 +12,7 @@ bool showChangeInternalMenuOptions = false;
 uint8_t factoryReset = 0;
 
 uint8_t menuInternalItems = 7; // Number of items in settingsInternalMenu[]
-char* settingsInternalMenu[]={ 
+const char* settingsInternalMenu[]={
     "Factory Reset",
     "spectatorFreqScanStep",
     "spectatorFWHM",
@@ -44,38 +44,38 @@ void StateMachine::SettingsInternalStateHandler::onUpdateDraw() {
 
 
     if (!showChangeInternalMenuOptions) {
-      
+
         int8_t index;
-    
+
 //        Ui::clear();
 //        Ui::setTextSize(1);
-        
+
 //        Ui::setCursor(0, 8);
         index = selectedInternalMenuItem-2;
         if (index < 0) {
           index += menuInternalItems;
         }
 //        Ui::display.print( settingsInternalMenu[index] );
-        
+
 //            Ui::setCursor(6, 18);
             index = selectedInternalMenuItem-1;
             if (index < 0) {
               index += menuInternalItems;
             }
 //            Ui::display.print( settingsInternalMenu[index] );
-            
+
 //                Ui::setCursor(12, 28);
 //                Ui::display.setTextColor(BLACK, WHITE); // 'inverted' text
 //                Ui::display.print( settingsInternalMenu[selectedInternalMenuItem] );
 //                Ui::display.setTextColor(WHITE, BLACK);
-            
-//            Ui::setCursor(6, 38);    
+
+//            Ui::setCursor(6, 38);
             index = selectedInternalMenuItem+1;
             if (index > menuInternalItems-1) {
               index -= menuInternalItems;
             }
 //            Ui::display.print( settingsInternalMenu[index] );
-        
+
 //        Ui::setCursor(0, 48);
         index = selectedInternalMenuItem+2;
         if (index > menuInternalItems-1) {
@@ -83,14 +83,14 @@ void StateMachine::SettingsInternalStateHandler::onUpdateDraw() {
         }
 //        Ui::display.print( settingsInternalMenu[index] );
     }
-    
+
     if (showChangeInternalMenuOptions) {
 //        Ui::fillRect(15, 20, 96, 24, BLACK);
 //        Ui::drawRoundRect(15, 20, 96, 24, 2, WHITE);
 //        Ui::setCursor(29, 28);
 
         switch(selectedInternalMenuItem) {
-          
+
             case 0:    // Factory Reset
               if (factoryReset == 0) {
 //                  Ui::display.print(PSTR2("    No     "));
@@ -106,37 +106,37 @@ void StateMachine::SettingsInternalStateHandler::onUpdateDraw() {
 //                  Ui::display.print(PSTR2("       No  "));
               }
             break;
-       
+
             case 1:    // spectatorFreqScanStep
 //                Ui::display.print(EepromSettings.spectatorFreqScanStep);
             break;
-            
+
             case 2:    // spectatorFWHM
 //                Ui::display.print(EepromSettings.spectatorFWHM);
             break;
-            
+
             case 3:    // rssiSeekTreshold
 //                Ui::display.print(EepromSettings.rssiSeekTreshold);
             break;
-            
+
             case 4:    // rssiMinTuneTime
 //                Ui::display.print(EepromSettings.rssiMinTuneTime);
             break;
-            
+
             case 5:    // rssiHysteresis
 //                Ui::display.print(EepromSettings.rssiHysteresis);
             break;
-            
+
             case 6:    // rssiHysteresisPeriod
 //                Ui::display.print(EepromSettings.rssiHysteresisPeriod);
             break;
-            
-            case 7:    // 
+
+            case 7:    //
             break;
-            
-        }    
+
+        }
     }
-        
+
 //    Ui::needDisplay();
 
 }
@@ -145,7 +145,7 @@ void StateMachine::SettingsInternalStateHandler::onUpdateDraw() {
 //    Button button,
 //    Buttons::PressType pressType
 //)  {
-//  
+//
 //  if (
 //      pressType == Buttons::PressType::SHORT &&
 //      button == Button::MODE_PRESSED
@@ -153,13 +153,13 @@ void StateMachine::SettingsInternalStateHandler::onUpdateDraw() {
 //          if (showChangeInternalMenuOptions) {
 //              showChangeInternalMenuOptions = false;
 //              if (factoryReset == 3) {
-//                EepromSettings.initDefaults(); 
+//                EepromSettings.initDefaults();
 //              }
-//              EepromSettings.save();    
+//              EepromSettings.save();
 //              delay(250); // wait for eeprom to finish writing
 //              nvic_sys_reset();
 //          } else {
-//              showChangeInternalMenuOptions = true;        
+//              showChangeInternalMenuOptions = true;
 //          }
 //        }
 //  else if (
@@ -175,46 +175,46 @@ void StateMachine::SettingsInternalStateHandler::onUpdateDraw() {
 //              selectedInternalMenuItem--;
 //              if (selectedInternalMenuItem < 0)
 //                selectedInternalMenuItem += menuInternalItems;
-//          }    
-//          if (showChangeInternalMenuOptions) {   
-//    
+//          }
+//          if (showChangeInternalMenuOptions) {
+//
 //            switch(selectedInternalMenuItem) {
-//                
-//                case (0):    // Factry Reset 
+//
+//                case (0):    // Factry Reset
 //                    factoryReset--;
 //                    if (factoryReset > 5) {
 //                      factoryReset = 5;
-//                    }                         
+//                    }
 //                break;
-//           
+//
 //                case 1:    // spectatorFreqScanStep
 //                    EepromSettings.spectatorFreqScanStep--;
 //                break;
-//                
+//
 //                case 2:    // spectatorFWHM
 //                    EepromSettings.spectatorFWHM--;
 //                break;
-//                
+//
 //                case 3:    // rssiSeekTreshold
 //                    EepromSettings.rssiSeekTreshold--;
 //                break;
-//                
+//
 //                case 4:    // rssiMinTuneTime
 //                    EepromSettings.rssiMinTuneTime--;
 //                break;
-//                
+//
 //                case 5:    // rssiHysteresis
 //                    EepromSettings.rssiHysteresis--;
 //                break;
-//                
+//
 //                case 6:    // rssiHysteresisPeriod
 //                    EepromSettings.rssiHysteresisPeriod--;
 //                break;
 //
-//                case (7):    // 
+//                case (7):    //
 //                break;
-//                
-//            }  
+//
+//            }
 //          }
 //        }
 //  else if (
@@ -225,45 +225,45 @@ void StateMachine::SettingsInternalStateHandler::onUpdateDraw() {
 //              selectedInternalMenuItem++;
 //              if (selectedInternalMenuItem > menuInternalItems-1)
 //                selectedInternalMenuItem -= menuInternalItems;
-//          } 
-//          if (showChangeInternalMenuOptions) {   
-//    
+//          }
+//          if (showChangeInternalMenuOptions) {
+//
 //            switch(selectedInternalMenuItem) {
-//                
-//                case (0):    // Factry Reset 
+//
+//                case (0):    // Factry Reset
 //                    factoryReset++;
 //                    if (factoryReset > 5) {
 //                      factoryReset = 0;
-//                    }     
+//                    }
 //                break;
-//           
+//
 //                case 1:    // spectatorFreqScanStep
 //                    EepromSettings.spectatorFreqScanStep++;
 //                break;
-//                
+//
 //                case 2:    // spectatorFWHM
 //                    EepromSettings.spectatorFWHM++;
 //                break;
-//                
+//
 //                case 3:    // rssiSeekTreshold
 //                    EepromSettings.rssiSeekTreshold++;
 //                break;
-//                
+//
 //                case 4:    // rssiMinTuneTime
 //                    EepromSettings.rssiMinTuneTime++;
 //                break;
-//                
+//
 //                case 5:    // rssiHysteresis
 //                    EepromSettings.rssiHysteresis++;
 //                break;
-//                
+//
 //                case 6:    // rssiHysteresisPeriod
 //                    EepromSettings.rssiHysteresisPeriod++;
 //                break;
 //
-//                case (7):    // 
+//                case (7):    //
 //                break;
-//                
+//
 //            }
 //          }
 //        }

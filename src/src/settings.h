@@ -37,7 +37,7 @@ SOFTWARE.
 // You can use any of the arduino analog pins to measure the voltage of the
 // battery. See additional configuration below.
 
-#define USE_VOLTAGE_MONITORING
+//#define USE_VOLTAGE_MONITORING
 
 // Can enable this to powerdown the audio blocks on the RX58xx if you don't
 // need it. Save a tiny bit of power, make your videos less noisy.
@@ -61,7 +61,7 @@ SOFTWARE.
 #define PIN_TOUCHPAD_SLAVE_SELECT       5
 #define PIN_TOUCHPAD_DATA_READY         34
 
-#define PIN_VBAT                        35
+//#define PIN_VBAT                        35
 
 // === Voltage Monitoring ======================================================
 
@@ -100,5 +100,13 @@ SOFTWARE.
 #define BEEPER_CHIRP 25
 
 //#define SPEED_TEST
+
+
+
+// === Sanity checks ===========================================================
+
+#ifndef PIN_VBAT
+#undef USE_VOLTAGE_MONITORING
+#endif
 
 #endif // file_defined

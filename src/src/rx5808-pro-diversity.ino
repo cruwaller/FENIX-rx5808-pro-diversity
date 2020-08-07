@@ -51,8 +51,8 @@
 #include "WebUpdater.h"
 
 #ifdef SPEED_TEST
-    uint32_t n = 0;
-    uint32_t previousTime = millis();
+    uint32_t speed_test_hz = 0;
+    uint32_t speed_test_previousTime = 0;
 #endif
 
 /*
@@ -70,12 +70,13 @@ uint32_t previousLEDTime = 0;
 void setup()
 {
 
-    #ifdef SPEED_TEST
-        Serial.begin(115200);
-    #endif
+#ifdef SPEED_TEST
+    Serial.begin(115200);
+#endif
 
     EEPROM.begin(2048);
     SPI.begin();
+    SPI.setHwCs(false);
 
     EepromSettings.setup();
     setupPins();
@@ -115,7 +116,9 @@ void setup()
         }
 
         // Adds broadcastAddress
-        esp_now_peer_info_t injectorInfo = {.channel = 0, .encrypt = false};
+        esp_now_peer_info_t injectorInfo;
+        injectorInfo.channel = 0;
+        injectorInfo.encrypt = false;
         for (int i = 0; i < sizeof(broadcastAddress) / ESP_NOW_ETH_ALEN; i++) {
             memcpy(injectorInfo.peer_addr, broadcastAddress[i], ESP_NOW_ETH_ALEN);
             if (esp_now_add_peer(&injectorInfo) != ESP_OK) {
@@ -148,57 +151,54 @@ void setupPins() {
 
     pinMode(PIN_RSSI_A, INPUT);
     pinMode(PIN_RSSI_B, INPUT);
-//    pinMode(PIN_RSSI_C, INPUT);
-//    pinMode(PIN_RSSI_D, INPUT);
-
+#ifdef PIN_RSSI_C
+    pinMode(PIN_RSSI_C, INPUT);
+#endif
+#ifdef PIN_RSSI_D
+    pinMode(PIN_RSSI_D, INPUT);
+#endif
+#ifdef PIN_VBAT
     analogSetPinAttenuation(PIN_VBAT, ADC_2_5db);
-
+#endif
 }
 
 void loop() {
-
+    uint32_t now = millis();
     if (updatingOTA)
     {
         HandleWebUpdate();
-        if (millis() > previousLEDTime+100)
+        if (100u <= (now - previousLEDTime))
         {
             digitalWrite(PIN_RX_SWITCH, !digitalRead(PIN_RX_SWITCH));
-            previousLEDTime = millis();
+            previousLEDTime = now;
         }
-    } else
+    }
+    else
     {
         Receiver::update();
-
         TouchPad::update();
 
         if (Ui::isTvOn) {
 
-        #ifdef USE_VOLTAGE_MONITORING
+#ifdef USE_VOLTAGE_MONITORING
             Voltage::update();
-        #endif
-
-            Ui::display.begin(0);
+#endif
+            Ui::display.begin(0); // reset OSD to black
             StateMachine::update();
             Ui::update();
-            Ui::display.end();
+            Ui::display.end(); // draw OSD
 
-            EepromSettings.update();
+            // Useless call, checks if !Ui::isTvOn ==> removed!
+            // EepromSettings.update();
+
+            if (Ui::UiTimeOut.hasTicked() &&
+                StateMachine::currentState != StateMachine::State::SETTINGS_RSSI )
+            {
+                Ui::tvOff();
+                EepromSettings.update();
+            }
         }
-
-        if (TouchPad::touchData.isActive) {
-            Ui::UiTimeOut.reset();
-        }
-
-        if (Ui::isTvOn &&
-            Ui::UiTimeOut.hasTicked() &&
-            StateMachine::currentState != StateMachine::State::SETTINGS_RSSI )
-        {
-            Ui::tvOff();
-            EepromSettings.update();
-        }
-
-        if (!Ui::isTvOn &&
-            TouchPad::touchData.buttonPrimary)
+        else if (TouchPad::touchData.buttonPrimary) // TV is off, check if touch has happened
         {
             TouchPad::touchData.buttonPrimary = false;
             Ui::tvOn();
@@ -206,16 +206,16 @@ void loop() {
 
         TouchPad::clearTouchData();
 
-        #ifdef SPEED_TEST
-            n++;
+#ifdef SPEED_TEST
+            speed_test_hz++;
             uint32_t nowTime = millis();
-            if (nowTime > previousTime + 1000) {
-                Serial.print(n);
+            if (1000u <= (nowTime - speed_test_previousTime)) {
+                Serial.print(speed_test_hz);
                 Serial.println(" Hz");
-                previousTime = nowTime;
-                n = 0;
+                speed_test_previousTime = nowTime;
+                speed_test_hz = 0;
             }
-        #endif
+#endif // SPEED_TEST
     }
 }
 
@@ -235,7 +235,9 @@ uint8_t crc8_dvb_s2(uint8_t crc, unsigned char a)
 void sendToExLRS(uint16_t function, uint16_t payloadSize, const uint8_t *payload)
 {
     uint8_t nowDataOutput[9 + payloadSize] = {0};
+    uint8_t crc = 0, iter, data;
 
+    // MSP header
     nowDataOutput[0] = '$';
     nowDataOutput[1] = 'X';
     nowDataOutput[2] = '<';
@@ -245,22 +247,29 @@ void sendToExLRS(uint16_t function, uint16_t payloadSize, const uint8_t *payload
     nowDataOutput[6] = payloadSize & 0xff;
     nowDataOutput[7] = (payloadSize >> 8) & 0xff;
 
-    for (int i = 0; i < payloadSize; i++)
-    {
-        nowDataOutput[8 + i] = payload[i];
+    // Calc CRC, starts from [3]
+    for(iter = 3; iter < 8; iter++)
+        crc = crc8_dvb_s2(crc, nowDataOutput[iter]);
+
+    // Add payload and calc CRC on the fly
+    while (payloadSize--) {
+        data = *payload++;
+        nowDataOutput[iter++] = data;
+        crc = crc8_dvb_s2(crc, data);
     }
 
-    uint8_t ck2 = 0;
-    for(int i = 3; i < payloadSize+8; i++)
-    {
-        ck2=crc8_dvb_s2(ck2, nowDataOutput[i]);
-    }
-    nowDataOutput[payloadSize+8] = ck2;
+    // Add CRC
+    nowDataOutput[iter++] = crc;
 
+#if 0
     for (int i = 0; i < sizeof(broadcastAddress) / 6; i++)
     {
         uint8_t tempBroadcastAddress[6];
         memcpy(tempBroadcastAddress, broadcastAddress + (6 * i), 6);
         esp_now_send(tempBroadcastAddress, (uint8_t *) &nowDataOutput, sizeof(nowDataOutput));
     }
+#else
+    // Send to all listed peers
+    esp_now_send(NULL, (uint8_t *) &nowDataOutput, iter);
+#endif
 }

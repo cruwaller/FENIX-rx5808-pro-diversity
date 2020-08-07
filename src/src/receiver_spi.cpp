@@ -44,11 +44,11 @@ namespace ReceiverSpi {
     void setStateRegister(uint32_t value) {
         sendRegister(SPI_ADDRESS_STATE, value);
     }
-    
+
     void rxStandby(Receiver::ReceiverId ReceiverId) {
         sendRegister(SPI_ADDRESS_STATE, 0b00000000000000000011);
     }
-  
+
     void rxPowerOn(Receiver::ReceiverId ReceiverId) {
         sendRegister(SPI_ADDRESS_STATE, 0b00000000000000000001);
     }
@@ -58,17 +58,16 @@ namespace ReceiverSpi {
 static inline void sendRegister(uint8_t addressBits, uint32_t dataBits) {
 
     uint32_t data = addressBits | (1 << 4) | (dataBits << 5);
-    
+
     SPI.beginTransaction(SPISettings(1000000, LSBFIRST, SPI_MODE0));
-    
+
     digitalWrite(PIN_SPI_SLAVE_SELECT_RX_A, LOW);
     digitalWrite(PIN_SPI_SLAVE_SELECT_RX_B, LOW);
-    
-    SPI.transferBits(data, NULL, 25);  
-    
+
+    SPI.transferBits(data, NULL, 25);
+
     digitalWrite(PIN_SPI_SLAVE_SELECT_RX_A, HIGH);
     digitalWrite(PIN_SPI_SLAVE_SELECT_RX_B, HIGH);
-    
-    SPI.endTransaction();    
-    
+
+    SPI.endTransaction();
 }

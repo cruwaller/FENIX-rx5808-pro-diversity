@@ -8,14 +8,13 @@ namespace TouchPad {
 
     typedef struct _relData
     {
-      bool isActive;
       bool buttonPrimary;
       bool buttonSecondary;
       bool buttonAuxiliary;
       int8_t xDelta;
       int8_t yDelta;
       bool xSign;
-      bool ySign; 
+      bool ySign;
       int16_t cursorX;
       int16_t cursorY;
 
@@ -33,7 +32,7 @@ namespace TouchPad {
         Right,
         Nope
     };
-    
+
     void setup();
     void update();
     void clearTouchData();
@@ -48,8 +47,8 @@ namespace TouchPad {
 
     Gesture isGesture();
     void doGesture(Gesture currentGesture);
-    void setChannel(int channelIncrement);    
-    
+    void setChannel(int channelIncrement);
+
 }
 
 #endif
