@@ -8,10 +8,10 @@ typedef struct
   float blankEndMicros;
   float backMicros;
   float shortVSyncMicros;
-  float overscanLeftMicros; 
-  float overscanRightMicros; 
-  float syncVolts; 
-  float blankVolts; 
+  float overscanLeftMicros;
+  float overscanRightMicros;
+  float syncVolts;
+  float blankVolts;
   float blackVolts;
   float whiteVolts;
   short lines;
@@ -30,7 +30,7 @@ const TechProperties PALProperties = {
   .overscanLeftMicros = 1.6875,
   .overscanRightMicros = 1.6875,
   .syncVolts = -0.3,
-  .blankVolts = 0.0, 
+  .blankVolts = 0.0,
   .blackVolts =  0.005,//specs 0.0,
   .whiteVolts = 0.7,
   .lines = 625,
@@ -45,20 +45,20 @@ const TechProperties NTSCProperties = {
   .syncMicros = 4.7,
   .blankEndMicros = 9.2,
   .backMicros = 1.5,
-  .shortVSyncMicros = 2.3,   
-  .overscanLeftMicros = 0,//1.3, 
-  .overscanRightMicros = 0,//1, 
+  .shortVSyncMicros = 2.3,
+  .overscanLeftMicros = 0,//1.3,
+  .overscanRightMicros = 0,//1,
   .syncVolts = -0.286,
-  .blankVolts = 0.0, 
+  .blankVolts = 0.0,
   .blackVolts = 0.05, //specs 0.054,
-  .whiteVolts = 0.714,  
+  .whiteVolts = 0.714,
   .lines = 525,
   .linesFirstTop = 20,
   .linesOverscanTop = 6,
   .linesOverscanBottom = 9,
   .imageAspect = 4./3.
 };
-  
+
 class CompositeOutput
 {
   public:
@@ -96,22 +96,22 @@ class CompositeOutput
   int linesOddBlankBottom;
 
   float pixelAspect;
-    
-  unsigned short *line;
 
-  static const i2s_port_t I2S_PORT = (i2s_port_t)I2S_NUM_0;
-    
+  unsigned short * line;
+
+  static constexpr i2s_port_t I2S_PORT = (i2s_port_t)I2S_NUM_0;
+
   enum Mode
   {
     PAL,
-    NTSC  
+    NTSC
   };
-  
+
   const TechProperties &properties;
-  
+
   CompositeOutput(Mode mode, int xres, int yres, double Vcc = 3.3)
     :properties((mode==NTSC) ? NTSCProperties: PALProperties)
-  {    
+  {
     int linesSyncTop = 5;
     int linesSyncBottom = 3;
 
@@ -119,18 +119,18 @@ class CompositeOutput
     linesEven = properties.lines - linesOdd;
     linesEvenActive = linesEven - properties.linesFirstTop - linesSyncBottom;
     linesOddActive = linesOdd - properties.linesFirstTop - linesSyncBottom;
-    linesEvenVisible = linesEvenActive - properties.linesOverscanTop - properties.linesOverscanBottom; 
+    linesEvenVisible = linesEvenActive - properties.linesOverscanTop - properties.linesOverscanBottom;
     linesOddVisible = linesOddActive - properties.linesOverscanTop - properties.linesOverscanBottom;
 
     targetYresOdd = (yres / 2 < linesOddVisible) ? yres / 2 : linesOddVisible;
     targetYresEven = (yres - targetYresOdd < linesEvenVisible) ? yres - targetYresOdd : linesEvenVisible;
     targetYres = targetYresEven + targetYresOdd;
-    
+
     linesEvenBlankTop = properties.linesFirstTop - linesSyncTop + properties.linesOverscanTop + (linesEvenVisible - targetYresEven) / 2;
     linesEvenBlankBottom = linesEven - linesEvenBlankTop - targetYresEven - linesSyncBottom;
     linesOddBlankTop = linesEvenBlankTop;
     linesOddBlankBottom = linesOdd - linesOddBlankTop - targetYresOdd - linesSyncBottom;
-    
+
     double samplesPerSecond = 160000000.0 / 3.0 / 2.0 / 2.0;
     double samplesPerMicro = samplesPerSecond * 0.000001;
     samplesLine = (int)(samplesPerMicro * properties.lineMicros + 1.5) & ~1;
@@ -160,30 +160,30 @@ class CompositeOutput
     i2s_config_t i2s_config = {
        .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX | I2S_MODE_DAC_BUILT_IN),
        .sample_rate = 1000000,  //not really used
-       .bits_per_sample = (i2s_bits_per_sample_t)I2S_BITS_PER_SAMPLE_16BIT, 
+       .bits_per_sample = (i2s_bits_per_sample_t)I2S_BITS_PER_SAMPLE_16BIT,
        .channel_format = I2S_CHANNEL_FMT_ONLY_RIGHT,
        .communication_format = I2S_COMM_FORMAT_I2S_MSB,
        .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,
        .dma_buf_count = 2,
        .dma_buf_len = samplesLine  //a buffer per line
     };
-    
+
     i2s_driver_install(I2S_PORT, &i2s_config, 0, NULL);    //start i2s driver
     i2s_set_pin(I2S_PORT, NULL);                           //use internal DAC
     i2s_set_sample_rates(I2S_PORT, 1000000);               //dummy sample rate, since the function fails at high values
-  
+
     //this is the hack that enables the highest sampling rate possible 13.333MHz, have fun
     SET_PERI_REG_BITS(I2S_CLKM_CONF_REG(I2S_PORT), I2S_CLKM_DIV_A_V, 1, I2S_CLKM_DIV_A_S);
     SET_PERI_REG_BITS(I2S_CLKM_CONF_REG(I2S_PORT), I2S_CLKM_DIV_B_V, 1, I2S_CLKM_DIV_B_S);
-    SET_PERI_REG_BITS(I2S_CLKM_CONF_REG(I2S_PORT), I2S_CLKM_DIV_NUM_V, 2, I2S_CLKM_DIV_NUM_S); 
+    SET_PERI_REG_BITS(I2S_CLKM_CONF_REG(I2S_PORT), I2S_CLKM_DIV_NUM_V, 2, I2S_CLKM_DIV_NUM_S);
     SET_PERI_REG_BITS(I2S_SAMPLE_RATE_CONF_REG(I2S_PORT), I2S_TX_BCK_DIV_NUM_V, 2, I2S_TX_BCK_DIV_NUM_S);
   }
-  
+
   void startOutput()
   {
     i2s_start(I2S_PORT);
   }
-  
+
   void stopOutput()
   {
     i2s_stop(I2S_PORT);
@@ -230,13 +230,13 @@ class CompositeOutput
     fillValues(i, levelSync, samplesLine / 2 - samplesVSyncShort);
     fillValues(i, levelBlank, samplesVSyncShort);
   }
-  
+
   void fillShort(int &i)
   {
     fillValues(i, levelSync, samplesVSyncShort);
-    fillValues(i, levelBlank, samplesLine / 2 - samplesVSyncShort);  
+    fillValues(i, levelBlank, samplesLine / 2 - samplesVSyncShort);
   }
-  
+
   void fillBlank()
   {
     int i = 0;
@@ -250,12 +250,12 @@ class CompositeOutput
   {
     int i = 0;
     fillValues(i, levelSync, samplesSync);
-    fillValues(i, levelBlank, samplesLine / 2 - samplesSync);  
+    fillValues(i, levelBlank, samplesLine / 2 - samplesSync);
   }
-  
+
   void sendFrameHalfResolution(char ***frame)
   {
-    //Even Halfframe    
+    //Even Halfframe
     int i = 0;
     fillLong(i); fillLong(i);
     sendLine(); sendLine();
@@ -281,10 +281,10 @@ class CompositeOutput
     fillShort(i); fillShort(i);
     sendLine(); sendLine();
     i = 0;
-    fillShort(i); 
+    fillShort(i);
     //odd half frame
     fillLong(i);
-    sendLine(); 
+    sendLine();
     i = 0;
     fillLong(i); fillLong(i);
     sendLine(); sendLine();
@@ -309,7 +309,7 @@ class CompositeOutput
       sendLine();
     i = 0;
     fillHalfBlank(); fillShort(i);
-    sendLine(); 
+    sendLine();
     i = 0;
     fillShort(i); fillShort(i);
     sendLine(); sendLine();

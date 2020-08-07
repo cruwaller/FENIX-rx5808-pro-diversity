@@ -37,13 +37,13 @@ namespace TouchPad {
     void update();
     void clearTouchData();
     void Pinnacle_Init();
-    void Pinnacle_getRelative(relData_t * result);
-    void Pinnacle_ClearFlags();
-    void RAP_ReadBytes(uint8_t address, uint8_t * data, uint8_t count);
-    void RAP_Write(uint8_t address, uint8_t data);
-    void Assert_SS();
-    void DeAssert_SS();
-    bool isDataAvailable();
+    void ICACHE_RAM_ATTR Pinnacle_getRelative(relData_t * result);
+    void ICACHE_RAM_ATTR Pinnacle_ClearFlags();
+    void ICACHE_RAM_ATTR RAP_ReadBytes(uint8_t address, uint8_t * data, uint8_t count);
+    void ICACHE_RAM_ATTR RAP_Write(uint8_t address, uint8_t data);
+    void ICACHE_RAM_ATTR Assert_SS();
+    void ICACHE_RAM_ATTR DeAssert_SS();
+    bool ICACHE_RAM_ATTR isDataAvailable();
 
     Gesture isGesture();
     void doGesture(Gesture currentGesture);

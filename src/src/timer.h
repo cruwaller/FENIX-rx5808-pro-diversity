@@ -13,8 +13,8 @@ class Timer {
 
     public:
         Timer(uint16_t delay);
-        const bool hasTicked();
-        void reset();
+        const bool ICACHE_RAM_ATTR hasTicked();
+        void ICACHE_RAM_ATTR reset();
 };
 
 

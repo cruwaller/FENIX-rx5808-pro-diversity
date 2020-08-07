@@ -9,15 +9,15 @@
 
 namespace Ui {
 
-    bool isTvOn = false;
+    bool DMA_ATTR isTvOn = false;
 
-    Timer UiTimeOut = Timer(2000);
+    Timer DMA_ATTR UiTimeOut = Timer(2000);
 
-    int XRES = 324;
-    int YRES = 224;
-    CompositeGraphics display(XRES, YRES);
-    CompositeOutput composite(CompositeOutput::NTSC, XRES * 2, YRES * 2);
-    Font<CompositeGraphics> font(8, 8, font8x8::pixels);
+    constexpr int XRES = 324;
+    constexpr int YRES = 224;
+    CompositeGraphics DMA_ATTR display(XRES, YRES);
+    CompositeOutput DMA_ATTR composite(CompositeOutput::NTSC, XRES * 2, YRES * 2);
+    Font<CompositeGraphics> DMA_ATTR font(8, 8, font8x8::pixels);
 
     void setup() {
 

@@ -27,19 +27,17 @@
 
 namespace Ui {
 
-    extern int XRES;
-    extern int YRES;
-    extern CompositeGraphics display;
-    extern CompositeOutput composite;
-    extern Image<CompositeGraphics> luni0;
-    extern Font<CompositeGraphics> font;
+    extern CompositeGraphics DMA_ATTR display;
+    extern CompositeOutput DMA_ATTR composite;
+    //extern Image<CompositeGraphics> luni0;
+    extern Font<CompositeGraphics> DMA_ATTR font;
 
     void compositeCore(void *data);
-    void draw();
-    
-    extern bool isTvOn;
-    
-    extern Timer UiTimeOut;
+    //void draw();
+
+    extern bool DMA_ATTR isTvOn;
+
+    extern Timer DMA_ATTR UiTimeOut;
 
     void setup();
 //    void sdToTtvout();

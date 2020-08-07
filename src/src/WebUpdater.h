@@ -14,7 +14,9 @@ const char* serverIndex = "<form method='POST' action='/update' enctype='multipa
 
 void BeginWebUpdate(void) {
 
+#if DEBUG_ENABLED
 //  Serial.println("Begin Webupdater");
+#endif
   WiFi.mode(WIFI_AP);
   WiFi.softAP(STASSID);
 
@@ -30,8 +32,10 @@ void BeginWebUpdate(void) {
   }, []() {
     HTTPUpload& upload = server.upload();
     if (upload.status == UPLOAD_FILE_START) {
+#if DEBUG_ENABLED
       Serial.setDebugOutput(true);
       Serial.printf("Update: %s\n", upload.filename.c_str());
+#endif
       if (!Update.begin()) { //start with max available size
         Update.printError(Serial);
       }
@@ -41,19 +45,27 @@ void BeginWebUpdate(void) {
       }
     } else if (upload.status == UPLOAD_FILE_END) {
       if (Update.end(true)) { //true to set the size to the current progress
+#if DEBUG_ENABLED
         Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
+#endif
       } else {
         Update.printError(Serial);
       }
+#if DEBUG_ENABLED
       Serial.setDebugOutput(false);
+#endif
     } else {
+#if DEBUG_ENABLED
       Serial.printf("Update Failed Unexpectedly (likely broken connection): status=%d\n", upload.status);
+#endif
     }
   });
   server.begin();
   MDNS.addService("http", "tcp", 80);
 
+#if DEBUG_ENABLED
 //  Serial.printf("Ready! Open http://%s.local in your browser\n", host);
+#endif
 }
 
 void HandleWebUpdate(void) {

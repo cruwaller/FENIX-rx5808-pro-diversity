@@ -4,9 +4,9 @@
 #include "ui.h"
 #include "temperature.h"
 #include "touchpad.h"
+#include "comm_espnow.h"
 #include "ExpressLRS_Protocol.h"
 
-extern void sendToExLRS(uint16_t function, uint16_t payloadSize, const uint8_t *payload);
 
 void StateMachine::ExLRSStateHandler::onEnter()
 {
@@ -154,7 +154,7 @@ void StateMachine::ExLRSStateHandler::doTapAction()
             payload[0] = ExLRS_MODE;
             payload[1] = ExLRS_50Hz;
 
-            sendToExLRS(FUNC_Ex, sizeof(payload), (uint8_t *) &payload);
+            comm_espnow_send_msp(FUNC_Ex, sizeof(payload), (uint8_t *) &payload);
         }
         if ( // 100
             TouchPad::touchData.cursorX > (20 + 23 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 26 * 8 + 3))
@@ -163,7 +163,7 @@ void StateMachine::ExLRSStateHandler::doTapAction()
             payload[0] = ExLRS_MODE;
             payload[1] = ExLRS_100Hz;
 
-            sendToExLRS(FUNC_Ex, sizeof(payload), (uint8_t *) &payload);
+            comm_espnow_send_msp(FUNC_Ex, sizeof(payload), (uint8_t *) &payload);
         }
         if ( // 200
             TouchPad::touchData.cursorX > (20 + 30 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 33 * 8 + 3))
@@ -172,7 +172,7 @@ void StateMachine::ExLRSStateHandler::doTapAction()
             payload[0] = ExLRS_MODE;
             payload[1] = ExLRS_200Hz;
 
-            sendToExLRS(FUNC_Ex, sizeof(payload), (uint8_t *) &payload);
+            comm_espnow_send_msp(FUNC_Ex, sizeof(payload), (uint8_t *) &payload);
         }
     }
 
@@ -187,7 +187,7 @@ void StateMachine::ExLRSStateHandler::doTapAction()
             payload[1] = 50 & 0xff;
             payload[2] = (50 >> 8) & 0xff;
 
-            sendToExLRS(FUNC_Ex, sizeof(payload), (uint8_t *) &payload);
+            comm_espnow_send_msp(FUNC_Ex, sizeof(payload), (uint8_t *) &payload);
         }
         if ( // 200
             TouchPad::touchData.cursorX > (20 + 23 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 27 * 8 + 3))
@@ -197,7 +197,7 @@ void StateMachine::ExLRSStateHandler::doTapAction()
             payload[1] = 200 & 0xff;
             payload[2] = (200 >> 8) & 0xff;
 
-            sendToExLRS(FUNC_Ex, sizeof(payload), (uint8_t *) &payload);
+            comm_espnow_send_msp(FUNC_Ex, sizeof(payload), (uint8_t *) &payload);
         }
         if ( // 1000
             TouchPad::touchData.cursorX > (20 + 30 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 34 * 8 + 3))
@@ -207,7 +207,7 @@ void StateMachine::ExLRSStateHandler::doTapAction()
             payload[1] = 1000 & 0xff;
             payload[2] = (1000 >> 8) & 0xff;
 
-            sendToExLRS(FUNC_Ex, sizeof(payload), (uint8_t *) &payload);
+            comm_espnow_send_msp(FUNC_Ex, sizeof(payload), (uint8_t *) &payload);
         }
     }
 
@@ -221,7 +221,7 @@ void StateMachine::ExLRSStateHandler::doTapAction()
             payload[0] = ExLRS_TLM;
             payload[1] = ExLRS_TLM_ON;
 
-            sendToExLRS(FUNC_Ex, sizeof(payload), (uint8_t *) &payload);
+            comm_espnow_send_msp(FUNC_Ex, sizeof(payload), (uint8_t *) &payload);
         }
         if ( // Off
             TouchPad::touchData.cursorX > (20 + 23 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 26 * 8 + 3))
@@ -230,7 +230,7 @@ void StateMachine::ExLRSStateHandler::doTapAction()
             payload[0] = ExLRS_TLM;
             payload[1] = ExLRS_TLM_OFF;
 
-            sendToExLRS(FUNC_Ex, sizeof(payload), (uint8_t *) &payload);
+            comm_espnow_send_msp(FUNC_Ex, sizeof(payload), (uint8_t *) &payload);
         }
     }
 }

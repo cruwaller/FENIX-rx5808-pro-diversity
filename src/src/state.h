@@ -37,5 +37,4 @@ namespace StateMachine {
     void switchState(State newState);
 }
 
-
 #endif

@@ -7,6 +7,9 @@
 #include "settings_eeprom.h"
 #include "touchpad.h"
 
+//#define DEBUG_TOUCHPAD 1
+
+
 //// Cirque's 7-bit I2C Slave Address
 //#define TOUCHPAD_SLAVE_ADDR  0x2A
 
@@ -22,13 +25,24 @@ namespace TouchPad {
     int xSwipeThreshold = 130;
     int ySwipeThreshold = 200;
 
-    relData_t touchData;
+    relData_t DMA_ATTR touchData;
 
-    SPISettings spi_settings(10000000, MSBFIRST, SPI_MODE1);
+    SPISettings DMA_ATTR spi_settings(10000000, MSBFIRST, SPI_MODE1);
+
+    static volatile uint8_t DMA_ATTR _data_ready_state = LOW;
+    static void ICACHE_RAM_ATTR _data_ready_isr_handler(void)
+    {
+      Pinnacle_getRelative(&touchData);
+      _data_ready_state = HIGH;
+    }
 
     void setup() {
 
         Pinnacle_Init();
+
+        pinMode(PIN_TOUCHPAD_DATA_READY, INPUT);
+        attachInterrupt(digitalPinToInterrupt(PIN_TOUCHPAD_DATA_READY),
+                        _data_ready_isr_handler, RISING);
 
         touchData.cursorX = 200;
         touchData.cursorY = 100;
@@ -39,9 +53,9 @@ namespace TouchPad {
 
     void update() {
 
-        if(isDataAvailable()) {
+        if(_data_ready_state) {
 
-            Pinnacle_getRelative(&touchData);
+            //Pinnacle_getRelative(&touchData);
             Ui::UiTimeOut.reset(); // reset since touch is active
 
             if (Ui::isTvOn) {
@@ -114,7 +128,7 @@ namespace TouchPad {
 
     // Reads X, Y, and Scroll-Wheel deltas from Pinnacle, as well as button states
     // NOTE: this function should be called immediately after DR is asserted (HIGH)
-    void Pinnacle_getRelative(relData_t * result) {
+    void ICACHE_RAM_ATTR Pinnacle_getRelative(relData_t * result) {
 
       uint8_t data[3] = { 0,0,0 };
 
@@ -150,7 +164,7 @@ namespace TouchPad {
     }
 
     // Clears Status1 register flags (SW_CC and SW_DR)
-    void Pinnacle_ClearFlags() {
+    void ICACHE_RAM_ATTR Pinnacle_ClearFlags() {
 
       RAP_Write(0x02, 0x00);
 
@@ -161,7 +175,7 @@ namespace TouchPad {
     /*  RAP Functions */
     // Reads <count> Pinnacle registers starting at <address>
     //void RAP_ReadBytes(byte address, byte * data, byte count)
-    void RAP_ReadBytes(uint8_t address, uint8_t * data, uint8_t count) {
+    void ICACHE_RAM_ATTR RAP_ReadBytes(uint8_t address, uint8_t * data, uint8_t count) {
         byte cmdByte = TOUCHPAD_READ_MASK | address;   // Form the READ command byte
 
         SPI.beginTransaction(spi_settings);
@@ -180,7 +194,7 @@ namespace TouchPad {
     }
 
     // Writes single-byte <data> to <address>
-    void RAP_Write(uint8_t address, uint8_t data) {
+    void ICACHE_RAM_ATTR RAP_Write(uint8_t address, uint8_t data) {
         byte cmdByte = TOUCHPAD_WRITE_MASK | address;  // Form the WRITE command byte
 
         SPI.beginTransaction(spi_settings);
@@ -193,19 +207,19 @@ namespace TouchPad {
         SPI.endTransaction();
     }
 
-    void Assert_SS()
+    void ICACHE_RAM_ATTR Assert_SS()
     {
       digitalWrite(PIN_TOUCHPAD_SLAVE_SELECT, LOW);
     }
 
-    void DeAssert_SS()
+    void ICACHE_RAM_ATTR DeAssert_SS()
     {
       digitalWrite(PIN_TOUCHPAD_SLAVE_SELECT, HIGH);
     }
 
-    bool isDataAvailable()
+    bool ICACHE_RAM_ATTR isDataAvailable()
     {
-      return digitalRead(PIN_TOUCHPAD_DATA_READY);
+      return _data_ready_state; //digitalRead(PIN_TOUCHPAD_DATA_READY);
     }
 
     Gesture isGesture() {
@@ -225,7 +239,9 @@ namespace TouchPad {
         }
 
         if (xSumArray > xSwipeThreshold) {
-//            Serial.println("Swipe Left");
+#if DEBUG_ENABLED && DEBUG_TOUCHPAD
+            Serial.println("Swipe Left");
+#endif
             for (int i = 0; i < sizeOfGestureArray - 1; i++) {
                 xGestureArray[i] = 0;
                 yGestureArray[i] = 0;
@@ -233,7 +249,9 @@ namespace TouchPad {
 
             return Gesture::Left;
         } else if (xSumArray < -xSwipeThreshold) {
-//            Serial.println("Swipe Right");
+#if DEBUG_ENABLED && DEBUG_TOUCHPAD
+            Serial.println("Swipe Right");
+#endif
             for (int i = 0; i < sizeOfGestureArray - 1; i++) {
                 xGestureArray[i] = 0;
                 yGestureArray[i] = 0;
@@ -241,7 +259,9 @@ namespace TouchPad {
 
             return Gesture::Right;
         } else if (ySumArray > ySwipeThreshold) {
-//            Serial.println("Swipe Up");
+#if DEBUG_ENABLED && DEBUG_TOUCHPAD
+            Serial.println("Swipe Up");
+#endif
             for (int i = 0; i < sizeOfGestureArray - 1; i++) {
                 xGestureArray[i] = 0;
                 yGestureArray[i] = 0;
@@ -249,7 +269,9 @@ namespace TouchPad {
 
             return Gesture::Up;
         } else if (ySumArray < -ySwipeThreshold) {
-//            Serial.println("Swipe Down");
+#if DEBUG_ENABLED && DEBUG_TOUCHPAD
+            Serial.println("Swipe Down");
+#endif
             for (int i = 0; i < sizeOfGestureArray - 1; i++) {
                 xGestureArray[i] = 0;
                 yGestureArray[i] = 0;

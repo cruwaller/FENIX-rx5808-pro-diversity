@@ -15,8 +15,8 @@
 #include "voltage.h"
 #include "touchpad.h"
 #include "ExpressLRS_Protocol.h"
+#include "comm_espnow.h"
 
-extern void sendToExLRS(uint16_t function, uint16_t payloadSize, const uint8_t *payload);
 
 // For scalling graphics accross screen
 #ifdef CHANNELS_72
@@ -289,7 +289,7 @@ void HomeStateHandler::doTapAction() {
      ) {
           this->setChannel(8);
           uint8_t payload[4] = {displayActiveChannel, 0, 1, 0};
-          sendToExLRS(MSP_SET_VTX_CONFIG, sizeof(payload), (uint8_t *) &payload);
+          comm_espnow_send_msp(MSP_SET_VTX_CONFIG, sizeof(payload), (uint8_t *) &payload);
         }
   else if ( // Down band
       TouchPad::touchData.cursorX >= 0  && TouchPad::touchData.cursorX < 61 &&
@@ -297,7 +297,7 @@ void HomeStateHandler::doTapAction() {
      ) {
           this->setChannel(-8);
           uint8_t payload[4] = {displayActiveChannel, 0, 1, 0};
-          sendToExLRS(MSP_SET_VTX_CONFIG, sizeof(payload), (uint8_t *) &payload);
+          comm_espnow_send_msp(MSP_SET_VTX_CONFIG, sizeof(payload), (uint8_t *) &payload);
         }
   else if ( // Up channel
       TouchPad::touchData.cursorX > 61  && TouchPad::touchData.cursorX < 122 &&
@@ -305,7 +305,7 @@ void HomeStateHandler::doTapAction() {
      ) {
           this->setChannel(1);
           uint8_t payload[4] = {displayActiveChannel, 0, 1, 0};
-          sendToExLRS(MSP_SET_VTX_CONFIG, sizeof(payload), (uint8_t *) &payload);
+          comm_espnow_send_msp(MSP_SET_VTX_CONFIG, sizeof(payload), (uint8_t *) &payload);
         }
   else if ( // Down channel
       TouchPad::touchData.cursorX > 61  && TouchPad::touchData.cursorX < 122 &&
@@ -313,7 +313,7 @@ void HomeStateHandler::doTapAction() {
      ) {
           this->setChannel(-1);
           uint8_t payload[4] = {displayActiveChannel, 0, 1, 0};
-          sendToExLRS(MSP_SET_VTX_CONFIG, sizeof(payload), (uint8_t *) &payload);
+          comm_espnow_send_msp(MSP_SET_VTX_CONFIG, sizeof(payload), (uint8_t *) &payload);
         }
   else if ( // Menu
       TouchPad::touchData.cursorX > 314  && TouchPad::touchData.cursorY < 8
