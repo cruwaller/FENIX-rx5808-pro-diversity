@@ -1,4 +1,5 @@
 #include "lap_times.h"
+#include "settings.h"
 #include <Arduino.h>
 
 static uint8_t race_id = 0;

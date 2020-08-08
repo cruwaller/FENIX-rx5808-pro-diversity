@@ -7,8 +7,8 @@
 #include "settings_eeprom.h"
 #include "touchpad.h"
 
-//#define DEBUG_TOUCHPAD 1
-
+#define DEBUG_TOUCHPAD 1
+#define USE_ISR 0
 
 //// Cirque's 7-bit I2C Slave Address
 //#define TOUCHPAD_SLAVE_ADDR  0x2A
@@ -29,21 +29,24 @@ namespace TouchPad {
 
     SPISettings DMA_ATTR spi_settings(10000000, MSBFIRST, SPI_MODE1);
 
+#if USE_ISR
     static volatile uint8_t DMA_ATTR _data_ready_state = LOW;
     static void ICACHE_RAM_ATTR _data_ready_isr_handler(void)
     {
       Pinnacle_getRelative(&touchData);
       _data_ready_state = HIGH;
     }
+#endif
 
     void setup() {
 
         Pinnacle_Init();
 
         pinMode(PIN_TOUCHPAD_DATA_READY, INPUT);
+#if USE_ISR
         attachInterrupt(digitalPinToInterrupt(PIN_TOUCHPAD_DATA_READY),
                         _data_ready_isr_handler, RISING);
-
+#endif
         touchData.cursorX = 200;
         touchData.cursorY = 100;
         touchData.timeLastButtonPress = 0;
@@ -53,9 +56,14 @@ namespace TouchPad {
 
     void update() {
 
-        if(_data_ready_state) {
+        if(isDataAvailable()) {
 
-            //Pinnacle_getRelative(&touchData);
+#if DEBUG_ENABLED && DEBUG_TOUCHPAD
+            Serial.println("Touchpad data ready!");
+#endif
+#if !USE_ISR
+            Pinnacle_getRelative(&touchData);
+#endif
             Ui::UiTimeOut.reset(); // reset since touch is active
 
             if (Ui::isTvOn) {
@@ -219,7 +227,11 @@ namespace TouchPad {
 
     bool ICACHE_RAM_ATTR isDataAvailable()
     {
-      return _data_ready_state; //digitalRead(PIN_TOUCHPAD_DATA_READY);
+#if USE_ISR
+      return _data_ready_state;
+#else
+      return digitalRead(PIN_TOUCHPAD_DATA_READY);
+#endif
     }
 
     Gesture isGesture() {
