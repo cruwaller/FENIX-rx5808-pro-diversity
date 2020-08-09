@@ -21,5 +21,7 @@ typedef struct {
 void lap_times_reset(void);
 void lap_times_handle(esp_now_send_lap_s * lap_info);
 
+uint32_t lapt_time_race_idx_get(void);
+uint32_t lapt_time_laptime_get(uint8_t node_index, uint8_t lap);
 
 #endif /* _LAP_TIMES_H_ */

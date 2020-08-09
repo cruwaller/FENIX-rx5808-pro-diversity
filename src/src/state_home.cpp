@@ -17,6 +17,8 @@
 #include "ExpressLRS_Protocol.h"
 #include "comm_espnow.h"
 
+#include "lap_times.h"
+
 
 // For scalling graphics accross screen
 #ifdef CHANNELS_72
@@ -67,19 +69,19 @@ void HomeStateHandler::onUpdateDraw() {
     if (EepromSettings.diversityMode == Receiver::DiversityMode::ANTENNA_A) {
         Ui::display.print("Antenna A");
     }
-    if (EepromSettings.diversityMode == Receiver::DiversityMode::ANTENNA_B) {
+    else if (EepromSettings.diversityMode == Receiver::DiversityMode::ANTENNA_B) {
         Ui::display.print("Antenna B");
     }
-    if (EepromSettings.diversityMode == Receiver::DiversityMode::ANTENNA_C) {
+    else if (EepromSettings.diversityMode == Receiver::DiversityMode::ANTENNA_C) {
         Ui::display.print("Antenna C");
     }
-    if (EepromSettings.diversityMode == Receiver::DiversityMode::ANTENNA_D) {
+    else if (EepromSettings.diversityMode == Receiver::DiversityMode::ANTENNA_D) {
         Ui::display.print("Antenna D");
     }
-    if (EepromSettings.diversityMode == Receiver::DiversityMode::DIVERSITY) {
+    else if (EepromSettings.diversityMode == Receiver::DiversityMode::DIVERSITY) {
         Ui::display.print("Diversity");
     }
-    if (EepromSettings.diversityMode == Receiver::DiversityMode::QUADVERSITY) {
+    else if (EepromSettings.diversityMode == Receiver::DiversityMode::QUADVERSITY) {
         Ui::display.print("Quadversity");
     }
 
@@ -158,7 +160,6 @@ void HomeStateHandler::onUpdateDraw() {
         Ui::display.printLarge("A", 2, 2);
         Ui::display.setCursor( 130, 12 + 28*2 + 3);
         Ui::display.printLarge("B", 2, 2);//
-
     }
 #endif
 
@@ -190,7 +191,7 @@ void HomeStateHandler::onUpdateDraw() {
     }
 #endif
 
-        sec_now = millis() / 1000;
+    sec_now = millis() / 1000;
     // On percentage
 #if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
     if (EepromSettings.quadversity) {
@@ -219,6 +220,27 @@ void HomeStateHandler::onUpdateDraw() {
     }
 #endif
 
+#if HOME_SHOW_LAPTIMES
+    Ui::display.setCursor(195, 12 + 28 + 3);
+    Ui::display.print("LAP TIMES (");
+    Ui::display.print(lapt_time_race_idx_get());
+    Ui::display.print(")");
+    uint8_t node_idx = 0;
+    uint32_t lap_time;
+    for (uint8_t iter = 1; iter <= 10; iter++) {
+        lap_time = lapt_time_laptime_get(node_idx, iter);
+        (void)lap_time;
+
+        Ui::display.setCursor(195, 12 + 28 + 3 + iter*9);
+        Ui::display.print("00:");
+        if (iter < 10) {
+            Ui::display.print("0");
+        }
+        Ui::display.print(iter);
+        Ui::display.print(":1234");
+    }
+
+#else // !HOME_SHOW_LAPTIMES
     // Draw RSSI Plots
 #if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
     if (EepromSettings.quadversity) {
@@ -244,6 +266,7 @@ void HomeStateHandler::onUpdateDraw() {
         }
     }
 #endif
+#endif // HOME_SHOW_LAPTIMES
 
     // Plot Spectrum 324 x 224
     for (uint8_t i=0; i<CHANNELS_SIZE; i++) {
@@ -288,32 +311,24 @@ void HomeStateHandler::doTapAction() {
       TouchPad::touchData.cursorY > 8 && TouchPad::touchData.cursorY < 54
      ) {
           this->setChannel(8);
-          uint8_t payload[4] = {displayActiveChannel, 0, 1, 0};
-          comm_espnow_send_msp(MSP_SET_VTX_CONFIG, sizeof(payload), (uint8_t *) &payload);
         }
   else if ( // Down band
       TouchPad::touchData.cursorX >= 0  && TouchPad::touchData.cursorX < 61 &&
       TouchPad::touchData.cursorY > 54 && TouchPad::touchData.cursorY < 99
      ) {
           this->setChannel(-8);
-          uint8_t payload[4] = {displayActiveChannel, 0, 1, 0};
-          comm_espnow_send_msp(MSP_SET_VTX_CONFIG, sizeof(payload), (uint8_t *) &payload);
         }
   else if ( // Up channel
       TouchPad::touchData.cursorX > 61  && TouchPad::touchData.cursorX < 122 &&
       TouchPad::touchData.cursorY > 8 && TouchPad::touchData.cursorY < 54
      ) {
           this->setChannel(1);
-          uint8_t payload[4] = {displayActiveChannel, 0, 1, 0};
-          comm_espnow_send_msp(MSP_SET_VTX_CONFIG, sizeof(payload), (uint8_t *) &payload);
         }
   else if ( // Down channel
       TouchPad::touchData.cursorX > 61  && TouchPad::touchData.cursorX < 122 &&
       TouchPad::touchData.cursorY > 54 && TouchPad::touchData.cursorY < 99
      ) {
           this->setChannel(-1);
-          uint8_t payload[4] = {displayActiveChannel, 0, 1, 0};
-          comm_espnow_send_msp(MSP_SET_VTX_CONFIG, sizeof(payload), (uint8_t *) &payload);
         }
   else if ( // Menu
       TouchPad::touchData.cursorX > 314  && TouchPad::touchData.cursorY < 8
@@ -357,59 +372,65 @@ void HomeStateHandler::doTapAction() {
               {
                   case Receiver::DiversityMode::ANTENNA_A:
                       EepromSettings.diversityMode = Receiver::DiversityMode::ANTENNA_B;
-//                      ReceiverSpi::rxStandby(Receiver::ReceiverId::A);
+#if POWER_OFF_RX
+                      ReceiverSpi::rxStandby(Receiver::ReceiverId::A);
+                      ReceiverSpi::rxPowerOn(Receiver::ReceiverId::B);
+#endif // POWER_OFF_RX
                       break;
                   case Receiver::DiversityMode::ANTENNA_B:
                       EepromSettings.diversityMode = Receiver::DiversityMode::DIVERSITY;
-//                      ReceiverSpi::rxPowerOn(Receiver::ReceiverId::A);
+#if POWER_OFF_RX
+                      ReceiverSpi::rxPowerOn(Receiver::ReceiverId::A);
+#endif // POWER_OFF_RX
                       break;
                   case Receiver::DiversityMode::DIVERSITY:
                       EepromSettings.diversityMode = Receiver::DiversityMode::ANTENNA_A;
+#if POWER_OFF_RX
+                      ReceiverSpi::rxStandby(Receiver::ReceiverId::B);
+#endif // POWER_OFF_RX
                       break;
                   default:
                       break;
               }
-
           }
 
           EepromSettings.markDirty();
 
         }
   else if ( // Select channel from spectrum
-      HomeStateHandler::isInBandScanRegion()
-     ) {
-          Receiver::setChannel(
-                              Channels::getOrderedIndex( (TouchPad::touchData.cursorX-18) / CHANNELS_SIZE_DIVIDER )
-                              );
-          HomeStateHandler::centreFrequency();
-          displayActiveChannel = Receiver::activeChannel;
+          HomeStateHandler::isInBandScanRegion()
+        ) {
+            setChannel(0, Channels::getOrderedIndex( (TouchPad::touchData.cursorX-18) / CHANNELS_SIZE_DIVIDER ));
+#if 0
+            Receiver::setChannel(
+                                Channels::getOrderedIndex( (TouchPad::touchData.cursorX-18) / CHANNELS_SIZE_DIVIDER )
+                                );
+            HomeStateHandler::centreFrequency();
+            displayActiveChannel = Receiver::activeChannel;
 
-          EepromSettings.startChannel = displayActiveChannel;
-          EepromSettings.markDirty();
+            EepromSettings.startChannel = displayActiveChannel;
+            EepromSettings.markDirty();
+#endif
         }
 }
 
-void HomeStateHandler::setChannel(int channelIncrement) {
+void HomeStateHandler::setChannel(int channelIncrement, int setChannel) {
 
-    int band = Receiver::activeChannel / 8;
-    int channel = Receiver::activeChannel % 8;
+    uint8_t activeChannel = (setChannel < 0) ? Receiver::activeChannel : setChannel;
+
+    int band = activeChannel / 8;
+    int channel = activeChannel % 8;
 
     if (channelIncrement == 8) {
       band = band + 1;
-    }
-
-    if (channelIncrement == -8) {
+    } else if (channelIncrement == -8) {
       band = band - 1;
-    }
-
-    if (channelIncrement == 1 ) {
+    } else if (channelIncrement == 1 ) {
       channel = channel + 1;
       if (channel > 7) {
         channel = 0;
       }
-    }
-
-    if (channelIncrement == -1 ) {
+    } else if (channelIncrement == -1 ) {
       channel = channel - 1;
       if (channel < 0) {
         channel = 7;
@@ -418,18 +439,22 @@ void HomeStateHandler::setChannel(int channelIncrement) {
 
     int newChannelIndex = band * 8 + channel;
 
+    // Check wraparounds
     if (newChannelIndex >= CHANNELS_SIZE) {
       newChannelIndex = newChannelIndex - CHANNELS_SIZE;
-    }
-    if (newChannelIndex < 0) {
+    } else if (newChannelIndex < 0) {
       newChannelIndex = newChannelIndex + CHANNELS_SIZE;
     }
+
     Receiver::setChannel(newChannelIndex);
     EepromSettings.startChannel = newChannelIndex;
     EepromSettings.markDirty();
     centred = false;
 
     displayActiveChannel = Receiver::activeChannel;
+
+    uint8_t payload[4] = {displayActiveChannel, 0, 1, 0};
+    comm_espnow_send_msp(MSP_SET_VTX_CONFIG, sizeof(payload), (uint8_t *) &payload);
 }
 
 // Frequency 'Centring' function.

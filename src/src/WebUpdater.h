@@ -4,6 +4,7 @@
 #include <WebServer.h>
 #include <ESPmDNS.h>
 #include <Update.h>
+#include <comm_espnow.h>
 
 #define STASSID "FENIX"
 
@@ -14,6 +15,7 @@ WebServer server(80);
 const char* serverIndex = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
 
 void BeginWebUpdate(void) {
+  comm_espnow_deinit();
 
 #if DEBUG_ENABLED
 //  Serial.println("Begin Webupdater");

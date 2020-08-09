@@ -103,6 +103,11 @@ SOFTWARE.
 
 #define DEBUG_ENABLED 0
 
+#define OTA_UPDATE_STORE 0
+
+#define POWER_OFF_RX 1
+
+#define HOME_SHOW_LAPTIMES 1
 
 // === Sanity checks ===========================================================
 

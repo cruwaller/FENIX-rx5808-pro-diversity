@@ -34,3 +34,15 @@ void lap_times_handle(esp_now_send_lap_s * lap_info)
             break;
     }
 }
+
+uint32_t lapt_time_race_idx_get(void)
+{
+    return race_id;
+}
+
+uint32_t lapt_time_laptime_get(uint8_t node_index, uint8_t lap)
+{
+    if (6 <= node_index || 100 <= lap)
+        return UINT32_MAX;
+    return _lap_times[node_index][lap];
+}

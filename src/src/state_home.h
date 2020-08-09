@@ -10,16 +10,16 @@ namespace StateMachine {
     class HomeStateHandler : public StateMachine::StateHandler {
         private:
             void doTapAction();
-    
+
             uint8_t displayActiveChannel = 0;
             bool wasInBandScanRegion = false;
             bool isInBandScanRegion();
             void bandScanUpdate();
-            
-            void setChannel(int channelIncrement);
+
+            void setChannel(int channelIncrement, int setChannel = -1);
             void centreFrequency();
             bool centred = false;
-            
+
             uint8_t orderedChanelIndex = 0;
             uint8_t lastChannelIndex = 0;
 

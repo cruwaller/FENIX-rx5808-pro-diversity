@@ -46,14 +46,16 @@
 #include "touchpad.h"
 #include "receiver_spi.h"
 #include "comm_espnow.h"
+#if OTA_UPDATE_STORE
 #include "WebUpdater.h"
+#endif
 
 #ifdef SPEED_TEST
     uint32_t speed_test_hz = 0;
     uint32_t speed_test_previousTime = 0;
 #endif
 
-#if HANDLE_OTA_IN_LOOP
+#if HANDLE_OTA_IN_LOOP && OTA_UPDATE_STORE
 bool updatingOTA = false;
 uint32_t previousLEDTime = 0;
 #endif
@@ -88,7 +90,7 @@ void setup()
         StateMachine::switchState(StateMachine::State::HOME);
     }
 
-
+#if OTA_UPDATE_STORE
     if (EepromSettings.otaUpdateRequested)
     {
         BeginWebUpdate();
@@ -110,6 +112,7 @@ void setup()
 #endif
     }
     else
+#endif // OTA_UPDATE_STORE
     {
         comm_espnow_init();
     }
@@ -148,7 +151,7 @@ void setupPins() {
 }
 
 void loop() {
-#if HANDLE_OTA_IN_LOOP
+#if HANDLE_OTA_IN_LOOP && OTA_UPDATE_STORE
     if (updatingOTA)
     {
         HandleWebUpdate();

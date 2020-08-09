@@ -6,6 +6,51 @@
 #include "timer.h"
 #include "ui.h"
 
+
+const struct EepromSettings EepromDefaults = {
+    .versionNumber = VERSION_NUMBER,
+
+    .isCalibrated = false,
+    .otaUpdateRequested = false,
+
+    .diversityMode = Receiver::DiversityMode::DIVERSITY,
+
+    .startChannel = 27,
+    .lastKnownMenuItem = 0,
+    .lastKnownState = StateMachine::State::HOME,
+
+    .beepEnabled = true,
+
+    .rssiAMin = RSSI_MIN_VAL,
+    .rssiAMax = RSSI_MAX_VAL,
+    .rssiBMin = RSSI_MIN_VAL,
+    .rssiBMax = RSSI_MAX_VAL,
+    .rssiCMin = RSSI_MIN_VAL,
+    .rssiCMax = RSSI_MAX_VAL,
+    .rssiDMin = RSSI_MIN_VAL,
+    .rssiDMax = RSSI_MAX_VAL,
+
+    .vbatScale = VBAT_SCALE,
+    .vbatWarning = WARNING_VOLTAGE,
+    .vbatCritical = CRITICAL_VOLTAGE,
+
+    .favouriteChannels = {32, 33, 34, 35, 36, 37, 38, 39}, // Race band
+    .spectatorChannels = {-1, -1, -1, -1, -1, -1, -1, -1},
+
+    .quadversity = false,
+    .buttonBeep = true,
+
+    // Internal settings
+    .spectatorFreqScanStep = 5,
+    .spectatorFWHM = 20,
+    .rssiSeekTreshold = 500,
+    .rssiMinTuneTime = 30,
+    .rssiHysteresis = 0,
+    .rssiHysteresisPeriod = 0,
+};
+
+
+
 static Timer saveTimer = Timer(EEPROM_SAVE_TIME);
 static bool isDirty = false;
 
@@ -25,7 +70,7 @@ void EepromSettings::update() {
 
 void EepromSettings::load() {
     EEPROM.get(0, *this);
-    
+
     if (this->versionNumber != VERSION_NUMBER)
         this->initDefaults();
 }

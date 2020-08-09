@@ -14,7 +14,7 @@ uint8_t broadcastAddress[][ESP_NOW_ETH_ALEN] = {
 static void esp_now_recv_cb(const uint8_t *mac_addr, const uint8_t *data, int data_len)
 {
 #if DEBUG_ENABLED
-    Serial.printf("ESP NOW message received!\n");
+    Serial.printf("ESPNOW message received!\n");
 #endif
     if (data_len >= sizeof(esp_now_send_lap_s)) {
         esp_now_send_lap_s * lap_info = (esp_now_send_lap_s*)data;
@@ -25,33 +25,61 @@ static void esp_now_recv_cb(const uint8_t *mac_addr, const uint8_t *data, int da
 }
 
 
+void esp_now_send_cb(const uint8_t *mac_addr, esp_now_send_status_t status) {
+#if DEBUG_ENABLED
+  Serial.print("ESPNOW Sent:\t");
+  Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Success" : "Fail");
+#endif
+}
+
 void comm_espnow_init(void)
 {
-    WiFi.mode(WIFI_STA);
-
-    if (esp_now_init() != ESP_OK) {
+    WiFi.mode(WIFI_MODE_STA);
 #if DEBUG_ENABLED
-        Serial.println("Error initializing ESP-NOW");
+    Serial.print("My MAC address: ");
+    Serial.println(WiFi.macAddress());
 #endif
-        return;
-    }
-    esp_now_register_recv_cb(esp_now_recv_cb);
 
-    // Adds broadcastAddress
-    esp_now_peer_info_t injectorInfo;
-    injectorInfo.channel = 0;
-    injectorInfo.encrypt = false;
-    for (int i = 0; i < sizeof(broadcastAddress) / ESP_NOW_ETH_ALEN; i++) {
-        memcpy(injectorInfo.peer_addr, broadcastAddress[i], ESP_NOW_ETH_ALEN);
-        if (esp_now_add_peer(&injectorInfo) != ESP_OK) {
+    if (esp_now_init() == ESP_OK) {
+        esp_now_register_send_cb(esp_now_send_cb);
+        esp_now_register_recv_cb(esp_now_recv_cb);
+
+        esp_now_peer_info_t peer_info = {
+            .peer_addr = {0},
+            .lmk = {0},
+            .channel = 0,
+            .ifidx = ESP_IF_WIFI_STA,
+            .encrypt = 0,
+            .priv = NULL
+        };
+
+        uint8_t num_peers = sizeof(broadcastAddress) / ESP_NOW_ETH_ALEN;
+        for (uint8_t iter = 0; iter < num_peers; iter++) {
+            memcpy(peer_info.peer_addr, broadcastAddress[iter], ESP_NOW_ETH_ALEN);
+            esp_err_t err = esp_now_add_peer(&peer_info);
+            if (ESP_OK != err) {
 #if DEBUG_ENABLED
-            Serial.printf("Failed to add peer[%u]\n", i);
+                Serial.printf("Failed to add peer[%u], error: %d\n", i, (int)err);
 #endif
-            //return;
+            }
         }
+
+#if DEBUG_ENABLED
+        Serial.println(" ... init DONE");
+    } else {
+        Serial.println("ESPNOW init failed!");
+#endif
     }
 }
 
+void comm_espnow_deinit(void)
+{
+    if (ESP_OK != esp_now_deinit()) {
+#if DEBUG_ENABLED
+        Serial.printf("ESPNOW deinit failed\n");
+#endif
+    }
+}
 
 uint8_t crc8_dvb_s2(uint8_t crc, unsigned char a)
 {

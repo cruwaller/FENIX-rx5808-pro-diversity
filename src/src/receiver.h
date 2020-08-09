@@ -13,13 +13,11 @@
 namespace Receiver {
 
     enum class ReceiverId : uint8_t {
-        A
-        ,
-        B
-        ,
-        C
-        ,
-        D
+        A,
+        B,
+        C,
+        D,
+        ALL,
     };
 
     enum class DiversityMode : uint8_t {
@@ -30,7 +28,7 @@ namespace Receiver {
         DIVERSITY,
         QUADVERSITY
     };
-    
+
     extern ReceiverId activeReceiver;
     extern uint8_t activeChannel;
 
@@ -46,9 +44,9 @@ namespace Receiver {
     extern uint16_t  rssiD;
     extern uint32_t rssiDRaw;
     extern uint16_t  rssiDLast[RECEIVER_LAST_DATA_SIZE];
-    
+
     extern uint16_t rssiBandScanData[CHANNELS_SIZE];
-    
+
     extern uint16_t previousSwitchTime;
     extern uint16_t antennaAOnTime;
     extern uint16_t antennaBOnTime;
@@ -61,7 +59,7 @@ namespace Receiver {
     void setActiveReceiver(ReceiverId receiver = ReceiverId::A);
 
     void antenaOnTime();
-    
+
     void switchDiversity();
 
     bool isRssiStable();
