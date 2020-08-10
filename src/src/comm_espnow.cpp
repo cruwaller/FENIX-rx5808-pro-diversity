@@ -6,9 +6,9 @@
 
 
 uint8_t broadcastAddress[][ESP_NOW_ETH_ALEN] = {
-    {0x50, 0x02, 0x91, 0xDA, 0x56, 0xCA},   // ESP32 TX: ?
-    {0x50, 0x02, 0x91, 0xDA, 0x37, 0x84},   // R9M TX  : ?
-    {0xF0, 0x08, 0xD1, 0xD4, 0xED, 0x7C},   // Chorus32: F0:08:D1:D4:ED:7C
+    //{0x50, 0x02, 0x91, 0xDA, 0x56, 0xCA},   // ESP32 TX: ?
+    {0x5C, 0xCF, 0x7F, 0xAC, 0xD9, 0x0F},   // R9M LOGGER : 5C:CF:7F:AC:D9:0F (ESP8266)
+    {0xF0, 0x08, 0xD1, 0xD4, 0xED, 0x7C},   // Chorus32: F0:08:D1:D4:ED:7C (ESP32)
 };
 
 
@@ -21,7 +21,7 @@ static void esp_now_recv_cb(const uint8_t *mac_addr, const uint8_t *data, int da
         esp_now_send_lap_s * lap_info = (esp_now_send_lap_s*)data;
         lap_times_handle(lap_info);
     }
-    char hello[] = "CHORUS_CB\n";
+    char hello[] = "FENIX_CB\n";
     esp_now_send(mac_addr, (uint8_t*)hello, strlen(hello)); // send to all registered peers
 }
 
@@ -37,10 +37,12 @@ void comm_espnow_init(void)
 {
     WiFi.mode(WIFI_MODE_STA);
 #if DEBUG_ENABLED
+    // My MAC address: D8:A0:1D:4C:72:18
     Serial.print("My MAC address: ");
     Serial.println(WiFi.macAddress());
 #endif
 
+    Serial.println("ESPNOW initialize...");
     if (esp_now_init() == ESP_OK) {
         esp_now_register_send_cb(esp_now_send_cb);
         esp_now_register_recv_cb(esp_now_recv_cb);
@@ -60,7 +62,7 @@ void comm_espnow_init(void)
             esp_err_t err = esp_now_add_peer(&peer_info);
             if (ESP_OK != err) {
 #if DEBUG_ENABLED
-                Serial.printf("Failed to add peer[%u], error: %d\n", i, (int)err);
+                Serial.printf("Failed to add peer[%u], error: %d\n", iter, (int)err);
 #endif
             }
         }

@@ -233,7 +233,8 @@ void HomeStateHandler::onUpdateDraw() {
 #endif
 
 #if HOME_SHOW_LAPTIMES
-    Ui::display.setCursor(195, 12 + 28 + 3);
+    uint32_t y_off = 12;
+    Ui::display.setCursor(195, y_off);
     Ui::display.print("LAP TIMES (");
     Ui::display.print(lapt_time_race_idx_get());
     Ui::display.print(")");
@@ -242,8 +243,8 @@ void HomeStateHandler::onUpdateDraw() {
     for (uint8_t iter = 1; iter <= 10; iter++) {
         lap_time = lapt_time_laptime_get(node_idx, iter);
         (void)lap_time;
-
-        Ui::display.setCursor(195, 12 + 28 + 3 + iter*9);
+        y_off += 9;
+        Ui::display.setCursor(195, y_off);
         Ui::display.print("00:");
         if (iter < 10) {
             Ui::display.print("0");

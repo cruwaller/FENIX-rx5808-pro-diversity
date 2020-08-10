@@ -7,7 +7,7 @@
 #include "settings_eeprom.h"
 #include "touchpad.h"
 
-#define DEBUG_TOUCHPAD 1
+#define DEBUG_TOUCHPAD 0
 #define USE_ISR 0
 
 //// Cirque's 7-bit I2C Slave Address
