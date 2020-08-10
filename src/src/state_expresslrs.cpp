@@ -14,6 +14,11 @@ void StateMachine::ExLRSStateHandler::onEnter()
 
 void StateMachine::ExLRSStateHandler::onUpdate()
 {
+    if (TouchPad::touchData.buttonPrimary) {
+        TouchPad::touchData.buttonPrimary = false;
+        this->doTapAction();
+    }
+    onUpdateDraw();
 }
 
 void StateMachine::ExLRSStateHandler::onInitialDraw()
@@ -23,13 +28,8 @@ void StateMachine::ExLRSStateHandler::onInitialDraw()
 
 void StateMachine::ExLRSStateHandler::onUpdateDraw()
 {
-
-    if (TouchPad::touchData.buttonPrimary)
-    {
-        TouchPad::touchData.buttonPrimary = false;
-        this->doTapAction();
-    }
-
+#if 0
+#ifdef USE_TEMPERATURE_MONITORING
     Ui::display.setCursor(205, 0);
 
     // Temperature // Doesnt currently work within ESP32 Arduino.
@@ -37,6 +37,9 @@ void StateMachine::ExLRSStateHandler::onUpdateDraw()
     Ui::display.print("C");
 
     Ui::display.print(" / ");
+#else
+    Ui::display.setCursor( 221+4*8, 0);
+#endif
 
     // On Time
     uint32_t sec_now = millis() / 1000;
@@ -64,10 +67,12 @@ void StateMachine::ExLRSStateHandler::onUpdateDraw()
 
     // Horixontal line
     Ui::display.line(0, 9, SCREEN_WIDTH, 9, 100);
+#else
+    drawHeader();
+#endif
 
     // Mode
     Ui::display.setCursor(20, 20);
-    //                 123456789012345678901234567890123
     Ui::display.print("Mode (Hz):       50    100    200");
 
     // RF Power
@@ -78,59 +83,68 @@ void StateMachine::ExLRSStateHandler::onUpdateDraw()
     Ui::display.setCursor(20, 60);
     Ui::display.print("TLM:             On    Off");
 
+    // Set VTX channel
+    Ui::display.setCursor(20, 80);
+    Ui::display.print("VTX channel:     SEND");
+
     // Draw Mode box
-    if (
-        TouchPad::touchData.cursorY > 16 && TouchPad::touchData.cursorY < 31)
+    if (TouchPad::touchData.cursorY > 16 && TouchPad::touchData.cursorY < 31)
     {
         if ( // 50
             TouchPad::touchData.cursorX > (20 + 17 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 19 * 8 + 3))
         {
             Ui::display.rect(20 + 17 * 8 - 4, 16, 23, 15, 100);
         }
-        if ( // 100
+        else if ( // 100
             TouchPad::touchData.cursorX > (20 + 23 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 26 * 8 + 3))
         {
             Ui::display.rect(20 + 23 * 8 - 4, 16, 31, 15, 100);
         }
-        if ( // 200
+        else if ( // 200
             TouchPad::touchData.cursorX > (20 + 30 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 33 * 8 + 3))
         {
             Ui::display.rect(20 + 30 * 8 - 4, 16, 31, 15, 100);
         }
     }
     // Draw RF Power box
-    if (
-        TouchPad::touchData.cursorY > 36 && TouchPad::touchData.cursorY < 51)
+    else if (TouchPad::touchData.cursorY > 36 && TouchPad::touchData.cursorY < 51)
     {
         if ( // 50
             TouchPad::touchData.cursorX > (20 + 17 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 19 * 8 + 3))
         {
             Ui::display.rect(20 + 17 * 8 - 4, 36, 23, 15, 100);
         }
-        if ( // 200
+        else if ( // 200
             TouchPad::touchData.cursorX > (20 + 23 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 27 * 8 + 3))
         {
             Ui::display.rect(20 + 23 * 8 - 4, 36, 31, 15, 100);
         }
-        if ( // 1000
+        else if ( // 1000
             TouchPad::touchData.cursorX > (20 + 30 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 34 * 8 + 3))
         {
             Ui::display.rect(20 + 30 * 8 - 4, 36, 39, 15, 100);
         }
     }
     // Draw TLM box
-    if (
-        TouchPad::touchData.cursorY > 56 && TouchPad::touchData.cursorY < 71)
+    else if (TouchPad::touchData.cursorY > 56 && TouchPad::touchData.cursorY < 71)
     {
         if ( // On
             TouchPad::touchData.cursorX > (20 + 17 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 19 * 8 + 3))
         {
             Ui::display.rect(20 + 17 * 8 - 4, 56, 23, 15, 100);
         }
-        if ( // Off
+        else if ( // Off
             TouchPad::touchData.cursorX > (20 + 23 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 26 * 8 + 3))
         {
             Ui::display.rect(20 + 23 * 8 - 4, 56, 31, 15, 100);
+        }
+    }
+    // Draw VTX SEND box
+    else if (TouchPad::touchData.cursorY > 76 && TouchPad::touchData.cursorY < 91)
+    {
+        if (TouchPad::touchData.cursorX > (20 + 17 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 21 * 8 + 3))
+        {
+            Ui::display.rect((20 + 17 * 8 - 4), 76, (4 + 4 * 8 + 3), 15, 100);
         }
     }
 }
@@ -140,97 +154,67 @@ void StateMachine::ExLRSStateHandler::doTapAction()
     if ( // Menu
         TouchPad::touchData.cursorX > 314 && TouchPad::touchData.cursorY < 8)
     {
-        EepromSettings.save();
+        // EepromSettings.save(); // No changes done to EEPROM, NOT NEEDED!
         StateMachine::switchState(StateMachine::State::MENU);
     }
-
-    if ( // mode
+    else if ( // mode
         TouchPad::touchData.cursorY > 16 && TouchPad::touchData.cursorY < 31)
     {
         if ( // 50
             TouchPad::touchData.cursorX > (20 + 17 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 19 * 8 + 3))
         {
-            uint8_t payload[2] = {0};
-            payload[0] = ExLRS_MODE;
-            payload[1] = ExLRS_50Hz;
-
-            comm_espnow_send_msp(FUNC_Ex, sizeof(payload), (uint8_t *) &payload);
+            expresslrs_rate_send(ExLRS_50Hz);
         }
-        if ( // 100
+        else if ( // 100
             TouchPad::touchData.cursorX > (20 + 23 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 26 * 8 + 3))
         {
-            uint8_t payload[2] = {0};
-            payload[0] = ExLRS_MODE;
-            payload[1] = ExLRS_100Hz;
-
-            comm_espnow_send_msp(FUNC_Ex, sizeof(payload), (uint8_t *) &payload);
+            expresslrs_rate_send(ExLRS_100Hz);
         }
-        if ( // 200
+        else if ( // 200
             TouchPad::touchData.cursorX > (20 + 30 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 33 * 8 + 3))
         {
-            uint8_t payload[2] = {0};
-            payload[0] = ExLRS_MODE;
-            payload[1] = ExLRS_200Hz;
-
-            comm_espnow_send_msp(FUNC_Ex, sizeof(payload), (uint8_t *) &payload);
+            expresslrs_rate_send(ExLRS_200Hz);
         }
     }
-
-    if ( // power
+    else if ( // power
         TouchPad::touchData.cursorY > 36 && TouchPad::touchData.cursorY < 51)
     {
         if ( // 50
             TouchPad::touchData.cursorX > (20 + 17 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 19 * 8 + 3))
         {
-            uint8_t payload[3] = {0};
-            payload[0] = ExLRS_TX_POWER;
-            payload[1] = 50 & 0xff;
-            payload[2] = (50 >> 8) & 0xff;
-
-            comm_espnow_send_msp(FUNC_Ex, sizeof(payload), (uint8_t *) &payload);
+            expresslrs_power_send(50);
         }
-        if ( // 200
+        else if ( // 200
             TouchPad::touchData.cursorX > (20 + 23 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 27 * 8 + 3))
         {
-            uint8_t payload[3] = {0};
-            payload[0] = ExLRS_TX_POWER;
-            payload[1] = 200 & 0xff;
-            payload[2] = (200 >> 8) & 0xff;
-
-            comm_espnow_send_msp(FUNC_Ex, sizeof(payload), (uint8_t *) &payload);
+            expresslrs_power_send(200);
         }
-        if ( // 1000
+        else if ( // 1000
             TouchPad::touchData.cursorX > (20 + 30 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 34 * 8 + 3))
         {
-            uint8_t payload[3] = {0};
-            payload[0] = ExLRS_TX_POWER;
-            payload[1] = 1000 & 0xff;
-            payload[2] = (1000 >> 8) & 0xff;
-
-            comm_espnow_send_msp(FUNC_Ex, sizeof(payload), (uint8_t *) &payload);
+            expresslrs_power_send(1000);
         }
     }
-
-    if ( // TLM
+    else if ( // TLM
         TouchPad::touchData.cursorY > 56 && TouchPad::touchData.cursorY < 71)
     {
         if ( // On
             TouchPad::touchData.cursorX > (20 + 17 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 19 * 8 + 3))
         {
-            uint8_t payload[2] = {0};
-            payload[0] = ExLRS_TLM;
-            payload[1] = ExLRS_TLM_ON;
-
-            comm_espnow_send_msp(FUNC_Ex, sizeof(payload), (uint8_t *) &payload);
+            expresslrs_tlm_send(1);
         }
-        if ( // Off
+        else if ( // Off
             TouchPad::touchData.cursorX > (20 + 23 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 26 * 8 + 3))
         {
-            uint8_t payload[2] = {0};
-            payload[0] = ExLRS_TLM;
-            payload[1] = ExLRS_TLM_OFF;
-
-            comm_espnow_send_msp(FUNC_Ex, sizeof(payload), (uint8_t *) &payload);
+            expresslrs_tlm_send(0);
+        }
+    }
+    // VTX SEND
+    else if (TouchPad::touchData.cursorY > 76 && TouchPad::touchData.cursorY < 91)
+    {
+        if (TouchPad::touchData.cursorX > (20 + 17 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 21 * 8 + 3))
+        {
+            expresslrs_vtx_channel_send(Receiver::activeChannel);
         }
     }
 }

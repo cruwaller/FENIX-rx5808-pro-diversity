@@ -4,14 +4,13 @@
 #include "settings.h"
 #include <stdint.h>
 
-// #define CHANNELS_72
-#define CHANNELS_48
 
 #ifdef CHANNELS_72
     #define CHANNELS_SIZE 72
-#endif
-#ifdef CHANNELS_48
+#elif defined(CHANNELS_48)
     #define CHANNELS_SIZE 48
+#else
+    #error "Invalid CHANNELS_SIZE"
 #endif
 
 namespace Channels {
@@ -21,7 +20,7 @@ namespace Channels {
     extern char *getName(uint8_t index);
     const uint8_t getOrderedIndex(uint8_t index);
     const uint8_t getOrderedIndexFromIndex(uint8_t index);
-    
+
     const uint16_t getCenterFreq(uint16_t freq);
     const uint8_t getClosestChannel(uint16_t freq);
 }

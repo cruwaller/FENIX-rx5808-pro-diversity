@@ -11,41 +11,41 @@
 #include "timer.h"
 
 namespace Receiver {
-    ReceiverId activeReceiver = ReceiverId::A;
-    uint8_t activeChannel = EepromSettings.startChannel;
+    ReceiverId DMA_ATTR activeReceiver = ReceiverId::A;
+    uint8_t DMA_ATTR activeChannel = EepromSettings.startChannel;
 
-    uint16_t  rssiA = 0;
-    uint32_t rssiARaw = 0;
-    uint16_t  rssiALast[RECEIVER_LAST_DATA_SIZE] = { 0 };
+    uint16_t DMA_ATTR rssiA = 0;
+    uint32_t DMA_ATTR rssiARaw = 0;
+    uint16_t DMA_ATTR rssiALast[RECEIVER_LAST_DATA_SIZE] = { 0 };
 
-    uint16_t  rssiB = 0;
-    uint32_t rssiBRaw = 0;
-    uint16_t  rssiBLast[RECEIVER_LAST_DATA_SIZE] = { 0 };
+    uint16_t DMA_ATTR rssiB = 0;
+    uint32_t DMA_ATTR rssiBRaw = 0;
+    uint16_t DMA_ATTR rssiBLast[RECEIVER_LAST_DATA_SIZE] = { 0 };
 
 #if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
-    uint16_t  rssiC = 0;
-    uint32_t rssiCRaw = 0;
-    uint16_t  rssiCLast[RECEIVER_LAST_DATA_SIZE] = { 0 };
+    uint16_t DMA_ATTR rssiC = 0;
+    uint32_t DMA_ATTR rssiCRaw = 0;
+    uint16_t DMA_ATTR rssiCLast[RECEIVER_LAST_DATA_SIZE] = { 0 };
 
-    uint16_t  rssiD = 0;
-    uint32_t rssiDRaw = 0;
-    uint16_t  rssiDLast[RECEIVER_LAST_DATA_SIZE] = { 0 };
+    uint16_t DMA_ATTR rssiD = 0;
+    uint32_t DMA_ATTR rssiDRaw = 0;
+    uint16_t DMA_ATTR rssiDLast[RECEIVER_LAST_DATA_SIZE] = { 0 };
 #endif
-    uint16_t rssiBandScanData[CHANNELS_SIZE] = { 0 };
+    uint16_t DMA_ATTR rssiBandScanData[CHANNELS_SIZE] = { 0 };
 
-    uint16_t previousSwitchTime = 0;
-    uint16_t antennaAOnTime = 0;
-    uint16_t antennaBOnTime = 0;
-    uint16_t antennaCOnTime = 0;
-    uint16_t antennaDOnTime = 0;
+    uint16_t DMA_ATTR previousSwitchTime = 0;
+    uint16_t DMA_ATTR antennaAOnTime = 0;
+    uint16_t DMA_ATTR antennaBOnTime = 0;
+    uint16_t DMA_ATTR antennaCOnTime = 0;
+    uint16_t DMA_ATTR antennaDOnTime = 0;
 
-    ReceiverId diversityTargetReceiver = activeReceiver;
-    static Timer diversityHysteresisTimer = Timer(5); // default value and is replce by value stored in eeprom during setup
+    ReceiverId DMA_ATTR diversityTargetReceiver = activeReceiver;
+    static Timer DMA_ATTR diversityHysteresisTimer = Timer(5); // default value and is replce by value stored in eeprom during setup
 
-    static Timer rssiStableTimer = Timer(30); // default value and is replce by value stored in eeprom during setup
-    static Timer rssiLogTimer = Timer(RECEIVER_LAST_DELAY);
+    static Timer DMA_ATTR rssiStableTimer = Timer(30); // default value and is replce by value stored in eeprom during setup
+    static Timer DMA_ATTR rssiLogTimer = Timer(RECEIVER_LAST_DELAY);
 
-    bool hasRssiUpdated = false;
+    static bool DMA_ATTR hasRssiUpdated = false;
 
     void setChannel(uint8_t channel)
     {
@@ -114,6 +114,10 @@ namespace Receiver {
 
     bool isRssiStable() {
         return rssiStableTimer.hasTicked();
+    }
+
+    bool isRssiStableAndUpdated() {
+        return isRssiStable() && hasRssiUpdated;
     }
 
     void updateRssi() {
@@ -319,6 +323,7 @@ namespace Receiver {
 #endif
         setChannel(EepromSettings.startChannel);
         setActiveReceiver(ReceiverId::A);
+        activeChannel = EepromSettings.startChannel;
         diversityHysteresisTimer = Timer(EepromSettings.rssiHysteresisPeriod);
         rssiStableTimer = Timer(EepromSettings.rssiMinTuneTime);
     }

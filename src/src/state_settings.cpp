@@ -37,6 +37,7 @@ void StateMachine::SettingsStateHandler::onExit() {
 
 void StateMachine::SettingsStateHandler::onUpdate() {
 //    Ui::needUpdate();
+    this->onUpdateDraw();
 }
 
 void StateMachine::SettingsStateHandler::onInitialDraw() {

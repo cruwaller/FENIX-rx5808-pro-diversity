@@ -63,7 +63,7 @@ namespace Receiver {
     void switchDiversity();
 
     bool isRssiStable();
-    extern bool hasRssiUpdated;
+    bool isRssiStableAndUpdated();
 
     void setup();
     void update();

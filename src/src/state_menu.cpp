@@ -93,8 +93,19 @@ void StateMachine::MenuStateHandler::doTapAction() {
       EepromSettings.save();
       ESP.restart();
 #else // !OTA_UPDATE_STORE
-      BeginWebUpdate();
-      HandleWebUpdate();
+      BeginWebUpdate(); // Start updater
+
+      uint32_t previousLEDTime = 0, now;
+      // ... and handle client requests
+      while (1) {
+         HandleWebUpdate();
+         now = millis();
+         if (100u <= (now - previousLEDTime)) {
+               digitalWrite(PIN_RX_SWITCH, !digitalRead(PIN_RX_SWITCH));
+               previousLEDTime = now;
+         }
+         yield();
+      }
 #endif // OTA_UPDATE_STORE
    }
 
@@ -106,14 +117,16 @@ void StateMachine::MenuStateHandler::onInitialDraw() {
 
 void StateMachine::MenuStateHandler::onUpdateDraw() {
 
-    iconHome.draw(Ui::display, 47, 57);         // Home
-    iconExLRS.draw(Ui::display, 47+60, 57);      // ExpressLRS
-    iconBookmark.draw(Ui::display, 47+120, 57);
-    iconBookmark.draw(Ui::display, 47+180, 57);
-    iconBookmark.draw(Ui::display, 47, 117);
-    iconBookmark.draw(Ui::display, 47+60, 117);
-    iconCalibrate.draw(Ui::display, 47+120, 117);
-    iconUpdate.draw(Ui::display, 47+180, 117);    // Calibration
+   // 1st row
+   iconHome.draw(Ui::display, 47, 57);         // Home
+   iconExLRS.draw(Ui::display, 47+60, 57);      // ExpressLRS
+   iconBookmark.draw(Ui::display, 47+120, 57);
+   iconBookmark.draw(Ui::display, 47+180, 57);
+    // 2nd row
+   iconBookmark.draw(Ui::display, 47, 117);
+   iconBookmark.draw(Ui::display, 47+60, 117);
+   iconCalibrate.draw(Ui::display, 47+120, 117);
+   iconUpdate.draw(Ui::display, 47+180, 117);    // Calibration
 
    Ui::display.setTextColor(100);
 
@@ -189,7 +202,9 @@ void StateMachine::MenuStateHandler::onUpdateDraw() {
       Ui::display.setCursor( 120, 193);
       Ui::display.print("WiFi Update");
       Ui::display.setCursor( 70, 207);
-      Ui::display.print("SSID:FENIX  IP:192.168.4.1");
+      Ui::display.print("SSID:");
+      Ui::display.print(STASSID);
+      Ui::display.print("  IP:192.168.4.1");
    }
 
 }

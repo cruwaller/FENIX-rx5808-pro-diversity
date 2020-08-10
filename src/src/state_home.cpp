@@ -21,11 +21,10 @@
 
 
 // For scalling graphics accross screen
-#ifdef CHANNELS_72
-    uint8_t CHANNELS_SIZE_DIVIDER = 4;
-#endif
-#ifdef CHANNELS_48
-    uint8_t CHANNELS_SIZE_DIVIDER = 6;
+#if (CHANNELS_SIZE == 72)
+    #define CHANNELS_SIZE_DIVIDER 4
+#elif (CHANNELS_SIZE == 48)
+    #define CHANNELS_SIZE_DIVIDER 6
 #endif
 
 using StateMachine::HomeStateHandler;
@@ -37,7 +36,11 @@ void HomeStateHandler::onEnter() {
 }
 
 void HomeStateHandler::onUpdate() {
-
+    if (TouchPad::touchData.buttonPrimary) {
+      TouchPad::touchData.buttonPrimary = false;
+      this->doTapAction();
+    }
+    this->onUpdateDraw();
 }
 
 void HomeStateHandler::onInitialDraw() {
@@ -45,11 +48,7 @@ void HomeStateHandler::onInitialDraw() {
 }
 
 void HomeStateHandler::onUpdateDraw() {
-
-    if (TouchPad::touchData.buttonPrimary) {
-      TouchPad::touchData.buttonPrimary = false;
-      this->doTapAction();
-    }
+    uint32_t sec_now;
 
     if (isInBandScanRegion()) {
         bandScanUpdate();
@@ -62,6 +61,9 @@ void HomeStateHandler::onUpdateDraw() {
         wasInBandScanRegion = false;
     }
 
+#if 0
+    /*************************************************/
+    /*********     PRINT HEADER     ******************/
     // Mode
     Ui::display.setTextColor(100);
     Ui::display.setCursor( 8, 0);
@@ -85,27 +87,31 @@ void HomeStateHandler::onUpdateDraw() {
         Ui::display.print("Quadversity");
     }
 
-    #ifdef USE_VOLTAGE_MONITORING
-        // Voltage
-        if (Voltage::voltage > 9) {
-            Ui::display.setCursor( 173, 0);
-        } else {
-            Ui::display.setCursor( 181, 0);
-        }
-        Ui::display.print(Voltage::voltage);
-        Ui::display.print(".");
-        Ui::display.print(Voltage::voltageDec);
-        Ui::display.print("V ");
-    #else
-        Ui::display.setCursor( 221, 0);
-    #endif
+#ifdef USE_VOLTAGE_MONITORING
+    // Voltage
+    if (Voltage::voltage > 9) {
+        Ui::display.setCursor( 173, 0);
+    } else {
+        Ui::display.setCursor( 181, 0);
+    }
+    Ui::display.print(Voltage::voltage);
+    Ui::display.print(".");
+    Ui::display.print(Voltage::voltageDec);
+    Ui::display.print("V ");
+#else
+    Ui::display.setCursor( 221, 0);
+#endif
 
+#ifdef USE_TEMPERATURE_MONITORING
     // Temperature // Doesnt currently work within ESP32 Arduino.
     Ui::display.print(Temperature::getTemperature());
     Ui::display.print("C ");
+#else
+    Ui::display.setCursor( 221+4*8, 0);
+#endif
 
     // On Time
-    uint32_t sec_now = millis() / 1000;
+    sec_now = millis() / 1000;
     uint8_t hours = sec_now / 60 / 60;
     uint8_t mins  = sec_now / 60 - hours * 60 * 60;
     uint8_t secs  = sec_now - hours * 60 * 60 - mins * 60;
@@ -128,6 +134,12 @@ void HomeStateHandler::onUpdateDraw() {
 
     // Horixontal line
     Ui::display.line( 0, 9, SCREEN_WIDTH, 9, 100);
+#else
+    drawHeader();
+#endif
+
+    /*************************************************/
+    /*********      PRINT HOME      ******************/
 
     // Display Band and Channel
     Ui::display.setCursor( 2, 15);
@@ -452,9 +464,6 @@ void HomeStateHandler::setChannel(int channelIncrement, int setChannel) {
     centred = false;
 
     displayActiveChannel = Receiver::activeChannel;
-
-    uint8_t payload[4] = {displayActiveChannel, 0, 1, 0};
-    comm_espnow_send_msp(MSP_SET_VTX_CONFIG, sizeof(payload), (uint8_t *) &payload);
 }
 
 // Frequency 'Centring' function.
@@ -486,7 +495,7 @@ void HomeStateHandler::bandScanUpdate() {
         orderedChanelIndex = Channels::getOrderedIndexFromIndex(displayActiveChannel); // Start from currently selected channel to prevent initial spike artifact.
     }
 
-    if (Receiver::isRssiStable() && Receiver::hasRssiUpdated) {
+    if (Receiver::isRssiStableAndUpdated()) {
 
 #if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
         if (EepromSettings.quadversity) {

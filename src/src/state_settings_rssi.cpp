@@ -25,7 +25,7 @@ void StateMachine::SettingsRssiStateHandler::onUpdate() {
       doTapAction();
     }
 
-    if (!Receiver::isRssiStable() || !Receiver::hasRssiUpdated)
+    if (!Receiver::isRssiStableAndUpdated())
         return;
 
     for (int i = 0; i < 100; i++) {
@@ -173,7 +173,7 @@ void StateMachine::SettingsRssiStateHandler::onUpdateDraw() {
           Ui::display.setCursor( 60, 40);
           Ui::display.print("All done!");
 
-          Ui::display.setCursor(0, CHAR_HEIGHT * 2);
+          //Ui::display.setCursor(0, CHAR_HEIGHT * 2);
 
           Ui::display.setCursor( 60, 60);
           Ui::display.print("A: ");

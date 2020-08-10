@@ -39,14 +39,22 @@ SOFTWARE.
 
 //#define USE_VOLTAGE_MONITORING
 
+//#define USE_TEMPERATURE_MONITORING
+
 // Can enable this to powerdown the audio blocks on the RX58xx if you don't
 // need it. Save a tiny bit of power, make your videos less noisy.
 
 // WARNING: Makes RSSI act a little weird.
 //#define DISABLE_AUDIO
 
-// === Pins ====================================================================
+// Wifi update params
+#define STASSID "FENIX.PeHo"
 
+/* How many channel receiver has */
+// #define CHANNELS_72
+#define CHANNELS_48
+
+// === Pins ====================================================================
 
 #define PIN_SPI_SLAVE_SELECT_RX_A       32
 #define PIN_SPI_SLAVE_SELECT_RX_B       33
@@ -109,10 +117,13 @@ SOFTWARE.
 
 #define HOME_SHOW_LAPTIMES 1
 
-// === Sanity checks ===========================================================
+// === Sanity checks and defaults ==============================================
 
 #ifndef PIN_VBAT
 #undef USE_VOLTAGE_MONITORING
 #endif
+#ifndef STASSID
+#define STASSID "FENIX"
+#endif // STASSID
 
 #endif // file_defined

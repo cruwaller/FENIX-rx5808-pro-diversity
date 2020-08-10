@@ -1,7 +1,7 @@
 #ifndef STATE_H
 #define STATE_H
 
-
+#include <esp_attr.h>
 #include <stdint.h>
 
 
@@ -25,11 +25,12 @@ namespace StateMachine {
             virtual void onEnter() {};
             virtual void onUpdate() {};
             virtual void onExit() {};
-
+        protected:
+            void drawHeader(void);
     };
 
-    extern State currentState;
-    extern State lastState;
+    extern State DMA_ATTR currentState;
+    extern State DMA_ATTR lastState;
 
     void setup();
     void update();

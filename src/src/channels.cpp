@@ -18,7 +18,7 @@ static const uint16_t channelFreqTable[] PROGMEM = {
     5653, 5693, 5733, 5773, 5813, 5853, 5893, 5933  // H
 };
 
-#ifdef CHANNELS_48
+#if (CHANNELS_SIZE == 48)
 // All Channels of the above List ordered by Mhz
 static const uint8_t channelFreqOrderedIndex[] PROGMEM = {
         40, // 5362
@@ -121,9 +121,8 @@ static const uint8_t channelIndexToOrderedIndex[] PROGMEM = {
          6,
          7
 };
-#endif
 
-#ifdef CHANNELS_72
+#elif (CHANNELS_SIZE == 72)
 // All Channels of the above List ordered by Mhz
 static const uint8_t channelFreqOrderedIndex[] PROGMEM = {
         48, //5325

@@ -34,6 +34,7 @@ void StateMachine::SettingsInternalStateHandler::onExit() {
 
 void StateMachine::SettingsInternalStateHandler::onUpdate() {
 //    Ui::needUpdate();
+    this->onUpdateDraw();
 }
 
 void StateMachine::SettingsInternalStateHandler::onInitialDraw() {

@@ -6,8 +6,6 @@
 #include <Update.h>
 #include <comm_espnow.h>
 
-#define STASSID "FENIX"
-
 const char *host = "webupdate";
 const char *ssid = STASSID;
 
@@ -15,7 +13,9 @@ WebServer server(80);
 const char* serverIndex = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
 
 void BeginWebUpdate(void) {
+#if !OTA_UPDATE_STORE
   comm_espnow_deinit();
+#endif
 
 #if DEBUG_ENABLED
 //  Serial.println("Begin Webupdater");
