@@ -5,6 +5,8 @@
 #include <WiFi.h>
 
 
+#define WIFI_CHANNEL 1
+
 uint8_t broadcastAddress[][ESP_NOW_ETH_ALEN] = {
     //{0x50, 0x02, 0x91, 0xDA, 0x56, 0xCA},   // ESP32 TX: ?
     {0x5C, 0xCF, 0x7F, 0xAC, 0xD9, 0x0F},   // R9M LOGGER : 5C:CF:7F:AC:D9:0F (ESP8266)
@@ -41,6 +43,7 @@ void comm_espnow_init(void)
     Serial.print("My MAC address: ");
     Serial.println(WiFi.macAddress());
 #endif
+    WiFi.disconnect();
 
     Serial.println("ESPNOW initialize...");
     if (esp_now_init() == ESP_OK) {
@@ -50,7 +53,7 @@ void comm_espnow_init(void)
         esp_now_peer_info_t peer_info = {
             .peer_addr = {0},
             .lmk = {0},
-            .channel = 0,
+            .channel = WIFI_CHANNEL,
             .ifidx = ESP_IF_WIFI_STA,
             .encrypt = 0,
             .priv = NULL
