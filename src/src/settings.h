@@ -107,9 +107,9 @@ SOFTWARE.
 
 #define BEEPER_CHIRP 25
 
-#define SPEED_TEST
+//#define SPEED_TEST
 
-#define DEBUG_ENABLED 0
+#define DEBUG_ENABLED 1
 
 #define OTA_UPDATE_STORE 0
 

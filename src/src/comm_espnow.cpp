@@ -8,28 +8,32 @@
 #define WIFI_CHANNEL 1
 
 uint8_t broadcastAddress[][ESP_NOW_ETH_ALEN] = {
-    //{0x50, 0x02, 0x91, 0xDA, 0x56, 0xCA},   // ESP32 TX: ?
-    {0x5C, 0xCF, 0x7F, 0xAC, 0xD9, 0x0F},   // R9M LOGGER : 5C:CF:7F:AC:D9:0F (ESP8266)
-    {0xF0, 0x08, 0xD1, 0xD4, 0xED, 0x7C},   // Chorus32: F0:08:D1:D4:ED:7C (ESP32)
+    {0x5C, 0xCF, 0x7F, 0xAC, 0xD9, 0x0F},   // R9M LOGGER STA: 5C:CF:7F:AC:D9:0F (ESP8266)
+    {0x5E, 0xCF, 0x7F, 0xAC, 0xD9, 0x0F},   // R9M LOGGER  AP: 5E:CF:7F:AC:D9:0F (ESP8266)
+    //{0xF0, 0x08, 0xD1, 0xD4, 0xED, 0x7C},   // Chorus32 STA: F0:08:D1:D4:ED:7C (ESP32)
+    {0xF0, 0x08, 0xD1, 0xD4, 0xED, 0x7D},   // Chorus32  AP: F0:08:D1:D4:ED:7D (ESP32)
 };
 
 
 static void esp_now_recv_cb(const uint8_t *mac_addr, const uint8_t *data, int data_len)
 {
 #if DEBUG_ENABLED
-    Serial.printf("ESPNOW message received!\n");
+    Serial.printf("ESP NOW CB!\n");
 #endif
+
+    // Check if message is MSP
+
     if (data_len >= sizeof(esp_now_send_lap_s)) {
         esp_now_send_lap_s * lap_info = (esp_now_send_lap_s*)data;
         lap_times_handle(lap_info);
     }
-    char hello[] = "FENIX_CB\n";
-    esp_now_send(mac_addr, (uint8_t*)hello, strlen(hello)); // send to all registered peers
+    //char hello[] = "FENIX_CB\n";
+    //esp_now_send(mac_addr, (uint8_t*)hello, strlen(hello)); // send to all registered peers
 }
 
 
 void esp_now_send_cb(const uint8_t *mac_addr, esp_now_send_status_t status) {
-#if DEBUG_ENABLED
+#if DEBUG_ENABLED && 1
   Serial.print("ESPNOW Sent:\t");
   Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Success" : "Fail");
 #endif
@@ -37,11 +41,14 @@ void esp_now_send_cb(const uint8_t *mac_addr, esp_now_send_status_t status) {
 
 void comm_espnow_init(void)
 {
-    WiFi.mode(WIFI_MODE_STA);
+    WiFi.mode(WIFI_MODE_APSTA);
 #if DEBUG_ENABLED
-    // My MAC address: D8:A0:1D:4C:72:18
-    Serial.print("My MAC address: ");
-    Serial.println(WiFi.macAddress());
+    // STA MAC address: D8:A0:1D:4C:72:18
+
+    //Serial.print("My MAC address: ");
+    //Serial.println(WiFi.macAddress());
+    Serial.printf("STA MAC Address: %s\n", WiFi.macAddress().c_str());
+    Serial.printf("AP MAC Address: %s\n", WiFi.softAPmacAddress().c_str());
 #endif
     WiFi.disconnect();
 
@@ -70,6 +77,10 @@ void comm_espnow_init(void)
             }
         }
 
+#if 1
+    char hello[] = "FENIX_HELLO\n";
+    esp_now_send(NULL, (uint8_t*)hello, strlen(hello)); // send to all registered peers
+#endif
 #if DEBUG_ENABLED
         Serial.println(" ... init DONE");
     } else {
