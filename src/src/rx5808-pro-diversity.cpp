@@ -50,6 +50,8 @@
 #include "WebUpdater.h"
 #endif
 
+void setupPins();
+
 #ifdef SPEED_TEST
     uint32_t speed_test_hz = 0;
     uint32_t speed_test_previousTime = 0;

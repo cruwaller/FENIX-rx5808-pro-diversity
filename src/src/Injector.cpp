@@ -7,11 +7,11 @@ void OnDataRecv(uint8_t * mac_addr, uint8_t *data, uint8_t data_len)
   {
     Serial.write(data[i]);
   }
-} 
+}
 
 void setup()
 {
-  Serial.begin(400000); 
+  Serial.begin(400000);
   /*
     CURRENTLY NOT REQUIRED! LEAVE SERIAL UNINVERTED WITH DIRECT CONNECTION TO UART2 PINS
     Use inverted for r9m
@@ -21,7 +21,7 @@ void setup()
   /*
       Uncomment below to print mac address.  Add this to VRx setup().
   */
-  // Serial.begin(115200); 
+  // Serial.begin(115200);
   // Serial.println(WiFi.macAddress());
 
   WiFi.mode(WIFI_STA);
@@ -31,8 +31,8 @@ void setup()
     ESP.restart();
   }
 
-  esp_now_register_recv_cb(OnDataRecv); 
-} 
+  esp_now_register_recv_cb(OnDataRecv);
+}
 
 void loop()
 {

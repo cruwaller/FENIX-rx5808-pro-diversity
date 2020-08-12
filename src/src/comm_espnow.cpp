@@ -1,6 +1,7 @@
 #include "comm_espnow.h"
 #include "lap_times.h"
 #include "settings.h"
+#include "ExpressLRS_Protocol.h"
 #include <esp_now.h>
 #include <WiFi.h>
 
@@ -14,21 +15,61 @@ uint8_t broadcastAddress[][ESP_NOW_ETH_ALEN] = {
     {0xF0, 0x08, 0xD1, 0xD4, 0xED, 0x7D},   // Chorus32  AP: F0:08:D1:D4:ED:7D (ESP32)
 };
 
+// This is used to for parse ongoing MSP packet
+uint8_t DMA_ATTR msp_tx_buffer[250];
+
+MSP msp_parser;
+
 
 static void esp_now_recv_cb(const uint8_t *mac_addr, const uint8_t *data, int data_len)
 {
+    int iter;
+    bool msp_rcvd = 0;
+
 #if DEBUG_ENABLED
     Serial.printf("ESP NOW CB!\n");
 #endif
 
-    // Check if message is MSP
+    /* No data, return */
+    if (!data_len)
+        return;
 
-    if (data_len >= sizeof(esp_now_send_lap_s)) {
-        esp_now_send_lap_s * lap_info = (esp_now_send_lap_s*)data;
-        lap_times_handle(lap_info);
+    msp_rcvd = msp_parser.processReceivedByte(data[0]);
+
+    // Check if message is MSP
+    for (iter = 1; (iter < data_len) && (msp_rcvd == 0) && msp_parser.mspOngoing(); iter++) {
+        msp_rcvd = msp_parser.processReceivedByte(data[iter]);
     }
-    //char hello[] = "FENIX_CB\n";
-    //esp_now_send(mac_addr, (uint8_t*)hello, strlen(hello)); // send to all registered peers
+    // Only MSP packet or laptime is expected
+    if (msp_rcvd) {
+        /* Process the received MSP packet */
+        mspPacket_t &msp_in = msp_parser.getPacket();
+        if (msp_in.type == MSP_PACKET_V1_ELRS) {
+            uint8_t * payload = (uint8_t*)msp_in.payload;
+            switch (msp_in.function) {
+                case ELRS_INT_MSP_PARAMS: {
+#if DEBUG_ENABLED
+                    Serial.println("ELRS params resp");
+#endif
+                    expresslrs_params_update(payload[0], payload[1], payload[2], payload[3], payload[4]);
+                    break;
+                }
+            };
+        }
+
+    } else {
+        if (data_len == sizeof(esp_now_send_lap_s)) {
+            esp_now_send_lap_s * lap_info = (esp_now_send_lap_s*)data;
+            lap_times_handle(lap_info);
+        }
+    }
+
+    msp_parser.markPacketFree();
+
+#if 0
+    char hello[] = "FENIX_CB\n";
+    esp_now_send(mac_addr, (uint8_t*)hello, strlen(hello)); // send to all registered peers
+#endif
 }
 
 
@@ -98,58 +139,10 @@ void comm_espnow_deinit(void)
     }
 }
 
-uint8_t crc8_dvb_s2(uint8_t crc, unsigned char a)
+void comm_espnow_send_msp(mspPacket_t * packet)
 {
-    crc ^= a;
-    for (int ii = 0; ii < 8; ++ii) {
-        if (crc & 0x80) {
-            crc = (crc << 1) ^ 0xD5;
-        } else {
-            crc = crc << 1;
-        }
-    }
-    return crc;
-}
-
-
-void comm_espnow_send_msp(uint16_t function, uint16_t payloadSize, const uint8_t *payload)
-{
-    uint8_t nowDataOutput[9 + payloadSize] = {0};
-    uint8_t crc = 0, iter, data;
-
-    // MSP header
-    nowDataOutput[0] = '$';
-    nowDataOutput[1] = 'X';
-    nowDataOutput[2] = '<';
-    nowDataOutput[3] = '0';
-    nowDataOutput[4] = function & 0xff;
-    nowDataOutput[5] = (function >> 8) & 0xff;
-    nowDataOutput[6] = payloadSize & 0xff;
-    nowDataOutput[7] = (payloadSize >> 8) & 0xff;
-
-    // Calc CRC, starts from [3]
-    for(iter = 3; iter < 8; iter++)
-        crc = crc8_dvb_s2(crc, nowDataOutput[iter]);
-
-    // Add payload and calc CRC on the fly
-    while (payloadSize--) {
-        data = *payload++;
-        nowDataOutput[iter++] = data;
-        crc = crc8_dvb_s2(crc, data);
-    }
-
-    // Add CRC
-    nowDataOutput[iter++] = crc;
-
-#if 0
-    for (int i = 0; i < sizeof(broadcastAddress) / 6; i++)
-    {
-        uint8_t tempBroadcastAddress[6];
-        memcpy(tempBroadcastAddress, broadcastAddress + (6 * i), 6);
-        esp_now_send(tempBroadcastAddress, (uint8_t *) &nowDataOutput, sizeof(nowDataOutput));
-    }
-#else
-    // Send to all listed peers
-    esp_now_send(NULL, (uint8_t *) &nowDataOutput, iter);
-#endif
+    // Pack and send packet
+    uint8_t len = msp_parser.sendPacket(packet, msp_tx_buffer);
+    if (len)
+        esp_now_send(NULL, (uint8_t*)msp_tx_buffer, len);
 }
