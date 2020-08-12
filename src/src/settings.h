@@ -109,7 +109,7 @@ SOFTWARE.
 
 //#define SPEED_TEST
 
-#define DEBUG_ENABLED 1
+//#define DEBUG_ENABLED 1
 
 #define OTA_UPDATE_STORE 0
 

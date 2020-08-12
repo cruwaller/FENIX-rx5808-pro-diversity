@@ -28,6 +28,7 @@ void StateMachine::ExLRSStateHandler::onInitialDraw()
 
 void StateMachine::ExLRSStateHandler::onUpdateDraw()
 {
+    uint8_t ism = 0;
 #if 0
 #ifdef USE_TEMPERATURE_MONITORING
     Ui::display.setCursor(205, 0);
@@ -70,18 +71,92 @@ void StateMachine::ExLRSStateHandler::onUpdateDraw()
 #else
     drawHeader();
 #endif
+    Ui::display.setCursor(20, 10);
+    Ui::display.print("Regulatory domain ");
+    switch (expresslrs_params_get_region()) {
+        case 0:
+            Ui::display.print("915MHz");
+            break;
+        case 1:
+            Ui::display.print("868MHz");
+            break;
+        case 2:
+            Ui::display.print("433MHz");
+            break;
+        case 3:
+            Ui::display.print("ISM 2400");
+            ism = 1;
+            break;
+        default:
+            Ui::display.print("UNKNOWN");
+            break;
+    };
 
     // Mode
     Ui::display.setCursor(20, 20);
     Ui::display.print("Mode (Hz):       50    100    200");
+    Ui::display.setCursor(50, 30);
+    Ui::display.print("current: ");
+    switch (expresslrs_params_get_rate()) {
+        case 0:
+            Ui::display.print(ism ? "250Hz" : "200Hz");
+            break;
+        case 1:
+            Ui::display.print(ism ? "125Hz" : "100Hz");
+            break;
+        case 2:
+            Ui::display.print("50Hz");
+            break;
+        default:
+            Ui::display.print("---");
+            break;
+    };
 
     // RF Power
     Ui::display.setCursor(20, 40);
     Ui::display.print("RF Power (mW):   50    200    1000");
+    Ui::display.setCursor(50, 50);
+    Ui::display.print("current: ");
+    switch (expresslrs_params_get_power()) {
+        case 0:
+            Ui::display.print("dynamic");
+            break;
+        case 1:
+            Ui::display.print("10mW");
+            break;
+        case 2:
+            Ui::display.print("25mW");
+            break;
+        case 3:
+            Ui::display.print("50mW");
+            break;
+        default:
+            Ui::display.print("---");
+            break;
+    };
 
     // TLM Rate
     Ui::display.setCursor(20, 60);
     Ui::display.print("TLM:             On    Off");
+    Ui::display.setCursor(50, 70);
+    Ui::display.print("current: ");
+    switch (expresslrs_params_get_tlm()) {
+        case 0:
+            Ui::display.print("OFF");
+            break;
+        case 1:
+            Ui::display.print("1/128");
+            break;
+        case 2:
+            Ui::display.print("1/64");
+            break;
+        case 3:
+            Ui::display.print("1/32");
+            break;
+        default:
+            Ui::display.print("---");
+            break;
+    };
 
     // Set VTX channel
     Ui::display.setCursor(20, 80);

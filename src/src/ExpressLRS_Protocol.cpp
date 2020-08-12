@@ -75,6 +75,17 @@ void expresslrs_params_update(uint8_t rate, uint8_t tlm, uint8_t pwr, uint8_t pw
     elrs_params.region = region;
 }
 
+void expresslrs_params_get(void)
+{
+    msp_out.type = MSP_PACKET_V1_ELRS;
+    msp_out.flags = MSP_ELRS_INT;
+    msp_out.function = ELRS_INT_MSP_PARAMS;
+    msp_out.payloadSize = 2;
+    msp_out.payload[0] = 0;
+    msp_out.payload[1] = 0;
+    comm_espnow_send_msp(&msp_out);
+}
+
 uint8_t expresslrs_params_get_rate(void)
 {
     return elrs_params.rate;

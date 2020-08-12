@@ -24,6 +24,7 @@ void expresslrs_power_send(uint16_t power);
 void expresslrs_tlm_send(uint8_t tlm);
 
 void expresslrs_params_update(uint8_t rate, uint8_t tlm, uint8_t pwr, uint8_t pwr_max, uint8_t region);
+void expresslrs_params_get(void);
 uint8_t expresslrs_params_get_rate(void);
 uint8_t expresslrs_params_get_tlm(void);
 uint8_t expresslrs_params_get_power(void);

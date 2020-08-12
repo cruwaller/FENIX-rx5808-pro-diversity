@@ -27,19 +27,19 @@ static void esp_now_recv_cb(const uint8_t *mac_addr, const uint8_t *data, int da
     bool msp_rcvd = 0;
 
 #if DEBUG_ENABLED
-    Serial.printf("ESP NOW CB!\n");
+    Serial.printf("ESP NOW: ");
 #endif
 
     /* No data, return */
     if (!data_len)
         return;
-
     msp_rcvd = msp_parser.processReceivedByte(data[0]);
 
     // Check if message is MSP
     for (iter = 1; (iter < data_len) && (msp_rcvd == 0) && msp_parser.mspOngoing(); iter++) {
         msp_rcvd = msp_parser.processReceivedByte(data[iter]);
     }
+
     // Only MSP packet or laptime is expected
     if (msp_rcvd) {
         /* Process the received MSP packet */
@@ -49,7 +49,7 @@ static void esp_now_recv_cb(const uint8_t *mac_addr, const uint8_t *data, int da
             switch (msp_in.function) {
                 case ELRS_INT_MSP_PARAMS: {
 #if DEBUG_ENABLED
-                    Serial.println("ELRS params resp");
+                    Serial.println("ELRS_INT_MSP_PARAMS");
 #endif
                     expresslrs_params_update(payload[0], payload[1], payload[2], payload[3], payload[4]);
                     break;
@@ -57,11 +57,20 @@ static void esp_now_recv_cb(const uint8_t *mac_addr, const uint8_t *data, int da
             };
         }
 
+    } else if (data_len == sizeof(esp_now_send_lap_s)) {
+        esp_now_send_lap_s * lap_info = (esp_now_send_lap_s*)data;
+        lap_times_handle(lap_info);
+
+#if DEBUG_ENABLED
     } else {
-        if (data_len == sizeof(esp_now_send_lap_s)) {
-            esp_now_send_lap_s * lap_info = (esp_now_send_lap_s*)data;
-            lap_times_handle(lap_info);
+        if (strnlen((char*)data, 250) < 250) {
+            Serial.print("[TXT] '");
+            Serial.print((char*)data);
+            Serial.println("'");
+        } else {
+            Serial.println("message unknown!");
         }
+#endif
     }
 
     msp_parser.markPacketFree();
@@ -75,13 +84,16 @@ static void esp_now_recv_cb(const uint8_t *mac_addr, const uint8_t *data, int da
 
 void esp_now_send_cb(const uint8_t *mac_addr, esp_now_send_status_t status) {
 #if DEBUG_ENABLED && 1
-  Serial.print("ESPNOW Sent:\t");
+  Serial.print("ESPNOW Sent: ");
   Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Success" : "Fail");
 #endif
 }
 
 void comm_espnow_init(void)
 {
+    expresslrs_params_update(0xff, 0xff, 0xff, 0xff, 0xff);
+    lap_times_reset(); // just for debug
+
     WiFi.mode(WIFI_MODE_APSTA);
 #if DEBUG_ENABLED
     // STA MAC address: D8:A0:1D:4C:72:18
@@ -118,9 +130,10 @@ void comm_espnow_init(void)
             }
         }
 
-#if 1
-    char hello[] = "FENIX_HELLO\n";
-    esp_now_send(NULL, (uint8_t*)hello, strlen(hello)); // send to all registered peers
+        expresslrs_params_get(); // Get params from ELRS
+#if 0
+        char hello[] = "FENIX_HELLO\n";
+        esp_now_send(NULL, (uint8_t*)hello, strlen(hello)); // send to all registered peers
 #endif
 #if DEBUG_ENABLED
         Serial.println(" ... init DONE");

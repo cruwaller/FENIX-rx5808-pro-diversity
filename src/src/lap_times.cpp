@@ -9,6 +9,14 @@ static uint32_t _lap_times[6][100];
 void lap_times_reset(void)
 {
     memset(_lap_times, 0, sizeof(_lap_times));
+
+    // Debug:
+    race_id = 5;
+    _lap_times[0][0] = 12345;
+    _lap_times[0][1] = 57*1000 + 1234;
+    _lap_times[0][2] = 2 * 60000 + 32*1000 + 1234;
+    _lap_times[0][3] = 3600000 + 45 * 60000 + 32*1000 + 1234;
+    _lap_times[0][4] = 2*3600000 + 12 * 60000 + 55*1000 + 432;
 }
 
 
@@ -42,7 +50,7 @@ uint32_t lapt_time_race_idx_get(void)
 
 uint32_t lapt_time_laptime_get(uint8_t node_index, uint8_t lap)
 {
-    if (6 <= node_index || 100 <= lap)
+    if (6 < node_index || 100 < lap)
         return UINT32_MAX;
     return _lap_times[node_index][lap];
 }

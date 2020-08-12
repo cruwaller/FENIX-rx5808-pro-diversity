@@ -49,6 +49,7 @@ void HomeStateHandler::onInitialDraw() {
 
 void HomeStateHandler::onUpdateDraw() {
     uint32_t sec_now;
+    uint8_t hours, mins, secs;
 
     if (isInBandScanRegion()) {
         bandScanUpdate();
@@ -112,9 +113,9 @@ void HomeStateHandler::onUpdateDraw() {
 
     // On Time
     sec_now = millis() / 1000;
-    uint8_t hours = sec_now / 60 / 60;
-    uint8_t mins  = sec_now / 60 - hours * 60 * 60;
-    uint8_t secs  = sec_now - hours * 60 * 60 - mins * 60;
+    hours = sec_now / 60 / 60;
+    mins  = sec_now / 60 - hours * 60 * 60;
+    secs  = sec_now - hours * 60 * 60 - mins * 60;
     Ui::display.print(hours);
     Ui::display.print(":");
     if(mins < 10) {
@@ -240,17 +241,23 @@ void HomeStateHandler::onUpdateDraw() {
     Ui::display.print(")");
     uint8_t node_idx = 0;
     uint32_t lap_time;
-    for (uint8_t iter = 1; iter <= 10; iter++) {
-        lap_time = lapt_time_laptime_get(node_idx, iter);
-        (void)lap_time;
+    char tmp_buff[12]; // 00:00.000\n
+    for (uint8_t iter = 0; iter <= 16; iter++) {
+        lap_time = lapt_time_laptime_get(node_idx, iter); // time in ms
+        if (lap_time == UINT32_MAX) break;
+
         y_off += 9;
         Ui::display.setCursor(195, y_off);
-        Ui::display.print("00:");
-        if (iter < 10) {
-            Ui::display.print("0");
-        }
-        Ui::display.print(iter);
-        Ui::display.print(":1234");
+
+        sec_now = lap_time / 1000;
+
+        hours = sec_now / 3600;
+        mins  = (sec_now - (hours * 3600)) / 60;
+        secs  = sec_now - (hours * 3600) - (mins * 60);
+        sec_now = lap_time % 1000;
+
+        snprintf(tmp_buff, sizeof(tmp_buff), "%02u:%02u.%03u\n", mins, secs, sec_now);
+        Ui::display.print(tmp_buff);
     }
 
 #else // !HOME_SHOW_LAPTIMES
