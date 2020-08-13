@@ -54,6 +54,15 @@ SOFTWARE.
 // #define CHANNELS_72
 #define CHANNELS_48
 
+// === ESP-NOW =================================================================
+
+/* Defines ESPNOW peers and allow to exchange values between nodes
+ *  Currently ELRS and Chorus32 are supported!
+ */
+#define ESP_NOW_ENABLED      1
+#define ESP_NOW_PEERS_ELRS   {0x5C, 0xCF, 0x7F, 0xAC, 0xD9, 0x0F}, {0x5E, 0xCF, 0x7F, 0xAC, 0xD9, 0x0F}
+#define ESP_NOW_PEERS_CHORUS {0xF0, 0x08, 0xD1, 0xD4, 0xED, 0x7D}
+
 // === Pins ====================================================================
 
 #define PIN_SPI_SLAVE_SELECT_RX_A       32

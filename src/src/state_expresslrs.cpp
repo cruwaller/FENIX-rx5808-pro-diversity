@@ -28,51 +28,54 @@ void StateMachine::ExLRSStateHandler::onInitialDraw()
 
 void StateMachine::ExLRSStateHandler::onUpdateDraw()
 {
-    uint8_t ism = 0;
-#if 0
-#ifdef USE_TEMPERATURE_MONITORING
-    Ui::display.setCursor(205, 0);
+    uint32_t off_x = 20, off_x2 = off_x + 17 * 8, off_y = 20;
 
-    // Temperature // Doesnt currently work within ESP32 Arduino.
-    Ui::display.print(Temperature::getTemperature());
-    Ui::display.print("C");
+    uint8_t region = expresslrs_params_get_region();
 
-    Ui::display.print(" / ");
-#else
-    Ui::display.setCursor( 221+4*8, 0);
-#endif
-
-    // On Time
-    uint32_t sec_now = millis() / 1000;
-    uint8_t hours = sec_now / 60 / 60;
-    uint8_t mins = sec_now / 60 - hours * 60 * 60;
-    uint8_t secs = sec_now - hours * 60 * 60 - mins * 60;
-    Ui::display.print(hours);
-    Ui::display.print(":");
-    if (mins < 10)
-    {
-        Ui::display.print("0");
-    }
-    Ui::display.print(mins);
-    Ui::display.print(":");
-    if (secs < 10)
-    {
-        Ui::display.print("0");
-    }
-    Ui::display.print(secs);
-
-    // Menu Icon
-    Ui::display.line(315, 1, 322, 1, 100);
-    Ui::display.line(315, 4, 322, 4, 100);
-    Ui::display.line(315, 7, 322, 7, 100);
-
-    // Horixontal line
-    Ui::display.line(0, 9, SCREEN_WIDTH, 9, 100);
-#else
     drawHeader();
-#endif
-    Ui::display.setCursor(20, 10);
+
+    Ui::display.setTextColor(100);
+
+    // Mode
+    Ui::display.setCursor(off_x, off_y);
+    Ui::display.print("Mode (Hz):");
+    Ui::display.setCursor(off_x2, off_y);
+    if (region == 3)
+        Ui::display.print("50    125    250");
+    else
+        Ui::display.print("50    100    200");
+    off_y += 20;
+
+    // RF Power
+    Ui::display.setCursor(off_x, off_y);
+    Ui::display.print("Power (mW):");
+    Ui::display.setCursor(off_x2, off_y);
+    Ui::display.print("25    50    100");
+    off_y += 20;
+
+    // TLM Rate
+    Ui::display.setCursor(off_x, off_y);
+    Ui::display.print("Telemetry:");
+    Ui::display.setCursor(off_x2, off_y);
+    Ui::display.print("On    Off");
+    off_y += 20;
+
+    // Set VTX channel
+    Ui::display.setCursor(off_x, off_y);
+    Ui::display.print("VTX channel:");
+    Ui::display.setCursor(off_x2, off_y);
+    Ui::display.print("SEND");
+    off_y += 20;
+
+
+    /*************************************/
+    // Print current settings
+    off_x = 30;
+    off_x2 = off_x + 100;
+
+    Ui::display.setCursor(off_x, off_y);
     Ui::display.print("Regulatory domain ");
+    Ui::display.setCursor(off_x2, off_y);
     switch (expresslrs_params_get_region()) {
         case 0:
             Ui::display.print("915MHz");
@@ -84,25 +87,23 @@ void StateMachine::ExLRSStateHandler::onUpdateDraw()
             Ui::display.print("433MHz");
             break;
         case 3:
-            Ui::display.print("ISM 2400");
-            ism = 1;
+            Ui::display.print("2.4GHz");
             break;
         default:
-            Ui::display.print("UNKNOWN");
+            Ui::display.print("---");
             break;
     };
 
-    // Mode
-    Ui::display.setCursor(20, 20);
-    Ui::display.print("Mode (Hz):       50    100    200");
-    Ui::display.setCursor(50, 30);
-    Ui::display.print("current: ");
+    off_y += 10;
+    Ui::display.setCursor(off_x, off_y);
+    Ui::display.print("Rate:");
+    Ui::display.setCursor(off_x2, off_y);
     switch (expresslrs_params_get_rate()) {
         case 0:
-            Ui::display.print(ism ? "250Hz" : "200Hz");
+            Ui::display.print((region == 3) ? "250Hz" : "200Hz");
             break;
         case 1:
-            Ui::display.print(ism ? "125Hz" : "100Hz");
+            Ui::display.print((region == 3) ? "125Hz" : "100Hz");
             break;
         case 2:
             Ui::display.print("50Hz");
@@ -112,11 +113,10 @@ void StateMachine::ExLRSStateHandler::onUpdateDraw()
             break;
     };
 
-    // RF Power
-    Ui::display.setCursor(20, 40);
-    Ui::display.print("RF Power (mW):   50    200    1000");
-    Ui::display.setCursor(50, 50);
-    Ui::display.print("current: ");
+    off_y += 10;
+    Ui::display.setCursor(off_x, off_y);
+    Ui::display.print("Power:");
+    Ui::display.setCursor(off_x2, off_y);
     switch (expresslrs_params_get_power()) {
         case 0:
             Ui::display.print("dynamic");
@@ -130,16 +130,30 @@ void StateMachine::ExLRSStateHandler::onUpdateDraw()
         case 3:
             Ui::display.print("50mW");
             break;
+        case 4:
+            Ui::display.print("100mW");
+            break;
+        case 5:
+            Ui::display.print("250mW");
+            break;
+        case 6:
+            Ui::display.print("500mW");
+            break;
+        case 7:
+            Ui::display.print("1000mW");
+            break;
+        case 8:
+            Ui::display.print("2000mW");
+            break;
         default:
             Ui::display.print("---");
             break;
     };
 
-    // TLM Rate
-    Ui::display.setCursor(20, 60);
-    Ui::display.print("TLM:             On    Off");
-    Ui::display.setCursor(50, 70);
-    Ui::display.print("current: ");
+    off_y += 10;
+    Ui::display.setCursor(off_x, off_y);
+    Ui::display.print("Telemetry:");
+    Ui::display.setCursor(off_x2, off_y);
     switch (expresslrs_params_get_tlm()) {
         case 0:
             Ui::display.print("OFF");
@@ -153,14 +167,23 @@ void StateMachine::ExLRSStateHandler::onUpdateDraw()
         case 3:
             Ui::display.print("1/32");
             break;
+        case 4:
+            Ui::display.print("1/16");
+            break;
+        case 5:
+            Ui::display.print("1/8");
+            break;
+        case 6:
+            Ui::display.print("1/4");
+            break;
+        case 7:
+            Ui::display.print("1/2");
+            break;
         default:
             Ui::display.print("---");
             break;
     };
 
-    // Set VTX channel
-    Ui::display.setCursor(20, 80);
-    Ui::display.print("VTX channel:     SEND");
 
     // Draw Mode box
     if (TouchPad::touchData.cursorY > 16 && TouchPad::touchData.cursorY < 31)
@@ -184,20 +207,20 @@ void StateMachine::ExLRSStateHandler::onUpdateDraw()
     // Draw RF Power box
     else if (TouchPad::touchData.cursorY > 36 && TouchPad::touchData.cursorY < 51)
     {
-        if ( // 50
+        if ( // 25mW
             TouchPad::touchData.cursorX > (20 + 17 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 19 * 8 + 3))
         {
             Ui::display.rect(20 + 17 * 8 - 4, 36, 23, 15, 100);
         }
-        else if ( // 200
-            TouchPad::touchData.cursorX > (20 + 23 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 27 * 8 + 3))
+        else if ( // 50mW
+            TouchPad::touchData.cursorX > (20 + 23 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 25 * 8 + 3))
         {
-            Ui::display.rect(20 + 23 * 8 - 4, 36, 31, 15, 100);
+            Ui::display.rect(20 + 23 * 8 - 4, 36, 23, 15, 100);
         }
-        else if ( // 1000
-            TouchPad::touchData.cursorX > (20 + 30 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 34 * 8 + 3))
+        else if ( // 100mW
+            TouchPad::touchData.cursorX > (20 + 30 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 33 * 8 + 3))
         {
-            Ui::display.rect(20 + 30 * 8 - 4, 36, 39, 15, 100);
+            Ui::display.rect(20 + 29 * 8 - 4, 36, 31, 15, 100);
         }
     }
     // Draw TLM box
@@ -254,20 +277,20 @@ void StateMachine::ExLRSStateHandler::doTapAction()
     else if ( // power
         TouchPad::touchData.cursorY > 36 && TouchPad::touchData.cursorY < 51)
     {
-        if ( // 50
+        if ( // 25mW
             TouchPad::touchData.cursorX > (20 + 17 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 19 * 8 + 3))
         {
-            expresslrs_power_send(50);
+            expresslrs_power_send(ExLRS_PWR_25mW);
         }
-        else if ( // 200
-            TouchPad::touchData.cursorX > (20 + 23 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 27 * 8 + 3))
+        else if ( // 50mW
+            TouchPad::touchData.cursorX > (20 + 23 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 25 * 8 + 3))
         {
-            expresslrs_power_send(200);
+            expresslrs_power_send(ExLRS_PWR_50mW);
         }
-        else if ( // 1000
-            TouchPad::touchData.cursorX > (20 + 30 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 34 * 8 + 3))
+        else if ( // 100mW
+            TouchPad::touchData.cursorX > (20 + 29 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 32 * 8 + 3))
         {
-            expresslrs_power_send(1000);
+            expresslrs_power_send(ExLRS_PWR_100mW);
         }
     }
     else if ( // TLM
@@ -276,12 +299,12 @@ void StateMachine::ExLRSStateHandler::doTapAction()
         if ( // On
             TouchPad::touchData.cursorX > (20 + 17 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 19 * 8 + 3))
         {
-            expresslrs_tlm_send(1);
+            expresslrs_tlm_send(ExLRS_TLM_ON);
         }
         else if ( // Off
             TouchPad::touchData.cursorX > (20 + 23 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 26 * 8 + 3))
         {
-            expresslrs_tlm_send(0);
+            expresslrs_tlm_send(ExLRS_TLM_OFF);
         }
     }
     // VTX SEND

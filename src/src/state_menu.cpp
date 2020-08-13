@@ -17,6 +17,7 @@ Image<CompositeGraphics> iconExLRS(exlrs::xres, exlrs::yres, exlrs::pixels);
 Image<CompositeGraphics> iconCalibrate(calibrate::xres, calibrate::yres, calibrate::pixels);
 Image<CompositeGraphics> iconUpdate(update::xres, update::yres, update::pixels);
 Image<CompositeGraphics> iconBookmark(bookmark::xres, bookmark::yres, bookmark::pixels);
+Image<CompositeGraphics> iconChorus(chorus::xres, chorus::yres, chorus::pixels);
 
 void StateMachine::MenuStateHandler::onEnter() {
 }
@@ -39,43 +40,43 @@ void StateMachine::MenuStateHandler::doTapAction() {
       StateMachine::switchState(StateMachine::State::HOME);
    }
    else if ( // ExpressLRS Settings
-   TouchPad::touchData.cursorX > 47+60  && TouchPad::touchData.cursorX < 47+60+50 &&
-   TouchPad::touchData.cursorY > 57 && TouchPad::touchData.cursorY < 107
+      TouchPad::touchData.cursorX > 47+60  && TouchPad::touchData.cursorX < 47+60+50 &&
+      TouchPad::touchData.cursorY > 57 && TouchPad::touchData.cursorY < 107
    )
    {
       StateMachine::switchState(StateMachine::State::EXPRESSLRS);
    }
    else if ( // item 3
-   TouchPad::touchData.cursorX > 47+120  && TouchPad::touchData.cursorX < 47+120+50 &&
-   TouchPad::touchData.cursorY > 57 && TouchPad::touchData.cursorY < 107
+      TouchPad::touchData.cursorX > 47+120  && TouchPad::touchData.cursorX < 47+120+50 &&
+      TouchPad::touchData.cursorY > 57 && TouchPad::touchData.cursorY < 107
    )
    {
-
+      StateMachine::switchState(StateMachine::State::CHORUS);
    }
    else if ( // item 4
-   TouchPad::touchData.cursorX > 47+180  && TouchPad::touchData.cursorX < 47+180+50 &&
-   TouchPad::touchData.cursorY > 57 && TouchPad::touchData.cursorY < 107
+      TouchPad::touchData.cursorX > 47+180  && TouchPad::touchData.cursorX < 47+180+50 &&
+      TouchPad::touchData.cursorY > 57 && TouchPad::touchData.cursorY < 107
    )
    {
 
    }
    else if ( // item 5
-   TouchPad::touchData.cursorX > 47  && TouchPad::touchData.cursorX < 47+50 &&
-   TouchPad::touchData.cursorY > 117 && TouchPad::touchData.cursorY < 167
+      TouchPad::touchData.cursorX > 47  && TouchPad::touchData.cursorX < 47+50 &&
+      TouchPad::touchData.cursorY > 117 && TouchPad::touchData.cursorY < 167
    )
    {
 
    }
    else if ( // item 6
-   TouchPad::touchData.cursorX > 47+60  && TouchPad::touchData.cursorX < 47+60+50 &&
-   TouchPad::touchData.cursorY > 117 && TouchPad::touchData.cursorY < 167
+      TouchPad::touchData.cursorX > 47+60  && TouchPad::touchData.cursorX < 47+60+50 &&
+      TouchPad::touchData.cursorY > 117 && TouchPad::touchData.cursorY < 167
    )
    {
 
    }
    else if ( // Calibration
-   TouchPad::touchData.cursorX > 47+120  && TouchPad::touchData.cursorX < 47+120+50 &&
-   TouchPad::touchData.cursorY > 117 && TouchPad::touchData.cursorY < 167
+      TouchPad::touchData.cursorX > 47+120  && TouchPad::touchData.cursorX < 47+120+50 &&
+      TouchPad::touchData.cursorY > 117 && TouchPad::touchData.cursorY < 167
    )
    {
       //EepromSettings.initDefaults();
@@ -84,8 +85,8 @@ void StateMachine::MenuStateHandler::doTapAction() {
       ESP.restart();
    }
    else if ( // WiFi OTA Update
-   TouchPad::touchData.cursorX > 47+180  && TouchPad::touchData.cursorX < 47+180+50 &&
-   TouchPad::touchData.cursorY > 117 && TouchPad::touchData.cursorY < 167
+      TouchPad::touchData.cursorX > 47+180  && TouchPad::touchData.cursorX < 47+180+50 &&
+      TouchPad::touchData.cursorY > 117 && TouchPad::touchData.cursorY < 167
    )
    {
 #if OTA_UPDATE_STORE
@@ -118,15 +119,15 @@ void StateMachine::MenuStateHandler::onInitialDraw() {
 void StateMachine::MenuStateHandler::onUpdateDraw() {
 
    // 1st row
-   iconHome.draw(Ui::display, 47, 57);         // Home
+   iconHome.draw(Ui::display, 47, 57);          // Home
    iconExLRS.draw(Ui::display, 47+60, 57);      // ExpressLRS
-   iconBookmark.draw(Ui::display, 47+120, 57);
+   iconChorus.draw(Ui::display, 47+120, 57);    // Chorus
    iconBookmark.draw(Ui::display, 47+180, 57);
     // 2nd row
    iconBookmark.draw(Ui::display, 47, 117);
    iconBookmark.draw(Ui::display, 47+60, 117);
-   iconCalibrate.draw(Ui::display, 47+120, 117);
-   iconUpdate.draw(Ui::display, 47+180, 117);    // Calibration
+   iconCalibrate.draw(Ui::display, 47+120, 117); // Calibration
+   iconUpdate.draw(Ui::display, 47+180, 117);    // OTA update
 
    Ui::display.setTextColor(100);
 
@@ -155,7 +156,7 @@ void StateMachine::MenuStateHandler::onUpdateDraw() {
    {
       Ui::display.rect(47+120-5, 57-6, 60, 60, 100);
       Ui::display.setCursor( 140, 200);
-      Ui::display.print("Menu 3");
+      Ui::display.print("Chorus control");
    }
    else if ( // item 4
    TouchPad::touchData.cursorX > 47+180  && TouchPad::touchData.cursorX < 47+180+50 &&

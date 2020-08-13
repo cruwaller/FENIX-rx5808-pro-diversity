@@ -14,7 +14,8 @@ namespace StateMachine {
         SETTINGS_INTERNAL,
         SETTINGS_RSSI,
         MENU,
-        EXPRESSLRS
+        EXPRESSLRS,
+        CHORUS
     };
 
     class StateHandler {

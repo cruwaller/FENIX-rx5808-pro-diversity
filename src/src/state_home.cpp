@@ -62,82 +62,9 @@ void HomeStateHandler::onUpdateDraw() {
         wasInBandScanRegion = false;
     }
 
-#if 0
-    /*************************************************/
-    /*********     PRINT HEADER     ******************/
-    // Mode
-    Ui::display.setTextColor(100);
-    Ui::display.setCursor( 8, 0);
-    Ui::display.print("Mode: ");
-    if (EepromSettings.diversityMode == Receiver::DiversityMode::ANTENNA_A) {
-        Ui::display.print("Antenna A");
-    }
-    else if (EepromSettings.diversityMode == Receiver::DiversityMode::ANTENNA_B) {
-        Ui::display.print("Antenna B");
-    }
-    else if (EepromSettings.diversityMode == Receiver::DiversityMode::ANTENNA_C) {
-        Ui::display.print("Antenna C");
-    }
-    else if (EepromSettings.diversityMode == Receiver::DiversityMode::ANTENNA_D) {
-        Ui::display.print("Antenna D");
-    }
-    else if (EepromSettings.diversityMode == Receiver::DiversityMode::DIVERSITY) {
-        Ui::display.print("Diversity");
-    }
-    else if (EepromSettings.diversityMode == Receiver::DiversityMode::QUADVERSITY) {
-        Ui::display.print("Quadversity");
-    }
-
-#ifdef USE_VOLTAGE_MONITORING
-    // Voltage
-    if (Voltage::voltage > 9) {
-        Ui::display.setCursor( 173, 0);
-    } else {
-        Ui::display.setCursor( 181, 0);
-    }
-    Ui::display.print(Voltage::voltage);
-    Ui::display.print(".");
-    Ui::display.print(Voltage::voltageDec);
-    Ui::display.print("V ");
-#else
-    Ui::display.setCursor( 221, 0);
-#endif
-
-#ifdef USE_TEMPERATURE_MONITORING
-    // Temperature // Doesnt currently work within ESP32 Arduino.
-    Ui::display.print(Temperature::getTemperature());
-    Ui::display.print("C ");
-#else
-    Ui::display.setCursor( 221+4*8, 0);
-#endif
-
-    // On Time
-    sec_now = millis() / 1000;
-    hours = sec_now / 60 / 60;
-    mins  = sec_now / 60 - hours * 60 * 60;
-    secs  = sec_now - hours * 60 * 60 - mins * 60;
-    Ui::display.print(hours);
-    Ui::display.print(":");
-    if(mins < 10) {
-        Ui::display.print("0");
-    }
-    Ui::display.print(mins);
-    Ui::display.print(":");
-    if(secs < 10) {
-        Ui::display.print("0");
-    }
-    Ui::display.print(secs);
-
-    // Menu Icon
-    Ui::display.line( 315, 1, 322, 1, 100);
-    Ui::display.line( 315, 4, 322, 4, 100);
-    Ui::display.line( 315, 7, 322, 7, 100);
-
-    // Horixontal line
-    Ui::display.line( 0, 9, SCREEN_WIDTH, 9, 100);
-#else
     drawHeader();
-#endif
+
+    Ui::display.setTextColor(100);
 
     /*************************************************/
     /*********      PRINT HOME      ******************/
@@ -234,27 +161,28 @@ void HomeStateHandler::onUpdateDraw() {
 #endif
 
 #if HOME_SHOW_LAPTIMES
+#define LAPTIMES_X_POS 180
     uint32_t y_off = 12;
-    Ui::display.setCursor(195, y_off);
+    Ui::display.setCursor(LAPTIMES_X_POS, y_off);
     Ui::display.print("LAP TIMES (");
     Ui::display.print(lapt_time_race_idx_get());
     Ui::display.print(")");
-    uint8_t node_idx = 0;
+    y_off += 9;
     uint32_t lap_time;
     char tmp_buff[12]; // 00:00.000\n
-    for (uint8_t iter = 0; iter <= 16; iter++) {
-        lap_time = lapt_time_laptime_get(node_idx, iter); // time in ms
-        if (lap_time == UINT32_MAX) break;
+    for (uint8_t iter = 0; iter <= MAX_LAP_TIMES; iter++) {
+        lap_time = lapt_time_laptime_get(iter); // time in ms
+        if (lap_time == UINT32_MAX || lap_time == 0)
+            break;
 
-        y_off += 9;
-        Ui::display.setCursor(195, y_off);
+        Ui::display.setCursor(LAPTIMES_X_POS, (y_off + (iter * 9)));
 
         sec_now = lap_time / 1000;
 
         hours = sec_now / 3600;
         mins  = (sec_now - (hours * 3600)) / 60;
         secs  = sec_now - (hours * 3600) - (mins * 60);
-        sec_now = lap_time % 1000;
+        sec_now = lap_time % 1000; // reuse sec_now for millis
 
         snprintf(tmp_buff, sizeof(tmp_buff), "%02u:%02u.%03u\n", mins, secs, sec_now);
         Ui::display.print(tmp_buff);

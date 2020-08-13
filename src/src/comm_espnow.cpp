@@ -8,12 +8,25 @@
 
 #define WIFI_CHANNEL 1
 
-uint8_t broadcastAddress[][ESP_NOW_ETH_ALEN] = {
+uint8_t elrs_peers[][ESP_NOW_ETH_ALEN] = {
+#if 1
+    ESP_NOW_PEERS_ELRS
+#else
     {0x5C, 0xCF, 0x7F, 0xAC, 0xD9, 0x0F},   // R9M LOGGER STA: 5C:CF:7F:AC:D9:0F (ESP8266)
     {0x5E, 0xCF, 0x7F, 0xAC, 0xD9, 0x0F},   // R9M LOGGER  AP: 5E:CF:7F:AC:D9:0F (ESP8266)
+#endif
+};
+constexpr uint8_t ELRS_PEERS_CNT = sizeof(elrs_peers) / ESP_NOW_ETH_ALEN;
+
+uint8_t chorus_peers[][ESP_NOW_ETH_ALEN] = {
+#if 1
+    ESP_NOW_PEERS_CHORUS
+#else
     //{0xF0, 0x08, 0xD1, 0xD4, 0xED, 0x7C},   // Chorus32 STA: F0:08:D1:D4:ED:7C (ESP32)
     {0xF0, 0x08, 0xD1, 0xD4, 0xED, 0x7D},   // Chorus32  AP: F0:08:D1:D4:ED:7D (ESP32)
+#endif
 };
+constexpr uint8_t CHORUS_PEERS_CNT = sizeof(chorus_peers) / ESP_NOW_ETH_ALEN;
 
 // This is used to for parse ongoing MSP packet
 uint8_t DMA_ATTR msp_tx_buffer[250];
@@ -91,8 +104,9 @@ void esp_now_send_cb(const uint8_t *mac_addr, esp_now_send_status_t status) {
 
 void comm_espnow_init(void)
 {
+    // Init values
     expresslrs_params_update(0xff, 0xff, 0xff, 0xff, 0xff);
-    lap_times_reset(); // just for debug
+    lap_times_reset();
 
     WiFi.mode(WIFI_MODE_APSTA);
 #if DEBUG_ENABLED
@@ -105,7 +119,9 @@ void comm_espnow_init(void)
 #endif
     WiFi.disconnect();
 
+#if DEBUG_ENABLED
     Serial.println("ESPNOW initialize...");
+#endif
     if (esp_now_init() == ESP_OK) {
         esp_now_register_send_cb(esp_now_send_cb);
         esp_now_register_recv_cb(esp_now_recv_cb);
@@ -119,13 +135,24 @@ void comm_espnow_init(void)
             .priv = NULL
         };
 
-        uint8_t num_peers = sizeof(broadcastAddress) / ESP_NOW_ETH_ALEN;
-        for (uint8_t iter = 0; iter < num_peers; iter++) {
-            memcpy(peer_info.peer_addr, broadcastAddress[iter], ESP_NOW_ETH_ALEN);
+        uint8_t iter;
+
+        for (iter = 0; iter < ELRS_PEERS_CNT; iter++) {
+            memcpy(peer_info.peer_addr, elrs_peers[iter], ESP_NOW_ETH_ALEN);
             esp_err_t err = esp_now_add_peer(&peer_info);
             if (ESP_OK != err) {
 #if DEBUG_ENABLED
-                Serial.printf("Failed to add peer[%u], error: %d\n", iter, (int)err);
+                Serial.printf("Failed to add ELRS peer[%u], error: %d\n", iter, (int)err);
+#endif
+            }
+        }
+
+        for (iter = 0; iter < CHORUS_PEERS_CNT; iter++) {
+            memcpy(peer_info.peer_addr, chorus_peers[iter], ESP_NOW_ETH_ALEN);
+            esp_err_t err = esp_now_add_peer(&peer_info);
+            if (ESP_OK != err) {
+#if DEBUG_ENABLED
+                Serial.printf("Failed to add Chorus peer[%u], error: %d\n", iter, (int)err);
 #endif
             }
         }
@@ -152,10 +179,27 @@ void comm_espnow_deinit(void)
     }
 }
 
-void comm_espnow_send_msp(mspPacket_t * packet)
+void comm_espnow_send_msp(mspPacket_t * packet, comm_espnow_receiver_e rcvr)
 {
     // Pack and send packet
     uint8_t len = msp_parser.sendPacket(packet, msp_tx_buffer);
-    if (len)
-        esp_now_send(NULL, (uint8_t*)msp_tx_buffer, len);
+    comm_espnow_send((uint8_t*)msp_tx_buffer, len, rcvr);
+}
+
+void comm_espnow_send(uint8_t * buffer, uint8_t len, comm_espnow_receiver_e rcvr)
+{
+    uint8_t iter;
+    if (len && len <= 250) {
+        if (rcvr == ESPNOW_ALL) {
+            esp_now_send(NULL, buffer, len);
+        } else if (rcvr == ESPNOW_ELRS) {
+            for (iter = 0; iter < ELRS_PEERS_CNT; iter++) {
+                esp_now_send(elrs_peers[iter], buffer, len);
+            }
+        } else if (rcvr == ESPNOW_CHORUS) {
+            for (iter = 0; iter < CHORUS_PEERS_CNT; iter++) {
+                esp_now_send(chorus_peers[iter], buffer, len);
+            }
+        }
+    }
 }

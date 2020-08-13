@@ -16,11 +16,26 @@
 
 // TLM
 #define ExLRS_TLM_OFF       0
-#define ExLRS_TLM_ON        1
+#define ExLRS_TLM_ON        0xFF
+
+enum
+{
+    ExLRS_PWR_DYNAMIC = 0,
+    ExLRS_PWR_10mW,
+    ExLRS_PWR_25mW,
+    ExLRS_PWR_50mW,
+    ExLRS_PWR_100mW,
+    ExLRS_PWR_250mW,
+    ExLRS_PWR_500mW,
+    ExLRS_PWR_1000mW,
+    ExLRS_PWR_2000mW,
+    ExLRS_PWR_UNKNOWN
+};
+
 
 void expresslrs_vtx_channel_send(uint16_t channel);
 void expresslrs_rate_send(uint8_t rate);
-void expresslrs_power_send(uint16_t power);
+void expresslrs_power_send(uint8_t power);
 void expresslrs_tlm_send(uint8_t tlm);
 
 void expresslrs_params_update(uint8_t rate, uint8_t tlm, uint8_t pwr, uint8_t pwr_max, uint8_t region);

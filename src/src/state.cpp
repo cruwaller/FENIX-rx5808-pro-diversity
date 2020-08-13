@@ -8,6 +8,7 @@
 #include "state_settings_rssi.h"
 #include "state_menu.h"
 #include "state_expresslrs.h"
+#include "state_chorus.h"
 
 #include "ui.h"
 #include "settings_eeprom.h"
@@ -80,6 +81,7 @@ namespace StateMachine {
             STATE_FACTORY(State::SETTINGS_RSSI, SettingsRssiStateHandler);
             STATE_FACTORY(State::MENU, MenuStateHandler);
             STATE_FACTORY(State::EXPRESSLRS, ExLRSStateHandler);
+            STATE_FACTORY(State::CHORUS, ChorusStateHandler);
 
             default:
                 return nullptr;
