@@ -163,13 +163,15 @@ void HomeStateHandler::onUpdateDraw() {
 #if HOME_SHOW_LAPTIMES
 #define LAPTIMES_X_POS 180
     uint32_t y_off = 12;
+    char tmp_buff[12]; // 00:00.000\n
+
     Ui::display.setCursor(LAPTIMES_X_POS, y_off);
-    Ui::display.print("LAP TIMES (");
-    Ui::display.print(lapt_time_race_idx_get());
-    Ui::display.print(")");
+    Ui::display.print("LAP TIMES [");
+    snprintf(tmp_buff, sizeof(tmp_buff), "%03u\n", lapt_time_race_idx_get());
+    Ui::display.print(tmp_buff);
+    Ui::display.print("]");
     y_off += 9;
     uint32_t lap_time;
-    char tmp_buff[12]; // 00:00.000\n
     for (uint8_t iter = 0; iter <= MAX_LAP_TIMES; iter++) {
         lap_time = lapt_time_laptime_get(iter); // time in ms
         if (lap_time == UINT32_MAX || lap_time == 0)
@@ -186,6 +188,15 @@ void HomeStateHandler::onUpdateDraw() {
 
         snprintf(tmp_buff, sizeof(tmp_buff), "%02u:%02u.%03u\n", mins, secs, sec_now);
         Ui::display.print(tmp_buff);
+    }
+
+    // Draw selection box
+    if (TouchPad::touchData.cursorY > (12 - 4) && TouchPad::touchData.cursorY < (12 + 8 + 3))
+    {
+        if (TouchPad::touchData.cursorX > (LAPTIMES_X_POS - 4) && TouchPad::touchData.cursorX < (LAPTIMES_X_POS + 15 * 8 + 3))
+        {
+            Ui::display.rect(LAPTIMES_X_POS-4, 12-4, 4+3+15*8, 15, 100);
+        }
     }
 
 #else // !HOME_SHOW_LAPTIMES
@@ -236,130 +247,129 @@ void HomeStateHandler::onUpdateDraw() {
         Ui::display.fillRect( TouchPad::touchData.cursorX - 33, TouchPad::touchData.cursorY - 17, 33, 17, 10);
         Ui::display.setCursor( TouchPad::touchData.cursorX - 32, TouchPad::touchData.cursorY - 16 );
         Ui::display.print(Channels::getName(
-                                            Channels::getOrderedIndex(
-                                                                     (TouchPad::touchData.cursorX-18) / CHANNELS_SIZE_DIVIDER
-                                                                     )
-                                            )
-                          );
+           Channels::getOrderedIndex((TouchPad::touchData.cursorX-18) / CHANNELS_SIZE_DIVIDER)));
         Ui::display.setCursor( TouchPad::touchData.cursorX - 32, TouchPad::touchData.cursorY - 8 );
         Ui::display.print(Channels::getFrequency(
-                                            Channels::getOrderedIndex(
-                                                                     (TouchPad::touchData.cursorX-18) / CHANNELS_SIZE_DIVIDER
-                                                                     )
-                                            )
-                          );
+            Channels::getOrderedIndex((TouchPad::touchData.cursorX-18) / CHANNELS_SIZE_DIVIDER)));
     }
 
 }
 
 void HomeStateHandler::doTapAction() {
 
-  if ( // Up band
-      TouchPad::touchData.cursorX >= 0  && TouchPad::touchData.cursorX < 61 &&
-      TouchPad::touchData.cursorY > 8 && TouchPad::touchData.cursorY < 54
-     ) {
-          this->setChannel(8);
-        }
-  else if ( // Down band
-      TouchPad::touchData.cursorX >= 0  && TouchPad::touchData.cursorX < 61 &&
-      TouchPad::touchData.cursorY > 54 && TouchPad::touchData.cursorY < 99
-     ) {
-          this->setChannel(-8);
-        }
-  else if ( // Up channel
-      TouchPad::touchData.cursorX > 61  && TouchPad::touchData.cursorX < 122 &&
-      TouchPad::touchData.cursorY > 8 && TouchPad::touchData.cursorY < 54
-     ) {
-          this->setChannel(1);
-        }
-  else if ( // Down channel
-      TouchPad::touchData.cursorX > 61  && TouchPad::touchData.cursorX < 122 &&
-      TouchPad::touchData.cursorY > 54 && TouchPad::touchData.cursorY < 99
-     ) {
-          this->setChannel(-1);
-        }
-  else if ( // Menu
-      TouchPad::touchData.cursorX > 314  && TouchPad::touchData.cursorY < 8
-     ) {
-          EepromSettings.save();
-          StateMachine::switchState(StateMachine::State::MENU);
-        }
-  else if ( // Change mode
-      TouchPad::touchData.cursorX < 130 &&
-      TouchPad::touchData.cursorY < 8
-     ) {
-#if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
-          if (EepromSettings.quadversity) {
-              switch ( EepromSettings.diversityMode )
-              {
-                  case Receiver::DiversityMode::ANTENNA_A:
-                      EepromSettings.diversityMode = Receiver::DiversityMode::ANTENNA_B;
-                      break;
-                  case Receiver::DiversityMode::ANTENNA_B:
-                      EepromSettings.diversityMode = Receiver::DiversityMode::ANTENNA_C;
-                      break;
-                  case Receiver::DiversityMode::ANTENNA_C:
-                      EepromSettings.diversityMode = Receiver::DiversityMode::ANTENNA_D;
-                      break;
-                  case Receiver::DiversityMode::ANTENNA_D:
-                      EepromSettings.diversityMode = Receiver::DiversityMode::DIVERSITY;
-                      break;
-                  case Receiver::DiversityMode::DIVERSITY:
-                      EepromSettings.diversityMode = Receiver::DiversityMode::QUADVERSITY;
-                      break;
-                  case Receiver::DiversityMode::QUADVERSITY:
-                      EepromSettings.diversityMode = Receiver::DiversityMode::ANTENNA_A;
-                      break;
-                  default:
-                      break;
-              }
-          } else
+#if HOME_SHOW_LAPTIMES
+    if (TouchPad::touchData.cursorY > (12 - 4) && TouchPad::touchData.cursorY < (12 + 8 + 3) &&
+        TouchPad::touchData.cursorX > (LAPTIMES_X_POS - 4) && TouchPad::touchData.cursorX < (LAPTIMES_X_POS + 15 * 8 + 3))
+    { // Open Chorus menu
+        StateMachine::switchState(StateMachine::State::CHORUS);
+    } else
 #endif
-          {
-              switch ( EepromSettings.diversityMode )
-              {
-                  case Receiver::DiversityMode::ANTENNA_A:
-                      EepromSettings.diversityMode = Receiver::DiversityMode::ANTENNA_B;
-#if POWER_OFF_RX
-                      ReceiverSpi::rxStandby(Receiver::ReceiverId::A);
-                      ReceiverSpi::rxPowerOn(Receiver::ReceiverId::B);
-#endif // POWER_OFF_RX
-                      break;
-                  case Receiver::DiversityMode::ANTENNA_B:
-                      EepromSettings.diversityMode = Receiver::DiversityMode::DIVERSITY;
-#if POWER_OFF_RX
-                      ReceiverSpi::rxPowerOn(Receiver::ReceiverId::A);
-#endif // POWER_OFF_RX
-                      break;
-                  case Receiver::DiversityMode::DIVERSITY:
-                      EepromSettings.diversityMode = Receiver::DiversityMode::ANTENNA_A;
-#if POWER_OFF_RX
-                      ReceiverSpi::rxStandby(Receiver::ReceiverId::B);
-#endif // POWER_OFF_RX
-                      break;
-                  default:
-                      break;
-              }
-          }
-
-          EepromSettings.markDirty();
-
-        }
-  else if ( // Select channel from spectrum
-          HomeStateHandler::isInBandScanRegion()
+    if ( // Up band
+        TouchPad::touchData.cursorX >= 0  && TouchPad::touchData.cursorX < 61 &&
+        TouchPad::touchData.cursorY > 8 && TouchPad::touchData.cursorY < 54
         ) {
-            setChannel(0, Channels::getOrderedIndex( (TouchPad::touchData.cursorX-18) / CHANNELS_SIZE_DIVIDER ));
-#if 0
-            Receiver::setChannel(
-                                Channels::getOrderedIndex( (TouchPad::touchData.cursorX-18) / CHANNELS_SIZE_DIVIDER )
-                                );
-            HomeStateHandler::centreFrequency();
-            displayActiveChannel = Receiver::activeChannel;
-
-            EepromSettings.startChannel = displayActiveChannel;
-            EepromSettings.markDirty();
+        this->setChannel(8);
+    }
+    else if ( // Down band
+        TouchPad::touchData.cursorX >= 0  && TouchPad::touchData.cursorX < 61 &&
+        TouchPad::touchData.cursorY > 54 && TouchPad::touchData.cursorY < 99
+     ) {
+        this->setChannel(-8);
+    }
+    else if ( // Up channel
+        TouchPad::touchData.cursorX > 61  && TouchPad::touchData.cursorX < 122 &&
+        TouchPad::touchData.cursorY > 8 && TouchPad::touchData.cursorY < 54
+     ) {
+        this->setChannel(1);
+    }
+    else if ( // Down channel
+        TouchPad::touchData.cursorX > 61  && TouchPad::touchData.cursorX < 122 &&
+        TouchPad::touchData.cursorY > 54 && TouchPad::touchData.cursorY < 99
+     ) {
+        this->setChannel(-1);
+    }
+    else if ( // Menu
+        TouchPad::touchData.cursorX > 314  && TouchPad::touchData.cursorY < 8
+     ) {
+        EepromSettings.save();
+        StateMachine::switchState(StateMachine::State::MENU);
+    }
+    else if ( // Change mode
+        TouchPad::touchData.cursorX < 130 &&
+        TouchPad::touchData.cursorY < 8
+        ) {
+#if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
+        if (EepromSettings.quadversity) {
+            switch ( EepromSettings.diversityMode )
+            {
+                case Receiver::DiversityMode::ANTENNA_A:
+                    EepromSettings.diversityMode = Receiver::DiversityMode::ANTENNA_B;
+                    break;
+                case Receiver::DiversityMode::ANTENNA_B:
+                    EepromSettings.diversityMode = Receiver::DiversityMode::ANTENNA_C;
+                    break;
+                case Receiver::DiversityMode::ANTENNA_C:
+                    EepromSettings.diversityMode = Receiver::DiversityMode::ANTENNA_D;
+                    break;
+                case Receiver::DiversityMode::ANTENNA_D:
+                    EepromSettings.diversityMode = Receiver::DiversityMode::DIVERSITY;
+                    break;
+                case Receiver::DiversityMode::DIVERSITY:
+                    EepromSettings.diversityMode = Receiver::DiversityMode::QUADVERSITY;
+                    break;
+                case Receiver::DiversityMode::QUADVERSITY:
+                    EepromSettings.diversityMode = Receiver::DiversityMode::ANTENNA_A;
+                    break;
+                default:
+                    break;
+            }
+        } else
 #endif
+        {
+            switch ( EepromSettings.diversityMode )
+            {
+                case Receiver::DiversityMode::ANTENNA_A:
+                    EepromSettings.diversityMode = Receiver::DiversityMode::ANTENNA_B;
+#if POWER_OFF_RX
+                    ReceiverSpi::rxStandby(Receiver::ReceiverId::A);
+                    ReceiverSpi::rxPowerOn(Receiver::ReceiverId::B);
+#endif // POWER_OFF_RX
+                    break;
+                case Receiver::DiversityMode::ANTENNA_B:
+                    EepromSettings.diversityMode = Receiver::DiversityMode::DIVERSITY;
+#if POWER_OFF_RX
+                    ReceiverSpi::rxPowerOn(Receiver::ReceiverId::A);
+#endif // POWER_OFF_RX
+                    break;
+                case Receiver::DiversityMode::DIVERSITY:
+                    EepromSettings.diversityMode = Receiver::DiversityMode::ANTENNA_A;
+#if POWER_OFF_RX
+                    ReceiverSpi::rxStandby(Receiver::ReceiverId::B);
+#endif // POWER_OFF_RX
+                    break;
+                default:
+                    break;
+            }
         }
+
+        EepromSettings.markDirty();
+
+    }
+    else if ( // Select channel from spectrum
+        HomeStateHandler::isInBandScanRegion()
+        ) {
+        setChannel(0, Channels::getOrderedIndex( (TouchPad::touchData.cursorX-18) / CHANNELS_SIZE_DIVIDER ));
+#if 0
+        Receiver::setChannel(
+                            Channels::getOrderedIndex( (TouchPad::touchData.cursorX-18) / CHANNELS_SIZE_DIVIDER )
+                            );
+        HomeStateHandler::centreFrequency();
+        displayActiveChannel = Receiver::activeChannel;
+
+        EepromSettings.startChannel = displayActiveChannel;
+        EepromSettings.markDirty();
+#endif
+    }
 }
 
 void HomeStateHandler::setChannel(int channelIncrement, int setChannel) {
