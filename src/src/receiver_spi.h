@@ -10,8 +10,10 @@ namespace ReceiverSpi {
   void setPowerDownRegister(uint32_t value);
   void setStateRegister(uint32_t value);
 
+  void rxPowerOff(Receiver::ReceiverId ReceiverId);
+  void rxPowerUp(Receiver::ReceiverId ReceiverId);
   void rxStandby(Receiver::ReceiverId ReceiverId);
-  void rxPowerOn(Receiver::ReceiverId ReceiverId);
+  void rxWakeup(Receiver::ReceiverId ReceiverId);
 };
 
 

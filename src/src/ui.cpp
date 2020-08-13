@@ -1,11 +1,14 @@
-#include <stdint.h>
-
 #include "settings.h"
 #include "settings_eeprom.h"
 #include "ui.h"
 #include "receiver_spi.h"
 #include "receiver.h"
 #include "touchpad.h"
+#include "font8x8.h"
+#include "cursor.h"
+
+#include <soc/rtc.h>
+#include <stdint.h>
 
 namespace Ui {
 
@@ -13,8 +16,6 @@ namespace Ui {
 
     Timer DMA_ATTR UiTimeOut = Timer(2000);
 
-    constexpr int XRES = 324;
-    constexpr int YRES = 224;
     CompositeGraphics DMA_ATTR display(XRES, YRES);
     CompositeOutput DMA_ATTR composite(CompositeOutput::NTSC, XRES * 2, YRES * 2);
     Font<CompositeGraphics> DMA_ATTR font(8, 8, font8x8::pixels);

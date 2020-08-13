@@ -7,25 +7,21 @@
 
 #include "settings.h"
 #include "timer.h"
-
-
 #include "CompositeGraphics.h"
 #include "Image.h"
 #include "CompositeOutput.h"
-#include "font8x8.h"
-#include "cursor.h"
-#include <soc/rtc.h>
 
-#define SCREEN_WIDTH 324
-#define SCREEN_HEIGHT 224
-
-#define SCREEN_WIDTH_MID ((SCREEN_WIDTH / 2) - 1)
-#define SCREEN_HEIGHT_MID ((SCREEN_HEIGHT / 2) - 1)
-
-#define CHAR_WIDTH 5
-#define CHAR_HEIGHT 7
+#define UI_MID_X            ((Ui::XRES / 2) - 1)
+#define UI_MID_Y            ((Ui::YRES / 2) - 1)
+#define UI_GET_MID_X(_c)    ((Ui::XRES - 8 * (_c)) / 2)
 
 namespace Ui {
+
+    constexpr int XRES = 324;
+    constexpr int YRES = 224;
+
+    constexpr int CHAR_W = 8;
+    constexpr int CHAR_H = 8;
 
     extern CompositeGraphics DMA_ATTR display;
     extern CompositeOutput DMA_ATTR composite;

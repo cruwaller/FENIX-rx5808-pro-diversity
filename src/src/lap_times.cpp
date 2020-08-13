@@ -1,5 +1,6 @@
 #include "lap_times.h"
 #include "settings.h"
+#include "protocol_chorus.h"
 #include <Arduino.h>
 
 static uint8_t  DRAM_ATTR _my_node_idx;
@@ -37,9 +38,13 @@ void lap_times_reset(void)
 void lap_times_handle(esp_now_send_lap_s * lap_info)
 {
     switch (lap_info->type) {
-        case ESPNOW_TYPE_RECE_START:
+        case ESPNOW_TYPE_RACE_START:
             lap_times_reset();
+            chorus_race_state_set(1);
             _race_id = lap_info->race_id;
+            break;
+        case ESPNOW_TYPE_RACE_STOP:
+            chorus_race_state_set(0);
             break;
         case ESPNOW_TYPE_LAP_TIME: {
 #if DEBUG_ENABLED

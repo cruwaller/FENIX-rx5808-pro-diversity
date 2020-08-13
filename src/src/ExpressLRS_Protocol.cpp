@@ -26,18 +26,18 @@ static void expresslrs_msp_params_send(uint8_t type, uint8_t value)
     comm_espnow_send_msp(&msp_out, ESPNOW_ELRS);
 }
 
-void expresslrs_vtx_channel_send(uint16_t channel)
+void expresslrs_vtx_freq_send(uint16_t freq)
 {
     // channel format is 8 * BAND + CHANNEL
 
     msp_out.type = MSP_PACKET_V2_COMMAND;
     msp_out.flags = MSP_VERSION | MSP_STARTFLAG; // TODO: validate!
     msp_out.function = MSP_SET_VTX_CONFIG;
-    msp_out.payloadSize = 4;
-    msp_out.payload[0] = (channel & 0xff);
-    msp_out.payload[1] = (channel >> 8);
-    msp_out.payload[2] = 1; // power (25mW)
-    msp_out.payload[3] = 0; // pitmode == (power == 0)
+    msp_out.payloadSize = 2; // 4 => 2, power and pitmode can be ignored
+    msp_out.payload[0] = (freq & 0xff);
+    msp_out.payload[1] = (freq >> 8);
+    //msp_out.payload[2] = 1; // power (25mW)
+    //msp_out.payload[3] = 0; // pitmode == (power == 0)
     comm_espnow_send_msp(&msp_out);
 }
 

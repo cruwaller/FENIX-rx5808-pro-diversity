@@ -45,11 +45,19 @@ namespace ReceiverSpi {
         sendRegister(SPI_ADDRESS_STATE, value);
     }
 
-    void rxStandby(Receiver::ReceiverId ReceiverId) {
-        sendRegister(SPI_ADDRESS_STATE, 0b00000000000000000011, ReceiverId);
+    void rxPowerOff(Receiver::ReceiverId ReceiverId) {
+        sendRegister(SPI_ADDRESS_POWER, 0b11111111111111111111, ReceiverId);
+    }
+    void rxPowerUp(Receiver::ReceiverId ReceiverId) {
+        sendRegister(SPI_ADDRESS_POWER, 0b00010000110000010011, ReceiverId);
     }
 
-    void rxPowerOn(Receiver::ReceiverId ReceiverId) {
+    void rxStandby(Receiver::ReceiverId ReceiverId) {
+        //sendRegister(SPI_ADDRESS_STATE, 0b00000000000000000011, ReceiverId);
+        sendRegister(SPI_ADDRESS_STATE, 0b00000000000000000010, ReceiverId);
+    }
+
+    void rxWakeup(Receiver::ReceiverId ReceiverId) {
         sendRegister(SPI_ADDRESS_STATE, 0b00000000000000000001, ReceiverId);
     }
 }

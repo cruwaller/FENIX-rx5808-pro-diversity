@@ -70,11 +70,17 @@ void StateMachine::ExLRSStateHandler::onUpdateDraw()
 
     /*************************************/
     // Print current settings
-    off_x = 30;
+    off_y += 20;
+
+    Ui::display.setCursor(off_x, off_y);
+    Ui::display.print("== Current settings ==");
+
+    off_y += 12;
+    off_x = 40;
     off_x2 = off_x + 100;
 
     Ui::display.setCursor(off_x, off_y);
-    Ui::display.print("Regulatory domain ");
+    Ui::display.print("Frequency:");
     Ui::display.setCursor(off_x2, off_y);
     switch (expresslrs_params_get_region()) {
         case 0:
@@ -312,7 +318,7 @@ void StateMachine::ExLRSStateHandler::doTapAction()
     {
         if (TouchPad::touchData.cursorX > (20 + 17 * 8 - 4) && TouchPad::touchData.cursorX < (20 + 21 * 8 + 3))
         {
-            expresslrs_vtx_channel_send(Receiver::activeChannel);
+            expresslrs_vtx_freq_send(Channels::getFrequency(Receiver::activeChannel));
         }
     }
 }

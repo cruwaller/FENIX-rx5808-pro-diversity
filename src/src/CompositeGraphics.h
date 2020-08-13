@@ -64,13 +64,17 @@ class CompositeGraphics
     cursorY = y;
   }
 
-  void print(const char *str) // drawCharLarge(Graphics &g, int x, int y, char ch, int frontColor, int backColor, int xMultiplier, int yMultiplier)
+  void print(const char *str, bool invert=false) // drawCharLarge(Graphics &g, int x, int y, char ch, int frontColor, int backColor, int xMultiplier, int yMultiplier)
   {
     if(!font) return;
     while(*str)
     {
-      if(*str >= 32 && *str < 128)
-        font->drawChar(*this, cursorX, cursorY, *str, frontColor, backColor);
+      if ((*str >= 32) && (*str < 128)) {
+        if (invert)
+          font->drawChar(*this, cursorX, cursorY, *str, backColor, frontColor);
+        else
+          font->drawChar(*this, cursorX, cursorY, *str, frontColor, backColor);
+      }
       cursorX += font->xres;
       if(cursorX + font->xres > xres || *str == '\n')
       {
@@ -98,7 +102,7 @@ class CompositeGraphics
     }
   }
 
-  void print(int number, int base = 10, int minCharacters = 1)
+  void print(int number, int base = 10, int minCharacters = 1, bool invert=false)
   {
     bool sign = number < 0;
     if(sign) number = -number;
@@ -115,7 +119,7 @@ class CompositeGraphics
       temp[i--] = '-';
     for(;i > 31 - minCharacters; i--)
       temp[i] = ' ';
-    print(&temp[i + 1]);
+    print(&temp[i + 1], invert);
   }
 
   void printLarge(int number, int xMultiplier, int yMultiplier, int base = 10, int minCharacters = 1)

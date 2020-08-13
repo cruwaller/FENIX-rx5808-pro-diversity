@@ -76,7 +76,7 @@ void StateMachine::SettingsRssiStateHandler::onUpdate() {
         Ui::display.setCursor( 100, 80);
         Ui::display.printLarge(Channels::getName(Receiver::activeChannel), 6, 6);
 
-        uint8_t progressBar = (SCREEN_WIDTH-100-2) * (currentSweep * CHANNELS_SIZE + Receiver::activeChannel) / (RSSI_SETUP_RUN * CHANNELS_SIZE);
+        uint8_t progressBar = (Ui::XRES-100-2) * (currentSweep * CHANNELS_SIZE + Receiver::activeChannel) / (RSSI_SETUP_RUN * CHANNELS_SIZE);
         Ui::display.fillRect(52, 152, progressBar, 20, 100);
 
     }
@@ -165,7 +165,7 @@ void StateMachine::SettingsRssiStateHandler::onUpdateDraw() {
           Ui::display.setCursor( 40, 50);
           Ui::display.print("RSSI...");
           // Progress bar outer rect
-          Ui::display.rect(50, 150, SCREEN_WIDTH-100, 24, 100);
+          Ui::display.rect(50, 150, Ui::XRES-100, 24, 100);
       break;
 
       case InternalState::DONE:
@@ -173,7 +173,7 @@ void StateMachine::SettingsRssiStateHandler::onUpdateDraw() {
           Ui::display.setCursor( 60, 40);
           Ui::display.print("All done!");
 
-          //Ui::display.setCursor(0, CHAR_HEIGHT * 2);
+          //Ui::display.setCursor(0, Ui::CHAR_H * 2);
 
           Ui::display.setCursor( 60, 60);
           Ui::display.print("A: ");

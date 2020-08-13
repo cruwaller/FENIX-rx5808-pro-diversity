@@ -28,26 +28,31 @@ void StateMachine::ChorusStateHandler::onUpdateDraw()
     drawHeader();
 
     Ui::display.setTextColor(100);
-    Ui::display.setCursor(10, 12);
-    Ui::display.print("Chorus Laptimer control!");
+    Ui::display.setCursor(UI_GET_MID_X(31), 12);
+    Ui::display.print("== Chorus32 Laptimer control =="); // 31 chars
 
     Ui::display.setCursor(30, 30);
-    Ui::display.print("START");
+    if (chorus_race_is_start())
+        Ui::display.print("STOP");
+    else
+        Ui::display.print("START");
 
-    Ui::display.setCursor(130, 30);
-    Ui::display.print("STOP");
+#define RET_CURSOR_X (Ui::XRES - 6*Ui::CHAR_W)
+#define RET_CURSOR_Y (20)
+    Ui::display.setCursor(RET_CURSOR_X, RET_CURSOR_Y);
+    Ui::display.print("[ X ]");
 
     // Draw selection box
-    if (TouchPad::touchData.cursorY > (30 - 4) && TouchPad::touchData.cursorY < (30 + 8 + 3))
+    if (TouchPad::touchData.cursorY > (30 - 4) && TouchPad::touchData.cursorY < (30 + Ui::CHAR_H + 3) &&
+        TouchPad::touchData.cursorX > (30 - 4) && TouchPad::touchData.cursorX < (30 + 5 * Ui::CHAR_W + 3))
     {
-        if (TouchPad::touchData.cursorX > (30 - 4) && TouchPad::touchData.cursorX < (30 + 5 * 8 + 3))
-        {
-            Ui::display.rect(26, 26, 4+3+5*8, 15, 100);
-        }
-        else if (TouchPad::touchData.cursorX > (130-4) && TouchPad::touchData.cursorX < (130 + 4 * 8 + 3))
-        {
-            Ui::display.rect(126, 26, 4+3+4*8, 15, 100);
-        }
+        // START/STOP
+        Ui::display.rect(26, 26, (4 + 3 + 5 * Ui::CHAR_W), (4 + 3 + Ui::CHAR_H), 100);
+    }
+    else if (TouchPad::touchData.cursorY > (RET_CURSOR_Y - 4) && TouchPad::touchData.cursorY < (RET_CURSOR_Y + Ui::CHAR_H + 3) &&
+             TouchPad::touchData.cursorX > (RET_CURSOR_X - 4) && TouchPad::touchData.cursorX < (RET_CURSOR_X + 5 * Ui::CHAR_W + 3))
+    {
+        Ui::display.rect((RET_CURSOR_X - 4), (RET_CURSOR_Y - 4), (4 + 3 + 5 * Ui::CHAR_W), (4 + 3 + Ui::CHAR_H), 100);
     }
 }
 
@@ -57,15 +62,17 @@ void StateMachine::ChorusStateHandler::doTapAction()
     { // Menu
         StateMachine::switchState(StateMachine::State::MENU);
     }
-    else if (TouchPad::touchData.cursorY > (30 - 4) && TouchPad::touchData.cursorY < (30 + 8 + 3))
+    else if (TouchPad::touchData.cursorY > (30 - 4) && TouchPad::touchData.cursorY < (30 + Ui::CHAR_H + 3) &&
+             TouchPad::touchData.cursorX > (30 - 4) && TouchPad::touchData.cursorX < (30 + 5 * Ui::CHAR_W + 3))
     {
-        if (TouchPad::touchData.cursorX > (30 - 4) && TouchPad::touchData.cursorX < (30 + 5 * 8 + 3))
-        {
-            chorus_race_start();
-        }
-        else if (TouchPad::touchData.cursorX > (126) && TouchPad::touchData.cursorX < (130 + 4 * 8 + 3))
-        {
+        if (chorus_race_is_start())
             chorus_race_end();
-        }
+        else
+            chorus_race_start();
+    }
+    else if (TouchPad::touchData.cursorY > (RET_CURSOR_Y - 4) && TouchPad::touchData.cursorY < (RET_CURSOR_Y + Ui::CHAR_H + 3) &&
+             TouchPad::touchData.cursorX > (RET_CURSOR_X - 4) && TouchPad::touchData.cursorX < (RET_CURSOR_X + 5 * Ui::CHAR_W + 3))
+    {
+        StateMachine::switchState(StateMachine::lastState);
     }
 }

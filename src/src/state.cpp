@@ -163,6 +163,6 @@ namespace StateMachine {
         Ui::display.line( 315, 7, 322, 7, 100);
 
         // Horixontal line
-        Ui::display.line( 0, 9, SCREEN_WIDTH, 9, 100);
+        Ui::display.line( 0, 9, Ui::XRES, 9, 100);
     }
 }

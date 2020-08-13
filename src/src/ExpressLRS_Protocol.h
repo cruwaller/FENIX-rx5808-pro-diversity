@@ -33,7 +33,7 @@ enum
 };
 
 
-void expresslrs_vtx_channel_send(uint16_t channel);
+void expresslrs_vtx_freq_send(uint16_t freq);
 void expresslrs_rate_send(uint8_t rate);
 void expresslrs_power_send(uint8_t power);
 void expresslrs_tlm_send(uint8_t tlm);

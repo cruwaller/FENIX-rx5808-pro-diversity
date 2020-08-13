@@ -75,14 +75,14 @@ namespace TouchPad {
                 if (touchData.cursorX < 1) {
                     touchData.cursorX = 1;
                 }
-                if (touchData.cursorX > SCREEN_WIDTH - 1) {
-                    touchData.cursorX = SCREEN_WIDTH - 1;
+                if (touchData.cursorX > Ui::XRES - 1) {
+                    touchData.cursorX = Ui::XRES - 1;
                 }
                 if (touchData.cursorY < 1) {
                     touchData.cursorY = 1;
                 }
-                if (touchData.cursorY > SCREEN_HEIGHT - 1) {
-                    touchData.cursorY = SCREEN_HEIGHT - 1;
+                if (touchData.cursorY > Ui::YRES - 1) {
+                    touchData.cursorY = Ui::YRES - 1;
                 }
             } else {
                 Gesture currentGesture = isGesture();

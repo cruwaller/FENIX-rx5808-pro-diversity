@@ -14,9 +14,10 @@
 #include "temperature.h"
 #include "voltage.h"
 #include "touchpad.h"
-#include "ExpressLRS_Protocol.h"
-#include "comm_espnow.h"
+//#include "ExpressLRS_Protocol.h"
+//#include "comm_espnow.h"
 
+#include "protocol_chorus.h"
 #include "lap_times.h"
 
 
@@ -163,13 +164,12 @@ void HomeStateHandler::onUpdateDraw() {
 #if HOME_SHOW_LAPTIMES
 #define LAPTIMES_X_POS 180
     uint32_t y_off = 12;
-    char tmp_buff[12]; // 00:00.000\n
+    char tmp_buff[16]; // 00:00.000\n
 
     Ui::display.setCursor(LAPTIMES_X_POS, y_off);
-    Ui::display.print("LAP TIMES [");
-    snprintf(tmp_buff, sizeof(tmp_buff), "%03u\n", lapt_time_race_idx_get());
-    Ui::display.print(tmp_buff);
-    Ui::display.print("]");
+    Ui::display.print("LAP TIMES ");
+    snprintf(tmp_buff, sizeof(tmp_buff), "[%3u]\n", lapt_time_race_idx_get());
+    Ui::display.print(tmp_buff, chorus_race_is_start());
     y_off += 9;
     uint32_t lap_time;
     for (uint8_t iter = 0; iter <= MAX_LAP_TIMES; iter++) {
@@ -186,7 +186,8 @@ void HomeStateHandler::onUpdateDraw() {
         secs  = sec_now - (hours * 3600) - (mins * 60);
         sec_now = lap_time % 1000; // reuse sec_now for millis
 
-        snprintf(tmp_buff, sizeof(tmp_buff), "%02u:%02u.%03u\n", mins, secs, sec_now);
+        snprintf(tmp_buff, sizeof(tmp_buff), "%2u) %02u:%02u.%03u\n",
+                 iter, mins, secs, sec_now);
         Ui::display.print(tmp_buff);
     }
 
@@ -331,20 +332,33 @@ void HomeStateHandler::doTapAction() {
                 case Receiver::DiversityMode::ANTENNA_A:
                     EepromSettings.diversityMode = Receiver::DiversityMode::ANTENNA_B;
 #if POWER_OFF_RX
+#if 0
                     ReceiverSpi::rxStandby(Receiver::ReceiverId::A);
-                    ReceiverSpi::rxPowerOn(Receiver::ReceiverId::B);
+                    ReceiverSpi::rxWakeup(Receiver::ReceiverId::B);
+#else
+                    ReceiverSpi::rxPowerOff(Receiver::ReceiverId::A);
+                    ReceiverSpi::rxPowerUp(Receiver::ReceiverId::B);
+#endif
 #endif // POWER_OFF_RX
                     break;
                 case Receiver::DiversityMode::ANTENNA_B:
                     EepromSettings.diversityMode = Receiver::DiversityMode::DIVERSITY;
 #if POWER_OFF_RX
-                    ReceiverSpi::rxPowerOn(Receiver::ReceiverId::A);
+#if 0
+                    ReceiverSpi::rxWakeup(Receiver::ReceiverId::A);
+#else
+                    ReceiverSpi::rxPowerUp(Receiver::ReceiverId::A);
+#endif
 #endif // POWER_OFF_RX
                     break;
                 case Receiver::DiversityMode::DIVERSITY:
                     EepromSettings.diversityMode = Receiver::DiversityMode::ANTENNA_A;
 #if POWER_OFF_RX
+#if 0
                     ReceiverSpi::rxStandby(Receiver::ReceiverId::B);
+#else
+                    ReceiverSpi::rxPowerOff(Receiver::ReceiverId::B);
+#endif
 #endif // POWER_OFF_RX
                     break;
                 default:
