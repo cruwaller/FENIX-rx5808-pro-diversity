@@ -4,6 +4,15 @@
 #include "msp.h"
 #include "msptypes.h"
 
+// ELRS specific opcodes
+#define ELRS_PARAMS_GET        0x00
+#define ELRS_PARAMS_RF_MODE    0x01
+#define ELRS_PARAMS_TLM_RATE   0x02
+#define ELRS_PARAMS_TX_PWR     0x03
+#define ELRS_PARAMS_FREQ       0x04
+#define ELRS_PARAMS_START_WIFI 0x05
+
+
 struct elrs_params {
     uint8_t rate;
     uint8_t tlm;
@@ -43,22 +52,22 @@ void expresslrs_vtx_freq_send(uint16_t freq)
 
 void expresslrs_rate_send(uint8_t rate)
 {
-    expresslrs_msp_params_send(MSP_ELRS_RF_MODE, rate);
+    expresslrs_msp_params_send(ELRS_PARAMS_RF_MODE, rate);
 }
 
 void expresslrs_power_send(uint8_t power)
 {
-    expresslrs_msp_params_send(MSP_ELRS_TX_PWR, power);
+    expresslrs_msp_params_send(ELRS_PARAMS_TX_PWR, power);
 }
 
 void expresslrs_tlm_send(uint8_t tlm)
 {
-    expresslrs_msp_params_send(MSP_ELRS_TLM_RATE, tlm);
+    expresslrs_msp_params_send(ELRS_PARAMS_TLM_RATE, tlm);
 }
 
 void expresslrs_params_get(void)
 {
-    expresslrs_msp_params_send(0, 0);
+    expresslrs_msp_params_send(ELRS_PARAMS_GET, 0);
 }
 
 void expresslrs_params_update(uint8_t rate, uint8_t tlm, uint8_t pwr, uint8_t pwr_max, uint8_t region)
