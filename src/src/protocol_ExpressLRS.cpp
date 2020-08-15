@@ -1,4 +1,4 @@
-#include "ExpressLRS_Protocol.h"
+#include "protocol_ExpressLRS.h"
 #include "comm_espnow.h"
 #include "settings.h"
 #include "msp.h"

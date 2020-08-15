@@ -15,6 +15,9 @@
 #define UI_MID_Y            ((Ui::YRES / 2) - 1)
 #define UI_GET_MID_X(_c)    ((Ui::XRES - 8 * (_c)) / 2)
 
+#define WHITE (100u)
+#define BLACK (0u)
+
 namespace Ui {
 
     constexpr int XRES = 324;

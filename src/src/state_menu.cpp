@@ -116,7 +116,9 @@ void StateMachine::MenuStateHandler::onInitialDraw() {
    onUpdateDraw();
 }
 
-void StateMachine::MenuStateHandler::onUpdateDraw() {
+void StateMachine::MenuStateHandler::onUpdateDraw()
+{
+   drawHeader();
 
    // 1st row
    iconHome.draw(Ui::display, 47, 57);          // Home

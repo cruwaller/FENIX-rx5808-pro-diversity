@@ -91,71 +91,75 @@ namespace StateMachine {
     }
 
     void StateHandler::drawHeader(void) {
+        uint32_t x_off = Ui::CHAR_W;
         /*************************************************/
         /*********     PRINT HEADER     ******************/
 
         // Mode
-        Ui::display.setTextColor(100);
-        Ui::display.setCursor( 8, 0);
-        Ui::display.print("Mode: ");
+        Ui::display.setTextColor(WHITE);
+        Ui::display.setCursor(x_off, 0);
+        Ui::display.print("Mode: "); // 6
         if (EepromSettings.diversityMode == Receiver::DiversityMode::ANTENNA_A) {
             Ui::display.print("Antenna A");
         }
         else if (EepromSettings.diversityMode == Receiver::DiversityMode::ANTENNA_B) {
             Ui::display.print("Antenna B");
         }
+        else if (EepromSettings.diversityMode == Receiver::DiversityMode::DIVERSITY) {
+            Ui::display.print("Diversity");
+        }
+#if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
         else if (EepromSettings.diversityMode == Receiver::DiversityMode::ANTENNA_C) {
             Ui::display.print("Antenna C");
         }
         else if (EepromSettings.diversityMode == Receiver::DiversityMode::ANTENNA_D) {
             Ui::display.print("Antenna D");
         }
-        else if (EepromSettings.diversityMode == Receiver::DiversityMode::DIVERSITY) {
-            Ui::display.print("Diversity");
-        }
         else if (EepromSettings.diversityMode == Receiver::DiversityMode::QUADVERSITY) {
-            Ui::display.print("Quadversity");
+            Ui::display.print("Quadversity"); // 11
         }
+#endif
+        x_off = 20 * Ui::CHAR_W;
 
         // Voltage
-    #ifdef USE_VOLTAGE_MONITORING
-        if (Voltage::voltage > 9) {
-            Ui::display.setCursor( 173, 0);
-        } else {
-            Ui::display.setCursor( 181, 0);
-        }
+#ifdef USE_VOLTAGE_MONITORING
+        if (Voltage::voltage <= 9)
+            x_off += Ui::CHAR_W;
+        Ui::display.setCursor(x_off, 0);
         Ui::display.print(Voltage::voltage);
         Ui::display.print(".");
         Ui::display.print(Voltage::voltageDec);
-        Ui::display.print("V ");
-    #else
-        Ui::display.setCursor( 221, 0);
-    #endif
+        Ui::display.print("V");
+#endif
+        x_off += 6 * Ui::CHAR_W;
 
-    #ifdef USE_TEMPERATURE_MONITORING
         // Temperature // Doesnt currently work within ESP32 Arduino.
+#ifdef USE_TEMPERATURE_MONITORING
+        Ui::display.setCursor(x_off, 0);
         Ui::display.print(Temperature::getTemperature());
-        Ui::display.print("C ");
-    #else
-        Ui::display.setCursor( 221+4*8, 0);
-    #endif
+        Ui::display.print("C");
+#endif
+        x_off += 4 * Ui::CHAR_W;
 
-        // On Time
+        // On Time. format: "00:00:00", 8 chars
+#ifdef USE_PRINT_ON_TIME
         uint32_t sec_now = millis() / 1000;
         uint8_t hours = sec_now / 60 / 60;
         uint8_t mins  = sec_now / 60 - hours * 60 * 60;
         uint8_t secs  = sec_now - hours * 60 * 60 - mins * 60;
+        Ui::display.setCursor(x_off, 0);
         Ui::display.print(hours);
         Ui::display.print(":");
-        if(mins < 10) {
+        if (mins < 10) {
             Ui::display.print("0");
         }
         Ui::display.print(mins);
         Ui::display.print(":");
-        if(secs < 10) {
+        if (secs < 10) {
             Ui::display.print("0");
         }
         Ui::display.print(secs);
+#endif
 
         // Menu Icon
         Ui::display.line( 315, 1, 322, 1, 100);
@@ -163,6 +167,6 @@ namespace StateMachine {
         Ui::display.line( 315, 7, 322, 7, 100);
 
         // Horixontal line
-        Ui::display.line( 0, 9, Ui::XRES, 9, 100);
+        Ui::display.line( 0, 9, Ui::XRES, 9, WHITE);
     }
 }

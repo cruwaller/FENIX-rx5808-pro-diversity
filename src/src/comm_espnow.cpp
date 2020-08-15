@@ -1,7 +1,7 @@
 #include "comm_espnow.h"
 #include "lap_times.h"
 #include "settings.h"
-#include "ExpressLRS_Protocol.h"
+#include "protocol_ExpressLRS.h"
 #include <esp_now.h>
 #include <WiFi.h>
 

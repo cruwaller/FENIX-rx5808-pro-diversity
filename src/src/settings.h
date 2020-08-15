@@ -39,6 +39,8 @@ SOFTWARE.
 
 //#define USE_TEMPERATURE_MONITORING
 
+//#define USE_PRINT_ON_TIME
+
 // Can enable this to powerdown the audio blocks on the RX58xx if you don't
 // need it. Save a tiny bit of power, make your videos less noisy.
 

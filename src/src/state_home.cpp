@@ -14,9 +14,7 @@
 #include "temperature.h"
 #include "voltage.h"
 #include "touchpad.h"
-//#include "ExpressLRS_Protocol.h"
-//#include "comm_espnow.h"
-
+#include "protocol_ExpressLRS.h"
 #include "protocol_chorus.h"
 #include "lap_times.h"
 
@@ -37,20 +35,23 @@ void HomeStateHandler::onEnter() {
 }
 
 void HomeStateHandler::onUpdate() {
+    this->onUpdateDraw();
     if (TouchPad::touchData.buttonPrimary) {
       TouchPad::touchData.buttonPrimary = false;
       this->doTapAction();
     }
+}
+
+void HomeStateHandler::onInitialDraw()
+{
     this->onUpdateDraw();
 }
 
-void HomeStateHandler::onInitialDraw() {
-    this->onUpdateDraw();
-}
-
-void HomeStateHandler::onUpdateDraw() {
+void HomeStateHandler::onUpdateDraw()
+{
     uint32_t sec_now;
-    uint8_t hours, mins, secs;
+    uint32_t x_off, y_off;
+    int16_t cursor_x = TouchPad::touchData.cursorX, cursor_y = TouchPad::touchData.cursorY;
 
     if (isInBandScanRegion()) {
         bandScanUpdate();
@@ -78,126 +79,124 @@ void HomeStateHandler::onUpdateDraw() {
     Ui::display.setCursor( 0, 105);
     Ui::display.printLarge(Channels::getFrequency(displayActiveChannel), 4, 3);
 
-    // Channel labels
 #if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
     if (EepromSettings.quadversity) {
-        Ui::drawBigCharacter( 190, 23,
+        // Channel labels
+        x_off = 190;
+        Ui::drawBigCharacter( x_off, 23,
                               'A',
                               3, 2);
-        Ui::drawBigCharacter( 190, 23 + 28,
+        Ui::drawBigCharacter( x_off, 23 + 28,
                               'B',
                               3, 2);
-        Ui::drawBigCharacter( 190, 23 + 28*2,
+        Ui::drawBigCharacter( x_off, 23 + 28*2,
                               'C',
                               3, 2);
-        Ui::drawBigCharacter( 190, 23 + 28*3,
+        Ui::drawBigCharacter( x_off, 23 + 28*3,
                               'D',
                               3, 2);
-    }
-    else
-#else
-    {
-        Ui::display.setCursor( 130, 12 + 28*0 + 3);
-        Ui::display.printLarge("A", 2, 2);
-        Ui::display.setCursor( 130, 12 + 28*2 + 3);
-        Ui::display.printLarge("B", 2, 2);//
-    }
-#endif
 
-    // Channel selected square
-#if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
-    if (EepromSettings.quadversity) {
-      if (Receiver::activeReceiver == Receiver::ReceiverId::A) {
-          Ui::drawRoundRect(185, 20, 34, 24, 2, WHITE);
-      }
-      if (Receiver::activeReceiver == Receiver::ReceiverId::B) {
-          Ui::drawRoundRect(185, 20 + 28, 34, 24, 2, WHITE);
-      }
-      if (Receiver::activeReceiver == Receiver::ReceiverId::C) {
-          Ui::drawRoundRect(185, 20 + 28*2, 34, 24, 2, WHITE);
-      }
-      if (Receiver::activeReceiver == Receiver::ReceiverId::D) {
-          Ui::drawRoundRect(185, 20 + 28*3, 34, 24, 2, WHITE);
-      }
-    }
-    else
-#else
-    {
-      if (Receiver::activeReceiver == Receiver::ReceiverId::A) {
-          Ui::display.rect(128, 10 + 28*0 + 3, 19, 19, 100);
-      }
-      if (Receiver::activeReceiver == Receiver::ReceiverId::B) {
-          Ui::display.rect(128, 10 + 28*2 + 3, 18, 18, 100);
-      }
-    }
-#endif
+        // Channel selected square
+        x_off -= 5;
+        y_off = 20 + 28 * (uint8_t)Receiver::activeReceiver;
+        Ui::drawRoundRect(x_off, y_off, 34, 24, 2, WHITE);
 
-    sec_now = millis() / 1000;
-    // On percentage
-#if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
-    if (EepromSettings.quadversity) {
-        Ui::setCursor(225, 25);
+        // On percentage
+        sec_now = millis() / 1000;
+        x_off += 40;
+        Ui::setCursor(x_off, 25);
         Ui::display.print( (100 * Receiver::antennaAOnTime) / (sec_now) );
         Ui::display.print(PSTR2("%"));
-        Ui::setCursor(225, 25+28);
+        Ui::setCursor(x_off, 25+28);
         Ui::display.print( (100 * Receiver::antennaBOnTime) / (sec_now) );
         Ui::display.print(PSTR2("%"));
-        Ui::setCursor(225, 25+28*2);
+        Ui::setCursor(x_off, 25+28*2);
         Ui::display.print( (100 * Receiver::antennaCOnTime) / (sec_now) );
         Ui::display.print(PSTR2("%"));
-        Ui::setCursor(225, 25+28*3);
+        Ui::setCursor(x_off, 25+28*3);
         Ui::display.print( (100 * Receiver::antennaDOnTime) / (sec_now) );
         Ui::display.print(PSTR2("%"));
     }
     else
 #else
     {
-        Ui::display.setCursor(128, 30 + 28*0 + 3);
+        // Channel labels
+        x_off = 130;
+        Ui::display.setCursor( x_off, 12 + 28*0 + 3);
+        Ui::display.printLarge("A", 2, 2);
+        Ui::display.setCursor( x_off, 12 + 28*2 + 3);
+        Ui::display.printLarge("B", 2, 2);
+
+        // Channel selected square
+        x_off -= 2;
+        y_off = 10 + 3 + 28 * (Receiver::activeReceiver == Receiver::ReceiverId::B) ? 2 : 0;
+        Ui::display.rect(x_off, y_off, 19, 19, WHITE);
+
+        // On percentage
+        sec_now = millis() / 1000;
+        Ui::display.setCursor(x_off, 30 + 28*0 + 3);
         Ui::display.print( (100.0 * Receiver::antennaAOnTime) / (sec_now) );
         Ui::display.print("%");
-        Ui::display.setCursor(128, 32 + 28*2 + 3);
+        Ui::display.setCursor(x_off, 32 + 28*2 + 3);
         Ui::display.print( (100.0 * Receiver::antennaBOnTime) / (sec_now) );
         Ui::display.print("%");
+
+        //x_off += 2 + 3 + 4 * Ui::CHAR_W + 4;
     }
 #endif
 
+    // Send frequency to all peers
+#define SEND_Y_OFF 43
+#define SEND_X_OFF (130 + 4 * Ui::CHAR_W + 4)
+    y_off = SEND_Y_OFF;
+    x_off = SEND_X_OFF;
+    Ui::display.setCursor( x_off, y_off + Ui::CHAR_H * 0); // 130 - 11 - 4*8 / 2
+    Ui::display.print("S");
+    Ui::display.setCursor( x_off, y_off + Ui::CHAR_H * 1);
+    Ui::display.print("E");
+    Ui::display.setCursor( x_off, y_off + Ui::CHAR_H * 2);
+    Ui::display.print("N");
+    Ui::display.setCursor( x_off, y_off + Ui::CHAR_H * 3);
+    Ui::display.print("D");
+    // Draw selection box over SEND
+    if (cursor_y > (y_off - 4) && cursor_y < (y_off + Ui::CHAR_H + 4 + 3) &&
+        cursor_x > (x_off - 4) && cursor_x < (x_off + Ui::CHAR_W + 3))
+    {
+        Ui::display.rect(x_off - 4, y_off - 4,
+                         (4 + 3 + Ui::CHAR_W), (3 + 4 + 4 * Ui::CHAR_H), WHITE);
+    }
+
+
 #if HOME_SHOW_LAPTIMES
-#define LAPTIMES_X_POS 180
-    uint32_t y_off = 12;
-    char tmp_buff[16]; // 00:00.000\n
+#define LAPTIMES_X_POS 188 // max is 200
+    //x_off = Ui::XRES - 16 * Ui::CHAR_W;
+    y_off = 12;
+    char tmp_buff[16]; // '11) 00:00.000\n' => 13 chars
+    uint8_t fastest = 0, num_laps = lapt_time_race_num_laps();
 
     Ui::display.setCursor(LAPTIMES_X_POS, y_off);
-    Ui::display.print("LAP TIMES ");
+    Ui::display.print("LAP TIMES "); // "LAP TIMES [  1]", 15chars
     snprintf(tmp_buff, sizeof(tmp_buff), "[%3u]\n", lapt_time_race_idx_get());
-    Ui::display.print(tmp_buff, chorus_race_is_start());
+    Ui::display.print(tmp_buff, chorus_race_is_start()); // inverted if race is started
     y_off += 9;
-    uint32_t lap_time;
-    for (uint8_t iter = 0; iter <= MAX_LAP_TIMES; iter++) {
-        lap_time = lapt_time_laptime_get(iter); // time in ms
-        if (lap_time == UINT32_MAX || lap_time == 0)
+    lap_time_t lap_time;
+    for (uint8_t iter = 0; iter < num_laps; iter++) {
+        lap_time = lapt_time_laptime_get(iter, fastest); // time in ms
+        if (*((uint32_t*)&lap_time) == 0)
             break;
 
         Ui::display.setCursor(LAPTIMES_X_POS, (y_off + (iter * 9)));
 
-        sec_now = lap_time / 1000;
-
-        hours = sec_now / 3600;
-        mins  = (sec_now - (hours * 3600)) / 60;
-        secs  = sec_now - (hours * 3600) - (mins * 60);
-        sec_now = lap_time % 1000; // reuse sec_now for millis
-
         snprintf(tmp_buff, sizeof(tmp_buff), "%2u) %02u:%02u.%03u\n",
-                 iter, mins, secs, sec_now);
-        Ui::display.print(tmp_buff);
+                 iter, lap_time.m, lap_time.s, lap_time.ms);
+        Ui::display.print(tmp_buff, fastest); // invert colors if fastest
     }
 
     // Draw selection box
-    if (TouchPad::touchData.cursorY > (12 - 4) && TouchPad::touchData.cursorY < (12 + 8 + 3))
+    if (cursor_y > (12 - 4) && cursor_y < (12 + 8 + 3) &&
+        cursor_x > (LAPTIMES_X_POS - 4) && cursor_x < (LAPTIMES_X_POS + 15 * 8 + 3))
     {
-        if (TouchPad::touchData.cursorX > (LAPTIMES_X_POS - 4) && TouchPad::touchData.cursorX < (LAPTIMES_X_POS + 15 * 8 + 3))
-        {
-            Ui::display.rect(LAPTIMES_X_POS-4, 12-4, 4+3+15*8, 15, 100);
-        }
+        Ui::display.rect(LAPTIMES_X_POS-4, 12-4, 4+3+15*8, 15, WHITE);
     }
 
 #else // !HOME_SHOW_LAPTIMES
@@ -218,19 +217,25 @@ void HomeStateHandler::onUpdateDraw() {
     else
 #else
     {
-        Ui::display.rect(195, 12 + 28*0 + 3, 64*2, 28*2-1, 100);
-        Ui::display.rect(195, 12 + 28*2 + 3, 64*2, 28*2-1, 100);
+        Ui::display.rect(195, 12 + 28*0 + 3, 64*2, 28*2-1, WHITE);
+        Ui::display.rect(195, 12 + 28*2 + 3, 64*2, 28*2-1, WHITE);
         for (uint8_t i=0; i < RECEIVER_LAST_DATA_SIZE-1; i++) {
-            Ui::display.line(195+1*i, (12 + 28*2)-Receiver::rssiALast[i]/20, 195+1*(i+1), (12 + 28*2)-Receiver::rssiALast[i+1]/20, 100);
-            Ui::display.line(195+1*i, (12 + 28*4)-Receiver::rssiBLast[i]/20, 195+1*(i+1), (12 + 28*4)-Receiver::rssiBLast[i+1]/20, 100);
+            Ui::display.line(195+1*i, (12 + 28*2)-Receiver::rssiALast[i]/20, 195+1*(i+1), (12 + 28*2)-Receiver::rssiALast[i+1]/20, WHITE);
+            Ui::display.line(195+1*i, (12 + 28*4)-Receiver::rssiBLast[i]/20, 195+1*(i+1), (12 + 28*4)-Receiver::rssiBLast[i+1]/20, WHITE);
         }
     }
 #endif
 #endif // HOME_SHOW_LAPTIMES
 
     // Plot Spectrum 324 x 224
+    uint16_t rssi;
     for (uint8_t i=0; i<CHANNELS_SIZE; i++) {
-        Ui::display.fillRect(18+CHANNELS_SIZE_DIVIDER*i, 214 - Receiver::rssiBandScanData[i]*8/100, CHANNELS_SIZE_DIVIDER, Receiver::rssiBandScanData[i]*8/100, Receiver::rssiBandScanData[i]/10);
+        rssi = Receiver::rssiBandScanData[i];
+        Ui::display.fillRect(18+CHANNELS_SIZE_DIVIDER*i,
+                             214 - rssi*8/100,
+                             CHANNELS_SIZE_DIVIDER,
+                             rssi*8/100,
+                             rssi/10);
     }
     Ui::display.line(0, 213, 323, 213, 100);
     Ui::display.setCursor( 1, 215);
@@ -241,63 +246,73 @@ void HomeStateHandler::onUpdateDraw() {
     // Marker triangle
     uint8_t markerX = Channels::getOrderedIndexFromIndex(Receiver::activeChannel);
     for (int i = 0; i < 7; i++) {
-        Ui::display.line(18+CHANNELS_SIZE_DIVIDER*markerX, 214, 18+CHANNELS_SIZE_DIVIDER*markerX+(-3+i), 219, 100);
+        Ui::display.line(18+CHANNELS_SIZE_DIVIDER*markerX,
+                         214,
+                         18+CHANNELS_SIZE_DIVIDER*markerX+(-3+i), 219, WHITE);
     }
 
-    if (HomeStateHandler::isInBandScanRegion() && TouchPad::touchData.cursorX > 18 && TouchPad::touchData.cursorX < (324-18)) {
-        Ui::display.fillRect( TouchPad::touchData.cursorX - 33, TouchPad::touchData.cursorY - 17, 33, 17, 10);
-        Ui::display.setCursor( TouchPad::touchData.cursorX - 32, TouchPad::touchData.cursorY - 16 );
+    if (HomeStateHandler::isInBandScanRegion() && cursor_x > 18 && cursor_x < (324-18)) {
+        Ui::display.fillRect( cursor_x - 33, cursor_y - 17, 33, 17, 10);
+        Ui::display.setCursor( cursor_x - 32, cursor_y - 16 );
         Ui::display.print(Channels::getName(
-           Channels::getOrderedIndex((TouchPad::touchData.cursorX-18) / CHANNELS_SIZE_DIVIDER)));
-        Ui::display.setCursor( TouchPad::touchData.cursorX - 32, TouchPad::touchData.cursorY - 8 );
+           Channels::getOrderedIndex((cursor_x-18) / CHANNELS_SIZE_DIVIDER)));
+        Ui::display.setCursor( cursor_x - 32, cursor_y - 8 );
         Ui::display.print(Channels::getFrequency(
-            Channels::getOrderedIndex((TouchPad::touchData.cursorX-18) / CHANNELS_SIZE_DIVIDER)));
+            Channels::getOrderedIndex((cursor_x-18) / CHANNELS_SIZE_DIVIDER)));
     }
 
 }
 
-void HomeStateHandler::doTapAction() {
+void HomeStateHandler::doTapAction()
+{
+    int16_t cursor_x = TouchPad::touchData.cursorX, cursor_y = TouchPad::touchData.cursorY;
 
+    // Draw selection box
+    if (cursor_y > (SEND_Y_OFF - 4) && cursor_y < (SEND_Y_OFF + Ui::CHAR_H + 4 + 3) &&
+        cursor_x > (SEND_X_OFF - 4) && cursor_x < (SEND_X_OFF + Ui::CHAR_W + 3))
+    {
+        expresslrs_vtx_freq_send(Channels::getFrequency(Receiver::activeChannel));
+    }
 #if HOME_SHOW_LAPTIMES
-    if (TouchPad::touchData.cursorY > (12 - 4) && TouchPad::touchData.cursorY < (12 + 8 + 3) &&
-        TouchPad::touchData.cursorX > (LAPTIMES_X_POS - 4) && TouchPad::touchData.cursorX < (LAPTIMES_X_POS + 15 * 8 + 3))
+    else if (cursor_y > (12 - 4) && cursor_y < (12 + 8 + 3) &&
+             cursor_x > (LAPTIMES_X_POS - 4) && cursor_x < (LAPTIMES_X_POS + 15 * 8 + 3))
     { // Open Chorus menu
         StateMachine::switchState(StateMachine::State::CHORUS);
-    } else
+    }
 #endif
-    if ( // Up band
-        TouchPad::touchData.cursorX >= 0  && TouchPad::touchData.cursorX < 61 &&
-        TouchPad::touchData.cursorY > 8 && TouchPad::touchData.cursorY < 54
+    else if ( // Up band
+        cursor_x >= 0  && cursor_x < 61 &&
+        cursor_y > 8 && cursor_y < 54
         ) {
         this->setChannel(8);
     }
     else if ( // Down band
-        TouchPad::touchData.cursorX >= 0  && TouchPad::touchData.cursorX < 61 &&
-        TouchPad::touchData.cursorY > 54 && TouchPad::touchData.cursorY < 99
+        cursor_x >= 0  && cursor_x < 61 &&
+        cursor_y > 54 && cursor_y < 99
      ) {
         this->setChannel(-8);
     }
     else if ( // Up channel
-        TouchPad::touchData.cursorX > 61  && TouchPad::touchData.cursorX < 122 &&
-        TouchPad::touchData.cursorY > 8 && TouchPad::touchData.cursorY < 54
+        cursor_x > 61  && cursor_x < 122 &&
+        cursor_y > 8 && cursor_y < 54
      ) {
         this->setChannel(1);
     }
     else if ( // Down channel
-        TouchPad::touchData.cursorX > 61  && TouchPad::touchData.cursorX < 122 &&
-        TouchPad::touchData.cursorY > 54 && TouchPad::touchData.cursorY < 99
+        cursor_x > 61  && cursor_x < 122 &&
+        cursor_y > 54 && cursor_y < 99
      ) {
         this->setChannel(-1);
     }
     else if ( // Menu
-        TouchPad::touchData.cursorX > 314  && TouchPad::touchData.cursorY < 8
+        cursor_x > 314  && cursor_y < 8
      ) {
         EepromSettings.save();
         StateMachine::switchState(StateMachine::State::MENU);
     }
     else if ( // Change mode
-        TouchPad::touchData.cursorX < 130 &&
-        TouchPad::touchData.cursorY < 8
+        cursor_x < 130 &&
+        cursor_y < 8
         ) {
 #if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
         if (EepromSettings.quadversity) {
@@ -372,10 +387,10 @@ void HomeStateHandler::doTapAction() {
     else if ( // Select channel from spectrum
         HomeStateHandler::isInBandScanRegion()
         ) {
-        setChannel(0, Channels::getOrderedIndex( (TouchPad::touchData.cursorX-18) / CHANNELS_SIZE_DIVIDER ));
+        setChannel(0, Channels::getOrderedIndex( (cursor_x-18) / CHANNELS_SIZE_DIVIDER ));
 #if 0
         Receiver::setChannel(
-                            Channels::getOrderedIndex( (TouchPad::touchData.cursorX-18) / CHANNELS_SIZE_DIVIDER )
+                            Channels::getOrderedIndex( (cursor_x-18) / CHANNELS_SIZE_DIVIDER )
                             );
         HomeStateHandler::centreFrequency();
         displayActiveChannel = Receiver::activeChannel;
