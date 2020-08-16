@@ -8,7 +8,7 @@ static uint8_t  DRAM_ATTR _race_id;
 static lap_time_t DRAM_ATTR _lap_times[MAX_LAP_TIMES];
 static uint32_t DRAM_ATTR _best_lap_time;
 static uint8_t  DRAM_ATTR _best_lap_idx;
-static int16_t  DRAM_ATTR _last_lap_idx;
+static uint16_t  DRAM_ATTR _last_lap_idx;
 
 static int8_t  DRAM_ATTR _error;
 
@@ -32,8 +32,19 @@ void lap_times_reset(void)
     memset(_lap_times, 0, sizeof(_lap_times));
     _best_lap_idx = UINT8_MAX;
     _best_lap_time = UINT32_MAX;
-    _last_lap_idx = -1;
+    _last_lap_idx = 0;
     _error = 0;
+
+#if 0
+    for (uint8_t iter = 0; iter < 16; iter++) {
+        // first should be skipped
+        _lap_times[iter].m = (iter+1);
+        _lap_times[iter].s = (iter+1);
+        _lap_times[iter].ms = (iter+1);
+        _last_lap_idx = iter;
+    }
+    _best_lap_idx = 6;
+#endif
 }
 
 
@@ -92,7 +103,7 @@ void lap_times_handle(esp_now_send_lap_s * lap_info)
 
 uint8_t lapt_time_race_num_laps(void)
 {
-    if (_last_lap_idx < 0)
+    if (_last_lap_idx == 0)
         return 0;
     return (_last_lap_idx + 1);
 }

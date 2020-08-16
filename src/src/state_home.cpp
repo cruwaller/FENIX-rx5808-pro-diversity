@@ -129,8 +129,14 @@ void HomeStateHandler::onUpdateDraw()
 
         // Channel selected square
         x_off -= 2;
-        y_off = 10 + 3 + 28 * (Receiver::activeReceiver == Receiver::ReceiverId::B) ? 2 : 0;
-        Ui::display.rect(x_off, y_off, 19, 19, WHITE);
+        //y_off = 10 + 3 + 28 * (Receiver::activeReceiver == Receiver::ReceiverId::B) ? 2 : 0;
+        //Ui::display.rect(x_off, y_off, 19, 19, WHITE);
+        if (Receiver::activeReceiver == Receiver::ReceiverId::A) {
+            Ui::display.rect(128, (10 + 28*0 + 3), 19, 19, 100);
+        }
+        if (Receiver::activeReceiver == Receiver::ReceiverId::B) {
+            Ui::display.rect(128, (10 + 28*2 + 3), 18, 18, 100);
+        }
 
         // On percentage
         sec_now = millis() / 1000;
@@ -147,7 +153,7 @@ void HomeStateHandler::onUpdateDraw()
 
     // Send frequency to all peers
 #define SEND_Y_OFF 43
-#define SEND_X_OFF (130 + 4 * Ui::CHAR_W + 4)
+#define SEND_X_OFF (130 + 3 * Ui::CHAR_W + 4)
     y_off = SEND_Y_OFF;
     x_off = SEND_X_OFF;
     Ui::display.setCursor( x_off, y_off + Ui::CHAR_H * 0); // 130 - 11 - 4*8 / 2
@@ -159,7 +165,7 @@ void HomeStateHandler::onUpdateDraw()
     Ui::display.setCursor( x_off, y_off + Ui::CHAR_H * 3);
     Ui::display.print("D");
     // Draw selection box over SEND
-    if (cursor_y > (y_off - 4) && cursor_y < (y_off + Ui::CHAR_H + 4 + 3) &&
+    if (cursor_y > (y_off - 4) && cursor_y < (y_off + 4*Ui::CHAR_H + 4 + 3) &&
         cursor_x > (x_off - 4) && cursor_x < (x_off + Ui::CHAR_W + 3))
     {
         Ui::display.rect(x_off - 4, y_off - 4,
@@ -178,25 +184,26 @@ void HomeStateHandler::onUpdateDraw()
     Ui::display.print("LAP TIMES "); // "LAP TIMES [  1]", 15chars
     snprintf(tmp_buff, sizeof(tmp_buff), "[%3u]\n", lapt_time_race_idx_get());
     Ui::display.print(tmp_buff, chorus_race_is_start()); // inverted if race is started
+
+    // Draw selection box
+    if (cursor_y > (y_off - 4) && cursor_y < (y_off + Ui::CHAR_H + 3) &&
+        cursor_x > (LAPTIMES_X_POS - 4) && cursor_x < (LAPTIMES_X_POS + 15 * Ui::CHAR_W + 3))
+    {
+        Ui::display.rect(LAPTIMES_X_POS-4, 12-4, 4+3+15*8, 15, WHITE);
+    }
+
     y_off += 9;
     lap_time_t lap_time;
-    for (uint8_t iter = 0; iter < num_laps; iter++) {
+    for (uint8_t iter = 1; iter <= num_laps; iter++, y_off += 9) {
         lap_time = lapt_time_laptime_get(iter, fastest); // time in ms
         if (*((uint32_t*)&lap_time) == 0)
             break;
 
-        Ui::display.setCursor(LAPTIMES_X_POS, (y_off + (iter * 9)));
+        Ui::display.setCursor(LAPTIMES_X_POS, y_off);
 
         snprintf(tmp_buff, sizeof(tmp_buff), "%2u) %02u:%02u.%03u\n",
                  iter, lap_time.m, lap_time.s, lap_time.ms);
         Ui::display.print(tmp_buff, fastest); // invert colors if fastest
-    }
-
-    // Draw selection box
-    if (cursor_y > (12 - 4) && cursor_y < (12 + 8 + 3) &&
-        cursor_x > (LAPTIMES_X_POS - 4) && cursor_x < (LAPTIMES_X_POS + 15 * 8 + 3))
-    {
-        Ui::display.rect(LAPTIMES_X_POS-4, 12-4, 4+3+15*8, 15, WHITE);
     }
 
 #else // !HOME_SHOW_LAPTIMES
@@ -268,7 +275,7 @@ void HomeStateHandler::doTapAction()
     int16_t cursor_x = TouchPad::touchData.cursorX, cursor_y = TouchPad::touchData.cursorY;
 
     // Draw selection box
-    if (cursor_y > (SEND_Y_OFF - 4) && cursor_y < (SEND_Y_OFF + Ui::CHAR_H + 4 + 3) &&
+    if (cursor_y > (SEND_Y_OFF - 4) && cursor_y < (SEND_Y_OFF + 4 * Ui::CHAR_H + 4 + 3) &&
         cursor_x > (SEND_X_OFF - 4) && cursor_x < (SEND_X_OFF + Ui::CHAR_W + 3))
     {
         expresslrs_vtx_freq_send(Channels::getFrequency(Receiver::activeChannel));
@@ -347,7 +354,7 @@ void HomeStateHandler::doTapAction()
                 case Receiver::DiversityMode::ANTENNA_A:
                     EepromSettings.diversityMode = Receiver::DiversityMode::ANTENNA_B;
 #if POWER_OFF_RX
-#if 0
+#if 1
                     ReceiverSpi::rxStandby(Receiver::ReceiverId::A);
                     ReceiverSpi::rxWakeup(Receiver::ReceiverId::B);
 #else
@@ -359,7 +366,7 @@ void HomeStateHandler::doTapAction()
                 case Receiver::DiversityMode::ANTENNA_B:
                     EepromSettings.diversityMode = Receiver::DiversityMode::DIVERSITY;
 #if POWER_OFF_RX
-#if 0
+#if 1
                     ReceiverSpi::rxWakeup(Receiver::ReceiverId::A);
 #else
                     ReceiverSpi::rxPowerUp(Receiver::ReceiverId::A);
@@ -369,7 +376,7 @@ void HomeStateHandler::doTapAction()
                 case Receiver::DiversityMode::DIVERSITY:
                     EepromSettings.diversityMode = Receiver::DiversityMode::ANTENNA_A;
 #if POWER_OFF_RX
-#if 0
+#if 1
                     ReceiverSpi::rxStandby(Receiver::ReceiverId::B);
 #else
                     ReceiverSpi::rxPowerOff(Receiver::ReceiverId::B);

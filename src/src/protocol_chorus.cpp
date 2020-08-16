@@ -12,6 +12,8 @@ uint8_t chorus_race_is_start(void)
 void chorus_race_state_set(uint8_t state)
 {
     started = state;
+    if (!state) // end, get lap times
+        chorus_race_laps_get();
 }
 
 void chorus_number_of_nodes_get(void)
@@ -24,14 +26,14 @@ void chorus_race_start(void)
 {
     char command[] = "R*R1\n";
     comm_espnow_send((uint8_t*)command, sizeof(command), ESPNOW_CHORUS);
-    started = 1;
+    //started = 1;
 }
 
 void chorus_race_end(void)
 {
     char command[] = "R*R0\n";
     comm_espnow_send((uint8_t*)command, sizeof(command), ESPNOW_CHORUS);
-    started = 0;
+    //started = 0;
 }
 
 void chorus_race_laps_get(void)

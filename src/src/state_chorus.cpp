@@ -38,16 +38,18 @@ void StateMachine::ChorusStateHandler::onUpdateDraw()
     Ui::display.setCursor(UI_GET_MID_X(31), 12);
     Ui::display.print("== Chorus32 Laptimer control =="); // 31 chars
 
-#define NODE_X (30)
+#define X_BASE_OFF (30)
+#define NODE_X (X_BASE_OFF)
 #define NODE_Y (30)
+#define NODE_X_OFFSET (10 * Ui::CHAR_W)
     x_off = NODE_X;
     Ui::display.setCursor(x_off, NODE_Y);
-    Ui::display.print("NODE:");
-    x_off += 7 * Ui::CHAR_W;
+    Ui::display.print("NODE IDX:");
+    x_off += NODE_X_OFFSET;
     range_valid = (cursor_y > (NODE_Y - SPACE_BEF) && cursor_y < (NODE_Y + Ui::CHAR_H + SPACE_AFT));
     for (iter = 0; iter < MAX_NODES; iter++, x_off+=(2*Ui::CHAR_W)) {
-        Ui::display.setCursor(x_off, x_off);
-        Ui::display.print(iter, (iter == lap_times_nodeidx_get())); // invert current
+        Ui::display.setCursor(x_off, NODE_Y);
+        Ui::display.print(iter, 10, 1, (iter == lap_times_nodeidx_get())); // invert current
 
         if (range_valid &&
             cursor_x > (x_off - SPACE_BEF) && cursor_x < (x_off + Ui::CHAR_W + SPACE_AFT))
@@ -60,13 +62,19 @@ void StateMachine::ChorusStateHandler::onUpdateDraw()
         }
     }
 
-#define START_BTN_X (30)
+#define START_BTN_X (X_BASE_OFF)
 #define START_BTN_Y (60)
     Ui::display.setCursor(START_BTN_X, START_BTN_Y);
     if (chorus_race_is_start())
         Ui::display.print("STOP");
     else
         Ui::display.print("START");
+
+#define READ_BTN_X (X_BASE_OFF + NODE_X_OFFSET)
+#define READ_BTN_Y START_BTN_Y
+    Ui::display.setCursor(READ_BTN_X, READ_BTN_Y);
+    Ui::display.print("GET LAPS");
+
 
 #define RET_CURSOR_X (Ui::XRES - 6 * Ui::CHAR_W)
 #define RET_CURSOR_Y (20)
@@ -81,6 +89,15 @@ void StateMachine::ChorusStateHandler::onUpdateDraw()
         Ui::display.rect((START_BTN_X - SPACE_BEF),
                          (START_BTN_Y - SPACE_BEF),
                          (SPACE_BEF + SPACE_AFT + 5 * Ui::CHAR_W),
+                         (SPACE_BEF + SPACE_AFT + Ui::CHAR_H), WHITE);
+    }
+    else if (cursor_y > (READ_BTN_Y - SPACE_BEF) && cursor_y < (READ_BTN_Y + Ui::CHAR_H + SPACE_AFT) &&
+             cursor_x > (READ_BTN_X - SPACE_BEF) && cursor_x < (READ_BTN_X + 8 * Ui::CHAR_W + SPACE_AFT))
+    {
+        // GET LAPS
+        Ui::display.rect((READ_BTN_X - SPACE_BEF),
+                         (READ_BTN_Y - SPACE_BEF),
+                         (SPACE_BEF + SPACE_AFT + 8 * Ui::CHAR_W),
                          (SPACE_BEF + SPACE_AFT + Ui::CHAR_H), WHITE);
     }
     else if (cursor_y > (RET_CURSOR_Y - SPACE_BEF) && cursor_y < (RET_CURSOR_Y + Ui::CHAR_H + SPACE_AFT) &&
@@ -111,6 +128,12 @@ void StateMachine::ChorusStateHandler::doTapAction()
         else
             chorus_race_start();
     }
+    else if (cursor_y > (READ_BTN_Y - SPACE_BEF) && cursor_y < (READ_BTN_Y + Ui::CHAR_H + SPACE_AFT) &&
+             cursor_x > (READ_BTN_X - SPACE_BEF) && cursor_x < (READ_BTN_X + 8 * Ui::CHAR_W + SPACE_AFT))
+    {
+        // GET LAPS
+        chorus_race_laps_get();
+    }
     else if (cursor_y > (RET_CURSOR_Y - SPACE_BEF) && cursor_y < (RET_CURSOR_Y + Ui::CHAR_H + SPACE_AFT) &&
              cursor_x > (RET_CURSOR_X - SPACE_BEF) && cursor_x < (RET_CURSOR_X + 5 * Ui::CHAR_W + SPACE_AFT))
     {
@@ -118,7 +141,7 @@ void StateMachine::ChorusStateHandler::doTapAction()
     }
     else if (cursor_y > (NODE_Y - SPACE_BEF) && cursor_y < (NODE_Y + Ui::CHAR_H + SPACE_AFT))
     {
-        x_off = NODE_X + 7 * Ui::CHAR_W;
+        x_off = NODE_X + NODE_X_OFFSET;
         for (iter = 0; iter < MAX_NODES; iter++, x_off+=(2*Ui::CHAR_W)) {
             if (cursor_x > (x_off - SPACE_BEF) && cursor_x < (x_off + Ui::CHAR_W + SPACE_AFT))
             {

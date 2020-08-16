@@ -28,7 +28,7 @@ void StateMachine::ExLRSStateHandler::onInitialDraw()
 
 void StateMachine::ExLRSStateHandler::onUpdateDraw()
 {
-    uint32_t off_x = 20, off_x2 = off_x + 17 * 8, off_y = 20;
+    uint32_t off_x = 20, off_x2 = off_x + 17 * Ui::CHAR_W, off_y = 20;
     int16_t cursor_x = TouchPad::touchData.cursorX, cursor_y = TouchPad::touchData.cursorY;
     uint8_t region = expresslrs_params_get_region();
 
@@ -50,7 +50,7 @@ void StateMachine::ExLRSStateHandler::onUpdateDraw()
     Ui::display.setCursor(off_x, off_y);
     Ui::display.print("Power (mW):");
     Ui::display.setCursor(off_x2, off_y);
-    Ui::display.print("25    50    100");
+    Ui::display.print("25    50     100");
     off_y += 20;
 
     // TLM Rate
@@ -226,7 +226,7 @@ void StateMachine::ExLRSStateHandler::onUpdateDraw()
         else if ( // 100mW
             cursor_x > (20 + 30 * 8 - 4) && cursor_x < (20 + 33 * 8 + 3))
         {
-            Ui::display.rect(20 + 29 * 8 - 4, 36, 31, 15, 100);
+            Ui::display.rect(20 + 30 * 8 - 4, 36, 31, 15, 100);
         }
     }
     // Draw TLM box
@@ -286,7 +286,7 @@ void StateMachine::ExLRSStateHandler::doTapAction()
         {
             expresslrs_power_send(ExLRS_PWR_50mW);
         }
-        else if (cursor_x > (20 + 29 * 8 - 4) && cursor_x < (20 + 32 * 8 + 3))
+        else if (cursor_x > (20 + 30 * 8 - 4) && cursor_x < (20 + 33 * 8 + 3))
         {
             expresslrs_power_send(ExLRS_PWR_100mW);
         }
