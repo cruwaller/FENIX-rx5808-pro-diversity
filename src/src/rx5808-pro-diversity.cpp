@@ -80,6 +80,9 @@ void setup()
     Ui::setup();
     TouchPad::setup();
 
+    /* Setup receivers and cofigure its registers */
+    ReceiverSpi::setup();
+
     // Has to be last setup() otherwise channel may not be set.
     // RX possibly not booting quick enough if setup() is called earler.
     // delay() may be needed.

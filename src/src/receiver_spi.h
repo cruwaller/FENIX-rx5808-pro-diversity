@@ -6,10 +6,11 @@
 #include "receiver.h"
 
 namespace ReceiverSpi {
-  void setSynthRegisterB(uint16_t value);
-  void setPowerDownRegister(uint32_t value);
-  void setStateRegister(uint32_t value);
+  void setup(void);
 
+  void setSynthRegisterB(uint32_t freq);
+
+  void rxVideoOff(Receiver::ReceiverId ReceiverId);
   void rxPowerOff(Receiver::ReceiverId ReceiverId);
   void rxPowerUp(Receiver::ReceiverId ReceiverId);
   void rxStandby(Receiver::ReceiverId ReceiverId);

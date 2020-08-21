@@ -276,14 +276,6 @@ static const uint8_t channelIndexToOrderedIndex[] PROGMEM = {
 #endif
 
 namespace Channels {
-    const uint16_t getSynthRegisterB(uint8_t index) {
-        return getSynthRegisterBFreq(getFrequency(index));
-    }
-
-    const uint16_t getSynthRegisterBFreq(uint16_t f) {
-      return ((((f - 479) / 2) / 32) << 7) | (((f - 479) / 2) % 32);
-    }
-
     const uint16_t getFrequency(uint8_t index) {
         return pgm_read_word_near(channelFreqTable + index);
     }

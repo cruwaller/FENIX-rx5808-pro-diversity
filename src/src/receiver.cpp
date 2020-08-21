@@ -11,8 +11,8 @@
 #include "timer.h"
 
 namespace Receiver {
-    ReceiverId DMA_ATTR activeReceiver = ReceiverId::A;
-    uint8_t DMA_ATTR activeChannel = EepromSettings.startChannel;
+    ReceiverId DMA_ATTR activeReceiver = ReceiverId::ALL; // Init to ALL to make sure the initial value is set correctly!
+    uint8_t DMA_ATTR activeChannel;
 
     uint16_t DMA_ATTR rssiA = 0;
     uint32_t DMA_ATTR rssiARaw = 0;
@@ -31,7 +31,6 @@ namespace Receiver {
     uint32_t DMA_ATTR rssiDRaw = 0;
     uint16_t DMA_ATTR rssiDLast[RECEIVER_LAST_DATA_SIZE] = { 0 };
 #endif
-    uint16_t DMA_ATTR rssiBandScanData[CHANNELS_SIZE] = { 0 };
 
     uint16_t DMA_ATTR previousSwitchTime = 0;
     uint16_t DMA_ATTR antennaAOnTime = 0;
@@ -49,7 +48,7 @@ namespace Receiver {
 
     void setChannel(uint8_t channel)
     {
-        ReceiverSpi::setSynthRegisterB(Channels::getSynthRegisterB(channel));
+        ReceiverSpi::setSynthRegisterB(Channels::getFrequency(channel));
 
         rssiStableTimer.reset();
         activeChannel = channel;
@@ -59,15 +58,13 @@ namespace Receiver {
 
     void setChannelByFreq(uint16_t freq)
     {
-        ReceiverSpi::setSynthRegisterB(Channels::getSynthRegisterBFreq(freq));
-
-        rssiStableTimer.reset();
-//        activeChannel = channel;
-
-        hasRssiUpdated = false;
+        setChannel(Channels::getClosestChannel(freq));
     }
 
-    void setActiveReceiver(ReceiverId receiver) {
+    static void setActiveReceiver(ReceiverId receiver)
+    {
+        if (receiver == activeReceiver)
+            return;
 
         switch (EepromSettings.diversityMode) {
             case Receiver::DiversityMode::ANTENNA_A:
@@ -112,20 +109,24 @@ namespace Receiver {
         activeReceiver = receiver;
     }
 
-    bool isRssiStable() {
+    bool isRssiStable()
+    {
         return rssiStableTimer.hasTicked();
     }
 
-    bool isRssiStableAndUpdated() {
+    bool isRssiStableAndUpdated()
+    {
         return isRssiStable() && hasRssiUpdated;
     }
 
-    void updateRssi() {
+    void updateRssi()
+    {
+        uint8_t iter;
 
-        uint8_t const RSSI_READS = 4; // 3; //15;
+#define RSSI_READS 4 // 3; //15;
 
         rssiARaw = rssiBRaw = 0;
-        for (uint8_t i = 0; i < RSSI_READS; i++) {
+        for (iter = 0; iter < RSSI_READS; iter++) {
             rssiARaw += analogRead(PIN_RSSI_A);
             rssiBRaw += analogRead(PIN_RSSI_B);
         }
@@ -135,7 +136,7 @@ namespace Receiver {
 #if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
         if (EepromSettings.quadversity) {
             rssiCRaw = rssiDRaw = 0;
-            for (uint8_t i = 0; i < RSSI_READS; i++) {
+            for (iter = 0; iter < RSSI_READS; iter++) {
                 rssiCRaw += analogRead(PIN_RSSI_C);
                 rssiDRaw += analogRead(PIN_RSSI_D);
             }
@@ -171,31 +172,34 @@ namespace Receiver {
             );
 
 #if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
-            rssiC = constrain(
-                map(
-                    rssiCRaw,
-                    EepromSettings.rssiCMin,
-                    EepromSettings.rssiCMax,
+            if (EepromSettings.quadversity) {
+                rssiC = constrain(
+                    map(
+                        rssiCRaw,
+                        EepromSettings.rssiCMin,
+                        EepromSettings.rssiCMax,
+                        0,
+                        1000
+                    ),
                     0,
                     1000
-                ),
-                0,
-                1000
-            );
-            rssiD = constrain(
-                map(
-                    rssiDRaw,
-                    EepromSettings.rssiDMin,
-                    EepromSettings.rssiDMax,
+                );
+                rssiD = constrain(
+                    map(
+                        rssiDRaw,
+                        EepromSettings.rssiDMin,
+                        EepromSettings.rssiDMax,
+                        0,
+                        1000
+                    ),
                     0,
                     1000
-                ),
-                0,
-                1000
-            );
+                );
+            }
 #endif
         }
 
+#if !HOME_SHOW_LAPTIMES
         if (rssiLogTimer.hasTicked()) {
             for (uint8_t i = 0; i < RECEIVER_LAST_DATA_SIZE - 1; i++) {
                 rssiALast[i] = rssiALast[i + 1];
@@ -219,10 +223,10 @@ namespace Receiver {
             rssiLogTimer.reset();
             hasRssiUpdated = true;
         }
-
+#endif // !HOME_SHOW_LAPTIMES
     }
 
-    void switchDiversity() {
+    static void switchDiversity() {
         int32_t rssiDiff = 0;
         ReceiverId nextReceiver = activeReceiver;
         ReceiverId currentBestReceiver = activeReceiver;
@@ -252,19 +256,6 @@ namespace Receiver {
             } else if (ReceiverId::D == activeReceiver) {
                 rssiDiff = rssiMax - rssiD;
             }
-
-            if (abs(rssiDiff) >= EepromSettings.rssiHysteresis) {
-                if (currentBestReceiver == diversityTargetReceiver) {
-                    if (diversityHysteresisTimer.hasTicked()) {
-                        nextReceiver = diversityTargetReceiver;
-                    }
-                } else {
-                    diversityTargetReceiver = currentBestReceiver;
-                    diversityHysteresisTimer.reset();
-                }
-            } else {
-                diversityHysteresisTimer.reset();
-            }
         }
         else
 #endif // PIN_RSSI_C && PIN_RSSI_D
@@ -275,68 +266,69 @@ namespace Receiver {
                 currentBestReceiver = ReceiverId::A;
             } else if (rssiDiff < 0) {
                 currentBestReceiver = ReceiverId::B;
-            } else {
-                currentBestReceiver = activeReceiver;
             }
+        }
 
-            if (abs(rssiDiff) >= EepromSettings.rssiHysteresis) {
-                if (currentBestReceiver == diversityTargetReceiver) {
-                    if (diversityHysteresisTimer.hasTicked()) {
-                        nextReceiver = diversityTargetReceiver;
-                    }
-                } else {
-                    diversityTargetReceiver = currentBestReceiver;
-                    diversityHysteresisTimer.reset();
+        if (abs(rssiDiff) >= EepromSettings.rssiHysteresis) {
+            if (currentBestReceiver == diversityTargetReceiver) {
+                if (diversityHysteresisTimer.hasTicked()) {
+                    nextReceiver = diversityTargetReceiver;
                 }
             } else {
+                diversityTargetReceiver = currentBestReceiver;
                 diversityHysteresisTimer.reset();
             }
+        } else {
+            diversityHysteresisTimer.reset();
         }
 
         setActiveReceiver(nextReceiver);
     }
 
-    void updateAntenaOnTime() {
-        uint32_t ms = millis() / 1000;
-        if (ReceiverId::A == activeReceiver) {
-            antennaAOnTime += ms - previousSwitchTime;
-        }
-        else if (ReceiverId::B == activeReceiver) {
-            antennaBOnTime += ms - previousSwitchTime;
-        }
+    void updateAntenaOnTime()
+    {
+        uint32_t secs = (millis() / 1000) - previousSwitchTime;
+        previousSwitchTime = secs;
+        switch (activeReceiver) {
+            case ReceiverId::A:
+                antennaAOnTime += secs;
+                break;
+            case ReceiverId::B:
+                antennaBOnTime += secs;
+                break;
 #if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
-        if (EepromSettings.quadversity) {
-            if (ReceiverId::C == activeReceiver) {
-                antennaCOnTime += ms - previousSwitchTime;
-            }
-            else if (ReceiverId::D == activeReceiver) {
-                antennaDOnTime += ms - previousSwitchTime;
-            }
-        }
+            case ReceiverId::C:
+                antennaCOnTime += secs;
+                break;
+            case ReceiverId::D:
+                antennaDOnTime += secs;
+                break;
 #endif
-        previousSwitchTime = ms;
+            default:
+                break;
+        }
     }
 
-    void setup() {
-#ifdef DISABLE_AUDIO
-        ReceiverSpi::setPowerDownRegister(0b00010000110111110011);
-#endif
-        setChannel(EepromSettings.startChannel);
-        setActiveReceiver(ReceiverId::A);
-        activeChannel = EepromSettings.startChannel;
+    void setup()
+    {
         diversityHysteresisTimer = Timer(EepromSettings.rssiHysteresisPeriod);
         rssiStableTimer = Timer(EepromSettings.rssiMinTuneTime);
+        setChannel(EepromSettings.startChannel);
+        setActiveReceiver(ReceiverId::A);
     }
 
-    void update() {
-
-        if (rssiStableTimer.hasTicked()) {
+    void update()
+    {
+        if (isRssiStable()) {
 
             updateAntenaOnTime();
 
             updateRssi();
 
-            switchDiversity();
+            /* Switch only if mode is selected */
+            if (EepromSettings.diversityMode == Receiver::DiversityMode::DIVERSITY ||
+                EepromSettings.diversityMode == Receiver::DiversityMode::QUADVERSITY)
+                switchDiversity();
         }
 
     }

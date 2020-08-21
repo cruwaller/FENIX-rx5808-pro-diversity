@@ -26,6 +26,8 @@
     #define CHANNELS_SIZE_DIVIDER 6
 #endif
 
+uint16_t DMA_ATTR rssiBandScanData[CHANNELS_SIZE] /*= { 0 }*/;
+
 using StateMachine::HomeStateHandler;
 
 void HomeStateHandler::onEnter() {
@@ -237,7 +239,7 @@ void HomeStateHandler::onUpdateDraw()
     // Plot Spectrum 324 x 224
     uint16_t rssi;
     for (uint8_t i=0; i<CHANNELS_SIZE; i++) {
-        rssi = Receiver::rssiBandScanData[i];
+        rssi = rssiBandScanData[i];
         Ui::display.fillRect(18+CHANNELS_SIZE_DIVIDER*i,
                              214 - rssi*8/100,
                              CHANNELS_SIZE_DIVIDER,
@@ -481,12 +483,12 @@ void HomeStateHandler::bandScanUpdate() {
 
 #if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
         if (EepromSettings.quadversity) {
-            Receiver::rssiBandScanData[orderedChanelIndex] = max(Receiver::rssiA, max(Receiver::rssiB, max(Receiver::rssiC, Receiver::rssiD)));
+            rssiBandScanData[orderedChanelIndex] = max(Receiver::rssiA, max(Receiver::rssiB, max(Receiver::rssiC, Receiver::rssiD)));
         }
         else
 #endif
         {
-            Receiver::rssiBandScanData[orderedChanelIndex] = max(Receiver::rssiA, Receiver::rssiB);
+            rssiBandScanData[orderedChanelIndex] = max(Receiver::rssiA, Receiver::rssiB);
         }
 
         orderedChanelIndex = orderedChanelIndex + 1;

@@ -14,8 +14,6 @@
 #endif
 
 namespace Channels {
-    const uint16_t getSynthRegisterB(uint8_t index);
-    const uint16_t getSynthRegisterBFreq(uint16_t freq);
     const uint16_t getFrequency(uint8_t index);
     extern char *getName(uint8_t index);
     const uint8_t getOrderedIndex(uint8_t index);

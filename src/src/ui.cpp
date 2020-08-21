@@ -57,7 +57,7 @@ namespace Ui {
 
     void tvOn() {
 
-        ReceiverSpi::setPowerDownRegister(0b01010000110000010011);
+        ReceiverSpi::rxVideoOff(Receiver::ReceiverId::ALL);
 
         composite.startOutput();
 
@@ -66,7 +66,7 @@ namespace Ui {
 
     void tvOff() {
 
-        ReceiverSpi::setPowerDownRegister(0b00010000110000010011);
+        ReceiverSpi::rxPowerUp(Receiver::ReceiverId::ALL);
 
         Receiver::setChannel(Receiver::activeChannel);
 

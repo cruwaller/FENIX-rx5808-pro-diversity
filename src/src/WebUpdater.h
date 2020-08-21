@@ -5,6 +5,7 @@
 #include <ESPmDNS.h>
 #include <Update.h>
 #include <comm_espnow.h>
+#include <esp_wifi.h>
 
 const char *host = "webupdate";
 const char *ssid = STASSID;
@@ -12,7 +13,31 @@ const char *ssid = STASSID;
 WebServer server(80);
 const char* serverIndex = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
 
-void BeginWebUpdate(void) {
+
+void handleMacAddress()
+{
+  uint8_t primaryChan;
+  wifi_second_chan_t secondChan;
+  esp_wifi_get_channel(&primaryChan, &secondChan);
+  (void)secondChan;
+
+  String message = "WiFi STA MAC: ";
+  message += WiFi.macAddress();
+  message += "\n  - channel in use: ";
+  message += primaryChan;
+  message += "\n  - mode: ";
+  message += (uint8_t)WiFi.getMode();
+  message += "\n\nWiFi SoftAP MAC: ";
+  message += WiFi.softAPmacAddress();
+  message += "\n  - IP: ";
+  message += WiFi.softAPIP().toString();
+  message += "\n";
+  server.send(200, "text/plain", message);
+}
+
+
+void BeginWebUpdate(void)
+{
 #if !OTA_UPDATE_STORE
   comm_espnow_deinit();
 #endif
@@ -24,6 +49,7 @@ void BeginWebUpdate(void) {
   WiFi.softAP(STASSID);
 
   MDNS.begin(host);
+
   server.on("/", HTTP_GET, []() {
     server.sendHeader("Connection", "close");
     server.send(200, "text/html", serverIndex);
@@ -63,6 +89,8 @@ void BeginWebUpdate(void) {
 #endif
     }
   });
+  server.on("/mac", handleMacAddress);
+
   server.begin();
   MDNS.addService("http", "tcp", 80);
 
@@ -71,7 +99,8 @@ void BeginWebUpdate(void) {
 #endif
 }
 
-void HandleWebUpdate(void) {
+void HandleWebUpdate(void)
+{
   server.handleClient();
   yield();
 }

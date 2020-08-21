@@ -45,8 +45,6 @@ namespace Receiver {
     extern uint32_t rssiDRaw;
     extern uint16_t  rssiDLast[RECEIVER_LAST_DATA_SIZE];
 
-    extern uint16_t rssiBandScanData[CHANNELS_SIZE];
-
     extern uint16_t previousSwitchTime;
     extern uint16_t antennaAOnTime;
     extern uint16_t antennaBOnTime;
@@ -56,11 +54,6 @@ namespace Receiver {
     void setChannel(uint8_t channel);
     void setChannelByFreq(uint16_t freq);
     void updateRssi();
-    void setActiveReceiver(ReceiverId receiver = ReceiverId::A);
-
-    void antenaOnTime();
-
-    void switchDiversity();
 
     bool isRssiStable();
     bool isRssiStableAndUpdated();

@@ -9,21 +9,15 @@
 #define WIFI_CHANNEL 1
 
 uint8_t elrs_peers[][ESP_NOW_ETH_ALEN] = {
-#if 1
+#if defined(ESP_NOW_PEERS_ELRS)
     ESP_NOW_PEERS_ELRS
-#else
-    {0x5C, 0xCF, 0x7F, 0xAC, 0xD9, 0x0F},   // R9M LOGGER STA: 5C:CF:7F:AC:D9:0F (ESP8266)
-    {0x5E, 0xCF, 0x7F, 0xAC, 0xD9, 0x0F},   // R9M LOGGER  AP: 5E:CF:7F:AC:D9:0F (ESP8266)
 #endif
 };
 constexpr uint8_t ELRS_PEERS_CNT = sizeof(elrs_peers) / ESP_NOW_ETH_ALEN;
 
 uint8_t chorus_peers[][ESP_NOW_ETH_ALEN] = {
-#if 1
+#if defined(ESP_NOW_PEERS_CHORUS)
     ESP_NOW_PEERS_CHORUS
-#else
-    //{0xF0, 0x08, 0xD1, 0xD4, 0xED, 0x7C},   // Chorus32 STA: F0:08:D1:D4:ED:7C (ESP32)
-    {0xF0, 0x08, 0xD1, 0xD4, 0xED, 0x7D},   // Chorus32  AP: F0:08:D1:D4:ED:7D (ESP32)
 #endif
 };
 constexpr uint8_t CHORUS_PEERS_CNT = sizeof(chorus_peers) / ESP_NOW_ETH_ALEN;
