@@ -45,7 +45,6 @@ namespace Receiver {
     extern uint32_t rssiDRaw;
     extern uint16_t  rssiDLast[RECEIVER_LAST_DATA_SIZE];
 
-    extern uint16_t previousSwitchTime;
     extern uint16_t antennaAOnTime;
     extern uint16_t antennaBOnTime;
     extern uint16_t antennaCOnTime;

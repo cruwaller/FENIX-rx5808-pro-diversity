@@ -63,8 +63,8 @@ namespace Receiver {
 
     static void setActiveReceiver(ReceiverId receiver)
     {
-        if (receiver == activeReceiver)
-            return;
+        //if (receiver == activeReceiver)
+        //    return;
 
         switch (EepromSettings.diversityMode) {
             case Receiver::DiversityMode::ANTENNA_A:
@@ -199,7 +199,7 @@ namespace Receiver {
 #endif
         }
 
-#if !HOME_SHOW_LAPTIMES
+#if 1 || !HOME_SHOW_LAPTIMES
         if (rssiLogTimer.hasTicked()) {
             for (uint8_t i = 0; i < RECEIVER_LAST_DATA_SIZE - 1; i++) {
                 rssiALast[i] = rssiALast[i + 1];
@@ -287,9 +287,8 @@ namespace Receiver {
 
     void updateAntenaOnTime()
     {
-        uint32_t ms = millis();
-        uint32_t secs = (ms - previousSwitchTime) / 1000;
-        previousSwitchTime = ms;
+        uint32_t _sec_now = (millis() / 1000);
+        uint32_t secs = _sec_now - previousSwitchTime;
         switch (activeReceiver) {
             case ReceiverId::A:
                 antennaAOnTime += secs;
@@ -308,6 +307,7 @@ namespace Receiver {
             default:
                 break;
         }
+        previousSwitchTime = _sec_now;
     }
 
     void setup()

@@ -135,8 +135,7 @@ void HomeStateHandler::onUpdateDraw()
         //Ui::display.rect(x_off, y_off, 19, 19, WHITE);
         if (Receiver::activeReceiver == Receiver::ReceiverId::A) {
             Ui::display.rect(128, (10 + 28*0 + 3), 19, 19, 100);
-        }
-        if (Receiver::activeReceiver == Receiver::ReceiverId::B) {
+        } else if (Receiver::activeReceiver == Receiver::ReceiverId::B) {
             Ui::display.rect(128, (10 + 28*2 + 3), 18, 18, 100);
         }
 

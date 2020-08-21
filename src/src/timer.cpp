@@ -3,17 +3,17 @@
 
 
 Timer::Timer(uint16_t delay) {
-    delay = delay;
+    this->delay = delay;
     reset();
 }
 
 const bool ICACHE_RAM_ATTR Timer::hasTicked() {
-    if (!ticked)
-        ticked = !!(0 >= (int32_t)(nextTick - millis()));
-    return ticked;
+    if (!this->ticked)
+        this->ticked = (0 >= (int32_t)(this->nextTick - millis()));
+    return this->ticked;
 }
 
 void ICACHE_RAM_ATTR Timer::reset() {
-    nextTick = millis() + delay;
-    ticked = false;
+    this->nextTick = millis() + this->delay;
+    this->ticked = false;
 }
