@@ -3,6 +3,7 @@
 
 
 #include <stdint.h>
+#include <esp_attr.h>
 #include "channels.h"
 
 
@@ -29,26 +30,26 @@ namespace Receiver {
         QUADVERSITY
     };
 
-    extern ReceiverId activeReceiver;
-    extern uint8_t activeChannel;
+    extern ReceiverId DMA_ATTR activeReceiver;
+    extern uint8_t DMA_ATTR activeChannel;
 
-    extern uint16_t  rssiA;
-    extern uint32_t rssiARaw;
-    extern uint16_t  rssiALast[RECEIVER_LAST_DATA_SIZE];
-    extern uint16_t  rssiB;
-    extern uint32_t rssiBRaw;
-    extern uint16_t  rssiBLast[RECEIVER_LAST_DATA_SIZE];
-    extern uint16_t  rssiC;
-    extern uint32_t rssiCRaw;
-    extern uint16_t  rssiCLast[RECEIVER_LAST_DATA_SIZE];
-    extern uint16_t  rssiD;
-    extern uint32_t rssiDRaw;
-    extern uint16_t  rssiDLast[RECEIVER_LAST_DATA_SIZE];
+    extern uint16_t DMA_ATTR rssiA;
+    extern uint32_t DMA_ATTR rssiARaw;
+    extern uint16_t DMA_ATTR rssiALast[RECEIVER_LAST_DATA_SIZE];
+    extern uint16_t DMA_ATTR rssiB;
+    extern uint32_t DMA_ATTR rssiBRaw;
+    extern uint16_t DMA_ATTR rssiBLast[RECEIVER_LAST_DATA_SIZE];
+    extern uint16_t DMA_ATTR rssiC;
+    extern uint32_t DMA_ATTR rssiCRaw;
+    extern uint16_t DMA_ATTR rssiCLast[RECEIVER_LAST_DATA_SIZE];
+    extern uint16_t DMA_ATTR rssiD;
+    extern uint32_t DMA_ATTR rssiDRaw;
+    extern uint16_t DMA_ATTR rssiDLast[RECEIVER_LAST_DATA_SIZE];
 
-    extern uint16_t antennaAOnTime;
-    extern uint16_t antennaBOnTime;
-    extern uint16_t antennaCOnTime;
-    extern uint16_t antennaDOnTime;
+    extern uint16_t DMA_ATTR antennaAOnTime;
+    extern uint16_t DMA_ATTR antennaBOnTime;
+    extern uint16_t DMA_ATTR antennaCOnTime;
+    extern uint16_t DMA_ATTR antennaDOnTime;
 
     void setChannel(uint8_t channel);
     void setChannelByFreq(uint16_t freq);

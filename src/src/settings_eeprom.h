@@ -7,6 +7,7 @@
 #include "settings.h"
 #include "state.h"
 #include "receiver.h"
+#include <esp_attr.h>
 
 
 struct EepromSettings {
@@ -61,7 +62,7 @@ struct EepromSettings {
 };
 
 
-extern struct EepromSettings EepromSettings;
+extern struct EepromSettings DMA_ATTR EepromSettings;
 
 
 #endif

@@ -1,7 +1,7 @@
 #include "channels.h"
 #include "settings.h"
 #include "receiver.h"
-#include "Arduino.h"
+#include <Arduino.h>
 #include "ui.h"
 #include "settings_eeprom.h"
 

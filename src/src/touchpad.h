@@ -2,7 +2,7 @@
 #define TOUCHPAD_H
 
 #include <stdint.h>
-#include <SPI.h>
+#include <esp_attr.h>
 
 namespace TouchPad {
 
@@ -23,7 +23,7 @@ namespace TouchPad {
       bool switchButtonOrder;
     } relData_t;
 
-    extern relData_t touchData;
+    extern relData_t DMA_ATTR touchData;
 
     enum class Gesture : uint8_t {
         Up,

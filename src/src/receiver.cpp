@@ -63,6 +63,7 @@ namespace Receiver {
 
     static void setActiveReceiver(ReceiverId receiver)
     {
+        // TODO FIXME!
         //if (receiver == activeReceiver)
         //    return;
 
@@ -326,9 +327,10 @@ namespace Receiver {
 
             updateRssi();
 
+            // TODO FIXME!
             /* Switch only if mode is selected */
-            if (EepromSettings.diversityMode == Receiver::DiversityMode::DIVERSITY ||
-                EepromSettings.diversityMode == Receiver::DiversityMode::QUADVERSITY)
+            //if (EepromSettings.diversityMode == Receiver::DiversityMode::DIVERSITY ||
+            //    EepromSettings.diversityMode == Receiver::DiversityMode::QUADVERSITY)
                 switchDiversity();
         }
 

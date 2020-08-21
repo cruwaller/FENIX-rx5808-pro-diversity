@@ -5,7 +5,7 @@
 #include "settings_eeprom.h"
 #include "timer.h"
 #include "ui.h"
-
+#include <esp_attr.h>
 
 const struct EepromSettings EepromDefaults = {
     .versionNumber = VERSION_NUMBER,
