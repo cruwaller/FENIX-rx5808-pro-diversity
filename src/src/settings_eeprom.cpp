@@ -44,17 +44,17 @@ const struct EepromSettings EepromDefaults = {
     .spectatorFreqScanStep = 5,
     .spectatorFWHM = 20,
     .rssiSeekTreshold = 500,
-    .rssiMinTuneTime = 30,
+    .rssiMinTuneTime = 30, // ms
     .rssiHysteresis = 0,
-    .rssiHysteresisPeriod = 0,
+    .rssiHysteresisPeriod = 0, // ms
 };
 
 
 
-static Timer saveTimer = Timer(EEPROM_SAVE_TIME);
-static bool isDirty = false;
+static Timer DMA_ATTR saveTimer = Timer(EEPROM_SAVE_TIME);
+static bool DMA_ATTR isDirty = false;
 
-struct EepromSettings EepromSettings;
+struct EepromSettings DMA_ATTR EepromSettings;
 
 void EepromSettings::setup() {
     this->load();

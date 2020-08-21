@@ -18,7 +18,7 @@ struct EepromSettings {
     Receiver::DiversityMode diversityMode;
 
     uint8_t startChannel;
-    int lastKnownMenuItem;
+    int lastKnownMenuItem; // TODO: Useless, remove this later
     StateMachine::State lastKnownState;
 
     uint8_t beepEnabled;

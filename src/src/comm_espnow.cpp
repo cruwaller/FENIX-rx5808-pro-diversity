@@ -8,14 +8,14 @@
 
 #define WIFI_CHANNEL 1
 
-uint8_t elrs_peers[][ESP_NOW_ETH_ALEN] = {
+uint8_t DMA_ATTR elrs_peers[][ESP_NOW_ETH_ALEN] = {
 #if defined(ESP_NOW_PEERS_ELRS)
     ESP_NOW_PEERS_ELRS
 #endif
 };
 constexpr uint8_t ELRS_PEERS_CNT = sizeof(elrs_peers) / ESP_NOW_ETH_ALEN;
 
-uint8_t chorus_peers[][ESP_NOW_ETH_ALEN] = {
+uint8_t DMA_ATTR chorus_peers[][ESP_NOW_ETH_ALEN] = {
 #if defined(ESP_NOW_PEERS_CHORUS)
     ESP_NOW_PEERS_CHORUS
 #endif

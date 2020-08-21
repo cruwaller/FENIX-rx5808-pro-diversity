@@ -119,9 +119,6 @@ void StateMachine::SettingsRssiStateHandler::doTapAction() {
                 Channels::getCenterFreq(
                   Channels::getFrequency(bestChannel))));
 
-            EepromSettings.lastKnownMenuItem = 0;
-            EepromSettings.markDirty();
-
             StateMachine::switchState(StateMachine::State::HOME);
 
             break;

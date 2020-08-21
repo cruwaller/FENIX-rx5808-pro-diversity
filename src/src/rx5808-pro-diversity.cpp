@@ -125,9 +125,11 @@ void setup()
 
 void setupPins() {
 
+#if !DEBUG_ENABLED && !defined(SPEED_TEST)
     // Rx and Tx set as input so that they are high impedance when conencted to goggles.
     pinMode(1, INPUT);
     pinMode(3, INPUT);
+#endif
 
     // Init CS pins here to make sure those are in correct state before configuration is performed
     pinMode(PIN_TOUCHPAD_SLAVE_SELECT, OUTPUT);
@@ -138,6 +140,15 @@ void setupPins() {
 
     pinMode(PIN_SPI_SLAVE_SELECT_RX_B, OUTPUT);
     digitalWrite(PIN_SPI_SLAVE_SELECT_RX_B, HIGH);
+
+#if defined(PIN_SPI_SLAVE_SELECT_RX_C)
+    pinMode(PIN_SPI_SLAVE_SELECT_RX_C, OUTPUT);
+    digitalWrite(PIN_SPI_SLAVE_SELECT_RX_C, HIGH);
+#endif
+#if defined(PIN_SPI_SLAVE_SELECT_RX_D)
+    pinMode(PIN_SPI_SLAVE_SELECT_RX_D, OUTPUT);
+    digitalWrite(PIN_SPI_SLAVE_SELECT_RX_D, HIGH);
+#endif
 
     pinMode(PIN_RX_SWITCH, OUTPUT);
     digitalWrite(PIN_RX_SWITCH, LOW);
@@ -182,9 +193,6 @@ void loop() {
             StateMachine::update();
             Ui::update();
             Ui::display.end(); // draw OSD
-
-            // Useless call, checks if !Ui::isTvOn ==> removed!
-            // EepromSettings.update();
 
             if (Ui::UiTimeOut.hasTicked() &&
                 StateMachine::currentState != StateMachine::State::SETTINGS_RSSI )

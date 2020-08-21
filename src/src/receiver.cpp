@@ -123,7 +123,7 @@ namespace Receiver {
     {
         uint8_t iter;
 
-#define RSSI_READS 4 // 3; //15;
+#define RSSI_READS 4 // 3;
 
         rssiARaw = rssiBRaw = 0;
         for (iter = 0; iter < RSSI_READS; iter++) {
@@ -287,8 +287,9 @@ namespace Receiver {
 
     void updateAntenaOnTime()
     {
-        uint32_t secs = (millis() / 1000) - previousSwitchTime;
-        previousSwitchTime = secs;
+        uint32_t ms = millis();
+        uint32_t secs = (ms - previousSwitchTime) / 1000;
+        previousSwitchTime = ms;
         switch (activeReceiver) {
             case ReceiverId::A:
                 antennaAOnTime += secs;

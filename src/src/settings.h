@@ -67,6 +67,8 @@ SOFTWARE.
 
 #define PIN_SPI_SLAVE_SELECT_RX_A       32
 #define PIN_SPI_SLAVE_SELECT_RX_B       33
+//#define PIN_SPI_SLAVE_SELECT_RX_C       -1
+//#define PIN_SPI_SLAVE_SELECT_RX_D       -1
 
 #define PIN_RX_SWITCH                   27
 

@@ -17,13 +17,14 @@
 #define TOUCHPAD_WRITE_MASK  0x80
 #define TOUCHPAD_READ_MASK   0xA0
 
-namespace TouchPad {
+#define GESTURE_ARRAY_SIZE 8
 
-    const int sizeOfGestureArray = 8;
-    int xGestureArray[sizeOfGestureArray] = {0};
-    int yGestureArray[sizeOfGestureArray] = {0};
-    int xSwipeThreshold = 130;
-    int ySwipeThreshold = 200;
+namespace TouchPad
+{
+    int DMA_ATTR xGestureArray[GESTURE_ARRAY_SIZE] = {0};
+    int DMA_ATTR yGestureArray[GESTURE_ARRAY_SIZE] = {0};
+    int DMA_ATTR xSwipeThreshold = 130;
+    int DMA_ATTR ySwipeThreshold = 200;
 
     relData_t DMA_ATTR touchData;
 
@@ -236,16 +237,16 @@ namespace TouchPad {
 
     Gesture isGesture() {
 
-        for (int i = 0; i < sizeOfGestureArray - 1; i++) {
-            xGestureArray[sizeOfGestureArray-1-i] = xGestureArray[sizeOfGestureArray-2-i];
-            yGestureArray[sizeOfGestureArray-1-i] = yGestureArray[sizeOfGestureArray-2-i];
+        for (int i = 0; i < GESTURE_ARRAY_SIZE - 1; i++) {
+            xGestureArray[GESTURE_ARRAY_SIZE-1-i] = xGestureArray[GESTURE_ARRAY_SIZE-2-i];
+            yGestureArray[GESTURE_ARRAY_SIZE-1-i] = yGestureArray[GESTURE_ARRAY_SIZE-2-i];
         }
         xGestureArray[0] = TouchPad::touchData.xDelta;
         yGestureArray[0] = TouchPad::touchData.yDelta;
 
         int xSumArray = 0;
         int ySumArray = 0;
-        for (int i = 0; i < sizeOfGestureArray - 1; i++) {
+        for (int i = 0; i < GESTURE_ARRAY_SIZE - 1; i++) {
             xSumArray += xGestureArray[i];
             ySumArray += yGestureArray[i];
         }
@@ -254,7 +255,7 @@ namespace TouchPad {
 #if DEBUG_ENABLED && DEBUG_TOUCHPAD
             Serial.println("Swipe Left");
 #endif
-            for (int i = 0; i < sizeOfGestureArray - 1; i++) {
+            for (int i = 0; i < GESTURE_ARRAY_SIZE - 1; i++) {
                 xGestureArray[i] = 0;
                 yGestureArray[i] = 0;
             }
@@ -264,7 +265,7 @@ namespace TouchPad {
 #if DEBUG_ENABLED && DEBUG_TOUCHPAD
             Serial.println("Swipe Right");
 #endif
-            for (int i = 0; i < sizeOfGestureArray - 1; i++) {
+            for (int i = 0; i < GESTURE_ARRAY_SIZE - 1; i++) {
                 xGestureArray[i] = 0;
                 yGestureArray[i] = 0;
             }
@@ -274,7 +275,7 @@ namespace TouchPad {
 #if DEBUG_ENABLED && DEBUG_TOUCHPAD
             Serial.println("Swipe Up");
 #endif
-            for (int i = 0; i < sizeOfGestureArray - 1; i++) {
+            for (int i = 0; i < GESTURE_ARRAY_SIZE - 1; i++) {
                 xGestureArray[i] = 0;
                 yGestureArray[i] = 0;
             }
@@ -284,7 +285,7 @@ namespace TouchPad {
 #if DEBUG_ENABLED && DEBUG_TOUCHPAD
             Serial.println("Swipe Down");
 #endif
-            for (int i = 0; i < sizeOfGestureArray - 1; i++) {
+            for (int i = 0; i < GESTURE_ARRAY_SIZE - 1; i++) {
                 xGestureArray[i] = 0;
                 yGestureArray[i] = 0;
             }
