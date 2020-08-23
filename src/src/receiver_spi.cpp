@@ -46,10 +46,10 @@ namespace ReceiverSpi {
         /* Init receivers registers */
     }
 
-    void setSynthRegisterB(uint32_t freq)
+    void setSynthRegisterB(uint32_t freq, Receiver::ReceiverId ReceiverId)
     {
         uint32_t value = converteFreqToSynthRegisterB(freq);
-        sendRegister(SPI_ADDRESS_SYNTH_B, value);
+        sendRegister(SPI_ADDRESS_SYNTH_B, value, ReceiverId);
     }
 
     void rxVideoOff(Receiver::ReceiverId ReceiverId)

@@ -8,7 +8,7 @@
 namespace ReceiverSpi {
   void setup(void);
 
-  void setSynthRegisterB(uint32_t freq);
+  void setSynthRegisterB(uint32_t freq, Receiver::ReceiverId ReceiverId);
 
   void rxVideoOff(Receiver::ReceiverId ReceiverId);
   void rxPowerOff(Receiver::ReceiverId ReceiverId);

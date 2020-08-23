@@ -51,7 +51,9 @@ namespace Receiver {
     extern uint32_t DMA_ATTR antennaCOnTime;
     extern uint32_t DMA_ATTR antennaDOnTime;
 
-    void setChannel(uint8_t channel);
+    void setDiversityMode(DiversityMode mode);
+
+    void setChannel(uint8_t channel, ReceiverId rcvr_id=ReceiverId::ALL);
     void setChannelByFreq(uint16_t freq);
     void updateRssi();
 

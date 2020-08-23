@@ -327,22 +327,22 @@ void HomeStateHandler::doTapAction()
             switch ( EepromSettings.diversityMode )
             {
                 case Receiver::DiversityMode::ANTENNA_A:
-                    EepromSettings.diversityMode = Receiver::DiversityMode::ANTENNA_B;
+                    setDiversityMode(Receiver::DiversityMode::ANTENNA_B);
                     break;
                 case Receiver::DiversityMode::ANTENNA_B:
-                    EepromSettings.diversityMode = Receiver::DiversityMode::ANTENNA_C;
+                    setDiversityMode(Receiver::DiversityMode::ANTENNA_C);
                     break;
                 case Receiver::DiversityMode::ANTENNA_C:
-                    EepromSettings.diversityMode = Receiver::DiversityMode::ANTENNA_D;
+                    setDiversityMode(Receiver::DiversityMode::ANTENNA_D);
                     break;
                 case Receiver::DiversityMode::ANTENNA_D:
-                    EepromSettings.diversityMode = Receiver::DiversityMode::DIVERSITY;
+                    setDiversityMode(Receiver::DiversityMode::DIVERSITY);
                     break;
                 case Receiver::DiversityMode::DIVERSITY:
-                    EepromSettings.diversityMode = Receiver::DiversityMode::QUADVERSITY;
+                    setDiversityMode(Receiver::DiversityMode::QUADVERSITY);
                     break;
                 case Receiver::DiversityMode::QUADVERSITY:
-                    EepromSettings.diversityMode = Receiver::DiversityMode::ANTENNA_A;
+                    setDiversityMode(Receiver::DiversityMode::ANTENNA_A);
                     break;
                 default:
                     break;
@@ -353,36 +353,13 @@ void HomeStateHandler::doTapAction()
             switch ( EepromSettings.diversityMode )
             {
                 case Receiver::DiversityMode::ANTENNA_A:
-                    EepromSettings.diversityMode = Receiver::DiversityMode::ANTENNA_B;
-#if POWER_OFF_RX
-#if 1
-                    ReceiverSpi::rxStandby(Receiver::ReceiverId::A);
-                    ReceiverSpi::rxWakeup(Receiver::ReceiverId::B);
-#else
-                    ReceiverSpi::rxPowerOff(Receiver::ReceiverId::A);
-                    ReceiverSpi::rxPowerUp(Receiver::ReceiverId::B);
-#endif
-#endif // POWER_OFF_RX
+                    setDiversityMode(Receiver::DiversityMode::ANTENNA_B);
                     break;
                 case Receiver::DiversityMode::ANTENNA_B:
-                    EepromSettings.diversityMode = Receiver::DiversityMode::DIVERSITY;
-#if POWER_OFF_RX
-#if 1
-                    ReceiverSpi::rxWakeup(Receiver::ReceiverId::A);
-#else
-                    ReceiverSpi::rxPowerUp(Receiver::ReceiverId::A);
-#endif
-#endif // POWER_OFF_RX
+                    setDiversityMode(Receiver::DiversityMode::DIVERSITY);
                     break;
                 case Receiver::DiversityMode::DIVERSITY:
-                    EepromSettings.diversityMode = Receiver::DiversityMode::ANTENNA_A;
-#if POWER_OFF_RX
-#if 1
-                    ReceiverSpi::rxStandby(Receiver::ReceiverId::B);
-#else
-                    ReceiverSpi::rxPowerOff(Receiver::ReceiverId::B);
-#endif
-#endif // POWER_OFF_RX
+                    setDiversityMode(Receiver::DiversityMode::ANTENNA_A);
                     break;
                 default:
                     break;

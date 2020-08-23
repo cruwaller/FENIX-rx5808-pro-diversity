@@ -46,9 +46,9 @@ namespace Receiver {
 
     static bool DMA_ATTR hasRssiUpdated = false;
 
-    void setChannel(uint8_t channel)
+    void setChannel(uint8_t channel, ReceiverId rcvr_id)
     {
-        ReceiverSpi::setSynthRegisterB(Channels::getFrequency(channel));
+        ReceiverSpi::setSynthRegisterB(Channels::getFrequency(channel), rcvr_id);
 
         rssiStableTimer.reset();
         activeChannel = channel;
@@ -61,21 +61,58 @@ namespace Receiver {
         setChannel(Channels::getClosestChannel(freq));
     }
 
-    static void setActiveReceiver(ReceiverId receiver)
+    static void setActiveReceiverSwitch(ReceiverId receiver)
     {
-        // TODO FIXME!
-        //if (receiver == activeReceiver)
-        //    return;
+        if (receiver == activeReceiver)
+            return;
 
-        switch (EepromSettings.diversityMode) {
+        switch (receiver) {
+            case ReceiverId::A:
+                digitalWrite(PIN_RX_SWITCH, LOW);
+                break;
+
+            case ReceiverId::B:
+                digitalWrite(PIN_RX_SWITCH, HIGH);
+                break;
+
+#if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
+#error "Quedversity video switch config not ok!"
+            case ReceiverId::C:
+                break;
+
+            case ReceiverId::D:
+                break;
+#endif
+            default:
+                return;
+        }
+
+#if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
+        // update leds
+        digitalWrite(PIN_LED_A, receiver == ReceiverId::A);
+        digitalWrite(PIN_LED_B, receiver == ReceiverId::B);
+        digitalWrite(PIN_LED_C, receiver == ReceiverId::C);
+        digitalWrite(PIN_LED_D, receiver == ReceiverId::D);
+#endif
+
+        activeReceiver = receiver;
+    }
+
+    void setDiversityMode(DiversityMode mode) {
+        EepromSettings.diversityMode = mode;
+        ReceiverId receiver = activeReceiver;
+
+#if POWER_OFF_RX
+        ReceiverSpi::rxStandby(Receiver::ReceiverId::ALL);
+#endif
+
+        switch (mode) {
             case Receiver::DiversityMode::ANTENNA_A:
                 receiver = ReceiverId::A;
-                digitalWrite(PIN_RX_SWITCH, LOW);
                 break;
 
             case Receiver::DiversityMode::ANTENNA_B:
                 receiver = ReceiverId::B;
-                digitalWrite(PIN_RX_SWITCH, HIGH);
                 break;
 
 #if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
@@ -88,26 +125,20 @@ namespace Receiver {
                 break;
 #endif
             case Receiver::DiversityMode::DIVERSITY:
-                if (receiver == ReceiverId::A) {
-                    digitalWrite(PIN_RX_SWITCH, LOW);
-                } else if (receiver == ReceiverId::B) {
-                    digitalWrite(PIN_RX_SWITCH, HIGH);
-                }
-                break;
-
             case Receiver::DiversityMode::QUADVERSITY:
-#if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
-                digitalWrite(PIN_LED_A, receiver == ReceiverId::A);
-                digitalWrite(PIN_LED_B, receiver == ReceiverId::B);
-                digitalWrite(PIN_LED_C, receiver == ReceiverId::C);
-                digitalWrite(PIN_LED_D, receiver == ReceiverId::D);
-                break;
-#endif
             default:
+                receiver = ReceiverId::ALL;
                 break;
         }
 
-        activeReceiver = receiver;
+#if POWER_OFF_RX
+        ReceiverSpi::rxWakeup(receiver);
+#endif // POWER_OFF_RX
+
+        setChannel(activeChannel, receiver);
+
+        if (receiver != ReceiverId::ALL)
+            setActiveReceiverSwitch(receiver);
     }
 
     bool isRssiStable()
@@ -283,7 +314,7 @@ namespace Receiver {
             diversityHysteresisTimer.reset();
         }
 
-        setActiveReceiver(nextReceiver);
+        setActiveReceiverSwitch(nextReceiver);
     }
 
     void updateAntenaOnTime()
@@ -315,8 +346,8 @@ namespace Receiver {
     {
         diversityHysteresisTimer = Timer(EepromSettings.rssiHysteresisPeriod);
         rssiStableTimer = Timer(EepromSettings.rssiMinTuneTime);
-        setChannel(EepromSettings.startChannel);
-        setActiveReceiver(ReceiverId::A);
+        activeChannel = EepromSettings.startChannel;
+        setDiversityMode(EepromSettings.diversityMode);
     }
 
     void update()
@@ -327,10 +358,9 @@ namespace Receiver {
 
             updateRssi();
 
-            // TODO FIXME!
             /* Switch only if mode is selected */
-            //if (EepromSettings.diversityMode == Receiver::DiversityMode::DIVERSITY ||
-            //    EepromSettings.diversityMode == Receiver::DiversityMode::QUADVERSITY)
+            if (EepromSettings.diversityMode == Receiver::DiversityMode::DIVERSITY ||
+                EepromSettings.diversityMode == Receiver::DiversityMode::QUADVERSITY)
                 switchDiversity();
         }
 

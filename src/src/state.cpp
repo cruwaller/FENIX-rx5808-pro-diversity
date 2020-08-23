@@ -99,26 +99,37 @@ namespace StateMachine {
         Ui::display.setTextColor(WHITE);
         Ui::display.setCursor(x_off, 0);
         Ui::display.print("Mode: "); // 6
-        if (EepromSettings.diversityMode == Receiver::DiversityMode::ANTENNA_A) {
-            Ui::display.print("Antenna A");
-        }
-        else if (EepromSettings.diversityMode == Receiver::DiversityMode::ANTENNA_B) {
-            Ui::display.print("Antenna B");
-        }
-        else if (EepromSettings.diversityMode == Receiver::DiversityMode::DIVERSITY) {
-            Ui::display.print("Diversity");
-        }
+        switch (EepromSettings.diversityMode) {
+            case Receiver::DiversityMode::ANTENNA_A: {
+                Ui::display.print("Antenna A");
+                break;
+            }
+            case Receiver::DiversityMode::ANTENNA_B: {
+                Ui::display.print("Antenna B");
+                break;
+            }
+            case Receiver::DiversityMode::DIVERSITY: {
+                Ui::display.print("Diversity");
+                break;
+            }
 #if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
-        else if (EepromSettings.diversityMode == Receiver::DiversityMode::ANTENNA_C) {
-            Ui::display.print("Antenna C");
-        }
-        else if (EepromSettings.diversityMode == Receiver::DiversityMode::ANTENNA_D) {
-            Ui::display.print("Antenna D");
-        }
-        else if (EepromSettings.diversityMode == Receiver::DiversityMode::QUADVERSITY) {
-            Ui::display.print("Quadversity"); // 11
-        }
+            case Receiver::DiversityMode::ANTENNA_C: {
+                Ui::display.print("Antenna C");
+                break;
+            }
+            case Receiver::DiversityMode::ANTENNA_D: {
+                Ui::display.print("Antenna D");
+                break;
+            }
+            case Receiver::DiversityMode::QUADVERSITY: {
+                Ui::display.print("Quadversity"); // 11
+                break;
+            }
 #endif
+            default:
+                Ui::display.print("FAIL");
+                break;
+        }
         x_off = 20 * Ui::CHAR_W;
 
         // Voltage
