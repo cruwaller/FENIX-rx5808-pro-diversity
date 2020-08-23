@@ -32,11 +32,11 @@ namespace Receiver {
     uint16_t DMA_ATTR rssiDLast[RECEIVER_LAST_DATA_SIZE] = { 0 };
 #endif
 
-    uint16_t DMA_ATTR previousSwitchTime = 0;
-    uint16_t DMA_ATTR antennaAOnTime = 0;
-    uint16_t DMA_ATTR antennaBOnTime = 0;
-    uint16_t DMA_ATTR antennaCOnTime = 0;
-    uint16_t DMA_ATTR antennaDOnTime = 0;
+    uint32_t DMA_ATTR previousSwitchTime = 0;
+    uint32_t DMA_ATTR antennaAOnTime = 0;
+    uint32_t DMA_ATTR antennaBOnTime = 0;
+    uint32_t DMA_ATTR antennaCOnTime = 0;
+    uint32_t DMA_ATTR antennaDOnTime = 0;
 
     ReceiverId DMA_ATTR diversityTargetReceiver = activeReceiver;
     static Timer DMA_ATTR diversityHysteresisTimer = Timer(5); // default value and is replce by value stored in eeprom during setup

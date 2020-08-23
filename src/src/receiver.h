@@ -46,10 +46,10 @@ namespace Receiver {
     extern uint32_t DMA_ATTR rssiDRaw;
     extern uint16_t DMA_ATTR rssiDLast[RECEIVER_LAST_DATA_SIZE];
 
-    extern uint16_t DMA_ATTR antennaAOnTime;
-    extern uint16_t DMA_ATTR antennaBOnTime;
-    extern uint16_t DMA_ATTR antennaCOnTime;
-    extern uint16_t DMA_ATTR antennaDOnTime;
+    extern uint32_t DMA_ATTR antennaAOnTime;
+    extern uint32_t DMA_ATTR antennaBOnTime;
+    extern uint32_t DMA_ATTR antennaCOnTime;
+    extern uint32_t DMA_ATTR antennaDOnTime;
 
     void setChannel(uint8_t channel);
     void setChannelByFreq(uint16_t freq);
