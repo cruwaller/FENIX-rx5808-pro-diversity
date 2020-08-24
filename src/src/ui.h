@@ -30,9 +30,13 @@
 
 namespace Ui {
 
+#if VIDEO_MODE == PAL
     constexpr int XRES = 324;
-    constexpr int YRES = 224;
-
+    constexpr int YRES = 269; // 576 are visible
+#else
+    constexpr int XRES = 324;
+    constexpr int YRES = 224; // 486 are visible
+#endif
     constexpr int CHAR_W = 8;
     constexpr int CHAR_H = 8;
 

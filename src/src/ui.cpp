@@ -17,7 +17,7 @@ namespace Ui {
     Timer DMA_ATTR UiTimeOut = Timer(2000);
 
     CompositeGraphics DMA_ATTR display(XRES, YRES);
-    CompositeOutput DMA_ATTR composite(CompositeOutput::NTSC, XRES * 2, YRES * 2);
+    CompositeOutput DMA_ATTR composite(CompositeOutput::VIDEO_MODE, XRES * 2, YRES * 2);
     Font<CompositeGraphics> DMA_ATTR font(8, 8, font8x8::pixels);
 
     void setup() {

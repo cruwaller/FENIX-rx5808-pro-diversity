@@ -45,7 +45,7 @@ SOFTWARE.
 // need it. Save a tiny bit of power, make your videos less noisy.
 
 // WARNING: Makes RSSI act a little weird.
-//#define DISABLE_AUDIO
+#define DISABLE_AUDIO
 
 // Wifi update params
 #define STASSID "FENIX.PeHo"
@@ -53,6 +53,9 @@ SOFTWARE.
 /* How many channel receiver has */
 // #define CHANNELS_72
 #define CHANNELS_48
+
+/* Video output mode: PAL or NTSC */
+#define VIDEO_MODE PAL
 
 // === ESP-NOW =================================================================
 
