@@ -18,6 +18,16 @@
 #define WHITE (100u)
 #define BLACK (0u)
 
+#define SPACE_BEF 4
+#define SPACE_AFT 3
+
+#define AREA_X_START(_x)        ((_x) - SPACE_BEF)
+#define AREA_X_END(_x, _cnt)    ((_x) + SPACE_AFT + ((_cnt) * Ui::CHAR_W))
+#define AREA_X_LEN(_cnt)        (SPACE_BEF + SPACE_AFT + ((_cnt) * Ui::CHAR_W))
+#define AREA_Y_START(_y)        ((_y) - SPACE_BEF)
+#define AREA_Y_END(_y, _cnt)    ((_y) + SPACE_AFT + ((_cnt) * Ui::CHAR_H))
+#define AREA_Y_LEN(_cnt)        (SPACE_BEF + SPACE_AFT + ((_cnt) * Ui::CHAR_H))
+
 namespace Ui {
 
     constexpr int XRES = 324;
