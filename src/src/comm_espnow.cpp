@@ -2,6 +2,7 @@
 #include "lap_times.h"
 #include "settings.h"
 #include "protocol_ExpressLRS.h"
+#include "protocol_chorus.h"
 #include <esp_now.h>
 #include <WiFi.h>
 
@@ -33,13 +34,14 @@ static void esp_now_recv_cb(const uint8_t *mac_addr, const uint8_t *data, int da
     int iter;
     bool msp_rcvd = 0;
 
+    /* No data or peer is unknown => ignore */
+    if (!data_len || !esp_now_is_peer_exist(mac_addr))
+        return;
+
 #if DEBUG_ENABLED
     Serial.printf("ESP NOW: ");
 #endif
 
-    /* No data, return */
-    if (!data_len)
-        return;
     msp_rcvd = msp_parser.processReceivedByte(data[0]);
 
     // Check if message is MSP
@@ -64,6 +66,11 @@ static void esp_now_recv_cb(const uint8_t *mac_addr, const uint8_t *data, int da
             };
         }
 
+    } else if ((data[0] == 'S') &&
+               (data[1] == ('0' + lap_times_nodeidx_get()) || data[1] == '*')) {
+        // Handle string commands set by Chorus
+        chorus_command_handle(data, data_len);
+
     } else if (data_len == sizeof(esp_now_send_lap_s)) {
         esp_now_send_lap_s * lap_info = (esp_now_send_lap_s*)data;
         lap_times_handle(lap_info);
@@ -81,11 +88,6 @@ static void esp_now_recv_cb(const uint8_t *mac_addr, const uint8_t *data, int da
     }
 
     msp_parser.markPacketFree();
-
-#if 0
-    char hello[] = "FENIX_CB\n";
-    esp_now_send(mac_addr, (uint8_t*)hello, strlen(hello)); // send to all registered peers
-#endif
 }
 
 
@@ -152,10 +154,6 @@ void comm_espnow_init(void)
         }
 
         expresslrs_params_get(); // Get params from ELRS
-#if 0
-        char hello[] = "FENIX_HELLO\n";
-        esp_now_send(NULL, (uint8_t*)hello, strlen(hello)); // send to all registered peers
-#endif
 #if DEBUG_ENABLED
         Serial.println(" ... init DONE");
     } else {
