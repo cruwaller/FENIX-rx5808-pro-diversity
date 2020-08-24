@@ -54,6 +54,7 @@ void HomeStateHandler::onUpdateDraw()
     uint32_t sec_now;
     uint32_t x_off, y_off;
     int16_t cursor_x = TouchPad::touchData.cursorX, cursor_y = TouchPad::touchData.cursorY;
+    uint8_t iter;
 
     if (isInBandScanRegion()) {
         bandScanUpdate();
@@ -195,7 +196,7 @@ void HomeStateHandler::onUpdateDraw()
 
     y_off += 9;
     lap_time_t lap_time;
-    for (uint8_t iter = 1; iter <= num_laps; iter++, y_off += 9) {
+    for (iter = 1; iter <= num_laps; iter++, y_off += 9) {
         lap_time = lapt_time_laptime_get(iter, fastest); // time in ms
         if (*((uint32_t*)&lap_time) == 0)
             break;
@@ -235,41 +236,48 @@ void HomeStateHandler::onUpdateDraw()
 #endif
 #endif // HOME_SHOW_LAPTIMES
 
-    // Plot Spectrum 324 x 224
-    uint16_t rssi;
-    for (uint8_t i=0; i<CHANNELS_SIZE; i++) {
-        rssi = rssiBandScanData[i];
-        Ui::display.fillRect(18+CHANNELS_SIZE_DIVIDER*i,
-                             214 - rssi*8/100,
+    // ================== Plot RSSI Spectrum ==================
+    constexpr uint16_t y_min = Ui::YRES - 10;
+    constexpr uint16_t x_min = 18;
+    uint32_t rssi, rssi_h;
+
+    // RSSI bars
+    for (iter = 0; iter < CHANNELS_SIZE; iter++) {
+        rssi = rssiBandScanData[iter];
+        rssi_h = constrain((rssi * 8) / 100, 0, y_min);
+        Ui::display.fillRect(x_min + (CHANNELS_SIZE_DIVIDER * iter),
+                             y_min - rssi_h,
                              CHANNELS_SIZE_DIVIDER,
-                             rssi*8/100,
-                             rssi/10);
+                             rssi_h,
+                             rssi / 10);
     }
-    Ui::display.line(0, 213, 323, 213, 100);
-    Ui::display.setCursor( 1, 215);
+    // Frame
+    Ui::display.line(0, (Ui::YRES - 11), (Ui::XRES - 1), (Ui::YRES - 11), WHITE);
+    Ui::display.setCursor( 1, (Ui::YRES - 9)); // Y=215
     Ui::display.print(Channels::getFrequency(Channels::getOrderedIndex(0)));
-    Ui::display.setCursor( 290, 215);
+    Ui::display.setCursor( 290, (Ui::YRES - 9)); // Y=215
     Ui::display.print(Channels::getFrequency(Channels::getOrderedIndex(CHANNELS_SIZE-1)));
 
     // Marker triangle
-    uint8_t markerX = Channels::getOrderedIndexFromIndex(Receiver::activeChannel);
-    for (int i = 0; i < 7; i++) {
-        Ui::display.line(18+CHANNELS_SIZE_DIVIDER*markerX,
-                         214,
-                         18+CHANNELS_SIZE_DIVIDER*markerX+(-3+i), 219, WHITE);
+    uint16_t markerX = x_min + Channels::getOrderedIndexFromIndex(Receiver::activeChannel);
+    markerX *= CHANNELS_SIZE_DIVIDER;
+    for (iter = 0; iter < 7; iter++) {
+        Ui::display.line(markerX, y_min,
+                         (markerX + (-3 + iter)), (y_min + 5), WHITE);
     }
 
-    if (HomeStateHandler::isInBandScanRegion() && cursor_x > 18 && cursor_x < (324-18)) {
+    // Freq based on cursor position
+    if (HomeStateHandler::isInBandScanRegion() && (cursor_x > x_min) && (cursor_x < (Ui::XRES - x_min))) {
         Ui::display.fillRect( cursor_x - 33, cursor_y - 17, 33, 17, 10);
-        Ui::display.setCursor( cursor_x - 32, cursor_y - 16 );
+        Ui::display.setCursor( (cursor_x - (4 * Ui::CHAR_W)), (cursor_y - (2 * Ui::CHAR_H)) );
         Ui::display.print(Channels::getName(
-           Channels::getOrderedIndex((cursor_x-18) / CHANNELS_SIZE_DIVIDER)));
-        Ui::display.setCursor( cursor_x - 32, cursor_y - 8 );
+            Channels::getOrderedIndex((cursor_x - x_min) / CHANNELS_SIZE_DIVIDER)));
+        Ui::display.setCursor( (cursor_x - (4 * Ui::CHAR_W)), (cursor_y - Ui::CHAR_H) );
         Ui::display.print(Channels::getFrequency(
-            Channels::getOrderedIndex((cursor_x-18) / CHANNELS_SIZE_DIVIDER)));
+            Channels::getOrderedIndex((cursor_x - x_min) / CHANNELS_SIZE_DIVIDER)));
     }
-
 }
+
 
 void HomeStateHandler::doTapAction()
 {
