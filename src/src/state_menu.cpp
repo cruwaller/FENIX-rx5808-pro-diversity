@@ -34,7 +34,8 @@ void StateMachine::MenuStateHandler::onUpdate()
 
 void StateMachine::MenuStateHandler::onUpdateDraw(uint8_t tapAction)
 {
-   drawHeader();
+    if (drawHeader())
+        return;
 
    // 1st row
    iconHome.draw(Ui::display, 47, 57);          // Home
@@ -46,8 +47,6 @@ void StateMachine::MenuStateHandler::onUpdateDraw(uint8_t tapAction)
    iconBookmark.draw(Ui::display, 47+60, 117);
    iconCalibrate.draw(Ui::display, 47+120, 117); // Calibration
    iconUpdate.draw(Ui::display, 47+180, 117);    // OTA update
-
-   Ui::display.setTextColor(WHITE);
 
    if ( // Home
       TouchPad::touchData.cursorX > 47  && TouchPad::touchData.cursorX < 47+50 &&

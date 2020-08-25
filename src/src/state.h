@@ -24,7 +24,7 @@ namespace StateMachine {
             virtual void onUpdate() {};
             virtual void onExit() {};
         protected:
-            void drawHeader(void);
+            uint8_t drawHeader(void);
     };
 
     extern State DMA_ATTR currentState;

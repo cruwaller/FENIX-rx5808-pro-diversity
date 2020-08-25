@@ -26,9 +26,8 @@ void StateMachine::ExLRSStateHandler::onUpdateDraw(uint8_t tapAction)
     int16_t cursor_x = TouchPad::touchData.cursorX, cursor_y = TouchPad::touchData.cursorY;
     uint8_t region = expresslrs_params_get_region();
 
-    drawHeader();
-
-    Ui::display.setTextColor(100);
+    if (drawHeader())
+        return;
 
     // Mode
     Ui::display.setCursor(off_x, off_y);

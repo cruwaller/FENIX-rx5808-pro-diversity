@@ -60,9 +60,8 @@ void HomeStateHandler::onUpdateDraw(uint8_t tapAction)
         wasInBandScanRegion = false;
     }
 
-    drawHeader();
-
-    Ui::display.setTextColor(WHITE);
+    if (drawHeader())
+        return;
 
     /*************************************************/
     /*********      PRINT HOME      ******************/

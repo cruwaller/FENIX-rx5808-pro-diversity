@@ -5,6 +5,9 @@
 #include <esp_attr.h>
 #include <esp8266-compat.h>
 
+
+#define GESTURES_ENABLED 0
+
 namespace TouchPad {
 
     typedef struct _relData
@@ -35,21 +38,8 @@ namespace TouchPad {
     };
 
     void setup();
-    void update();
-    void clearTouchData();
-    void Pinnacle_Init();
-    void ICACHE_RAM_ATTR Pinnacle_getRelative(relData_t * result);
-    void ICACHE_RAM_ATTR Pinnacle_ClearFlags();
-    void ICACHE_RAM_ATTR RAP_ReadBytes(uint8_t address, uint8_t * data, uint8_t count);
-    void ICACHE_RAM_ATTR RAP_Write(uint8_t address, uint8_t data);
-    void ICACHE_RAM_ATTR Assert_SS();
-    void ICACHE_RAM_ATTR DeAssert_SS();
-    bool ICACHE_RAM_ATTR isDataAvailable();
-
-    Gesture isGesture();
-    void doGesture(Gesture currentGesture);
-    void setChannel(int channelIncrement);
-
+    void ICACHE_RAM_ATTR update();
+    void ICACHE_RAM_ATTR clearTouchData();
 }
 
 #endif

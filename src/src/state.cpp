@@ -43,17 +43,19 @@ namespace StateMachine {
     State DMA_ATTR lastState = currentState;
 
 
-    void setup() {
-
+    void setup()
+    {
     }
 
-    void update() {
+    void update()
+    {
         if (currentHandler != nullptr) {
             currentHandler->onUpdate();
         }
     }
 
-    void switchState(State newState) {
+    void switchState(State newState)
+    {
         if (currentHandler != nullptr) {
             currentHandler->onExit();
         }
@@ -67,7 +69,8 @@ namespace StateMachine {
         }
     }
 
-    static StateHandler *getStateHandler(State state) {
+    static StateHandler *getStateHandler(State state)
+    {
         #define STATE_FACTORY(s, c) \
             case s: \
                 return new (&stateBuffer) c(); \
@@ -89,7 +92,8 @@ namespace StateMachine {
         #undef STATE_FACTORY
     }
 
-    void StateHandler::drawHeader(void) {
+    uint8_t StateHandler::drawHeader(void)
+    {
         uint32_t x_off = Ui::CHAR_W;
         /*************************************************/
         /*********     PRINT HEADER     ******************/
@@ -183,7 +187,11 @@ namespace StateMachine {
         if (TouchPad::touchData.buttonPrimary && TouchPad::touchData.cursorY < 8) {
             if (TouchPad::touchData.cursorX > 314) {
                 // Menu
-                StateMachine::switchState(StateMachine::State::MENU);
+                if (StateMachine::currentState == StateMachine::State::MENU)
+                    StateMachine::switchState(StateMachine::State::HOME);
+                else
+                    StateMachine::switchState(StateMachine::State::MENU);
+                return 1;
 
             } else if (TouchPad::touchData.cursorX < 130) {
                 // Change mode
@@ -234,5 +242,7 @@ namespace StateMachine {
                 EepromSettings.markDirty();
             }
         }
+
+        return 0;
     }
 }

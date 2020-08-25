@@ -23,9 +23,10 @@ void StateMachine::ChorusStateHandler::onUpdateDraw(uint8_t tapAction)
     uint32_t x_off;
     int16_t cursor_x = TouchPad::touchData.cursorX, cursor_y = TouchPad::touchData.cursorY;
     uint8_t iter, range_valid_node, range_valid_lap;
-    drawHeader();
 
-    Ui::display.setTextColor(WHITE);
+    if (drawHeader())
+        return;
+
     Ui::display.setCursor(UI_GET_MID_X(31), 12);
     Ui::display.print("== Chorus32 Laptimer control =="); // 31 chars
 

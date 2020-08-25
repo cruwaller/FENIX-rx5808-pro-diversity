@@ -11,9 +11,6 @@
 #define DEBUG_TOUCHPAD 0
 #define USE_ISR 0
 
-//// Cirque's 7-bit I2C Slave Address
-//#define TOUCHPAD_SLAVE_ADDR  0x2A
-
 // Masks for Cirque Register Access Protocol (RAP)
 #define TOUCHPAD_WRITE_MASK  0x80
 #define TOUCHPAD_READ_MASK   0xA0
@@ -22,10 +19,25 @@
 
 namespace TouchPad
 {
+    void ICACHE_RAM_ATTR Pinnacle_Init();
+    void ICACHE_RAM_ATTR Pinnacle_getRelative(relData_t * result);
+    void ICACHE_RAM_ATTR Pinnacle_ClearFlags();
+    void ICACHE_RAM_ATTR RAP_ReadBytes(uint8_t address, uint8_t * data, uint8_t count);
+    void ICACHE_RAM_ATTR RAP_Write(uint8_t address, uint8_t data);
+    void ICACHE_RAM_ATTR Assert_SS();
+    void ICACHE_RAM_ATTR DeAssert_SS();
+    bool ICACHE_RAM_ATTR isDataAvailable();
+
+#if GESTURES_ENABLED
+    Gesture isGesture();
+    void doGesture(Gesture currentGesture);
+    void setChannel(int channelIncrement);
+
     int DMA_ATTR xGestureArray[GESTURE_ARRAY_SIZE] = {0};
     int DMA_ATTR yGestureArray[GESTURE_ARRAY_SIZE] = {0};
     int DMA_ATTR xSwipeThreshold = 130;
     int DMA_ATTR ySwipeThreshold = 200;
+#endif // GESTURES_ENABLED
 
     relData_t DMA_ATTR touchData;
 
@@ -56,9 +68,9 @@ namespace TouchPad
         touchData.switchButtonOrder = false;
     }
 
-    void update() {
+    void ICACHE_RAM_ATTR update() {
 
-        if(isDataAvailable()) {
+        if (isDataAvailable()) {
 
 #if DEBUG_ENABLED && DEBUG_TOUCHPAD
             Serial.println("Touchpad data ready!");
@@ -86,11 +98,13 @@ namespace TouchPad
                 if (touchData.cursorY > Ui::YRES - 1) {
                     touchData.cursorY = Ui::YRES - 1;
                 }
+#if GESTURES_ENABLED
             } else {
                 Gesture currentGesture = isGesture();
                 if (currentGesture != Gesture::Nope) {
                     doGesture(currentGesture);
                 }
+#endif // GESTURES_ENABLED
             }
 
 //            if (touchData.buttonPrimary) {
@@ -115,7 +129,7 @@ namespace TouchPad
 
     }
 
-    void clearTouchData() {
+    void ICACHE_RAM_ATTR clearTouchData() {
         touchData.buttonPrimary = 0;
         touchData.buttonSecondary = 0;
         touchData.buttonAuxiliary = 0;
@@ -126,7 +140,7 @@ namespace TouchPad
     }
 
     /*  Pinnacle-based TM0XX0XX Functions  */
-    void Pinnacle_Init() {
+    void ICACHE_RAM_ATTR Pinnacle_Init() {
 
       // Host clears SW_CC flag
       Pinnacle_ClearFlags();
@@ -236,6 +250,7 @@ namespace TouchPad
 #endif
     }
 
+#if GESTURES_ENABLED
     Gesture isGesture() {
 
         for (int i = 0; i < GESTURE_ARRAY_SIZE - 1; i++) {
@@ -354,5 +369,5 @@ namespace TouchPad
         EepromSettings.startChannel = newChannelIndex;
         EepromSettings.save();
     }
-
+#endif // GESTURES_ENABLED
 }
