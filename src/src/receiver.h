@@ -38,16 +38,16 @@ namespace Receiver {
     extern uint32_t DMA_ATTR antennaAOnTime;
     extern uint32_t DMA_ATTR antennaBOnTime;
 
-    void setDiversityMode(DiversityMode mode);
+    void IRAM_ATTR setDiversityMode(DiversityMode mode);
 
-    void setChannel(uint8_t channel, ReceiverId rcvr_id=ReceiverId::ALL);
-    void setChannelByFreq(uint16_t freq);
-    void updateRssi();
+    void IRAM_ATTR setChannel(uint8_t channel, ReceiverId rcvr_id=ReceiverId::ALL);
+    void IRAM_ATTR setChannelByFreq(uint16_t freq);
+    void IRAM_ATTR updateRssi();
 
-    bool isRssiStable();
-    bool isRssiStableAndUpdated();
+    bool IRAM_ATTR isRssiStable();
+    bool IRAM_ATTR isRssiStableAndUpdated();
 
     void setup();
-    void update();
+    void IRAM_ATTR update();
 }
 #endif

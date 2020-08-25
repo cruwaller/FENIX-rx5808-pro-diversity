@@ -5,8 +5,8 @@
 #include "settings.h"
 
 
-static void sendRegister(uint8_t address, uint32_t data, Receiver::ReceiverId rx_id=Receiver::ReceiverId::ALL);
-static uint32_t converteFreqToSynthRegisterB(uint32_t freq);
+static void IRAM_ATTR sendRegister(uint8_t address, uint32_t data, Receiver::ReceiverId rx_id=Receiver::ReceiverId::ALL);
+static uint32_t IRAM_ATTR converteFreqToSynthRegisterB(uint32_t freq);
 
 #define SPI_ADDRESS_SYNTH_B 0x01
 #define SPI_ADDRESS_SYNTH_C 0x02
@@ -28,7 +28,7 @@ static uint32_t converteFreqToSynthRegisterB(uint32_t freq);
 
 namespace ReceiverSpi {
 
-    static void setPowerDownRegister(uint32_t value, Receiver::ReceiverId ReceiverId)
+    static void IRAM_ATTR setPowerDownRegister(uint32_t value, Receiver::ReceiverId ReceiverId)
     {
 #ifdef DISABLE_AUDIO
         value |= 0b00000000000111100000; // Put PD_6M5, PD_AU6M5, PD_6M, PD_AU6M to off state
@@ -36,7 +36,7 @@ namespace ReceiverSpi {
         sendRegister(SPI_ADDRESS_POWER, value, ReceiverId);
     }
 
-    static void setStateRegister(uint32_t value, Receiver::ReceiverId ReceiverId)
+    static void IRAM_ATTR setStateRegister(uint32_t value, Receiver::ReceiverId ReceiverId)
     {
         sendRegister(SPI_ADDRESS_STATE, value, ReceiverId);
     }
@@ -46,41 +46,41 @@ namespace ReceiverSpi {
         /* Init receivers registers */
     }
 
-    void setSynthRegisterB(uint32_t freq, Receiver::ReceiverId ReceiverId)
+    void IRAM_ATTR setSynthRegisterB(uint32_t freq, Receiver::ReceiverId ReceiverId)
     {
         uint32_t value = converteFreqToSynthRegisterB(freq);
         sendRegister(SPI_ADDRESS_SYNTH_B, value, ReceiverId);
     }
 
-    void rxVideoOff(Receiver::ReceiverId ReceiverId)
+    void IRAM_ATTR rxVideoOff(Receiver::ReceiverId ReceiverId)
     {
         setPowerDownRegister(0b01010000110000010011, ReceiverId); // Put PD_VAMP to off state
     }
 
-    void rxPowerOff(Receiver::ReceiverId ReceiverId)
+    void IRAM_ATTR rxPowerOff(Receiver::ReceiverId ReceiverId)
     {
         setPowerDownRegister(0b11111111111111111111, ReceiverId);
     }
 
-    void rxPowerUp(Receiver::ReceiverId ReceiverId)
+    void IRAM_ATTR rxPowerUp(Receiver::ReceiverId ReceiverId)
     {
         setPowerDownRegister(0b00010000110000010011, ReceiverId);
     }
 
-    void rxStandby(Receiver::ReceiverId ReceiverId)
+    void IRAM_ATTR rxStandby(Receiver::ReceiverId ReceiverId)
     {
         //setStateRegister(RX5808_STATE_VCO_CAL, ReceiverId);
         setStateRegister(RX5808_STATE_STBY, ReceiverId);
     }
 
-    void rxWakeup(Receiver::ReceiverId ReceiverId)
+    void IRAM_ATTR rxWakeup(Receiver::ReceiverId ReceiverId)
     {
         setStateRegister(RX5808_STATE_PWRON_CAL, ReceiverId);
     }
 }
 
 
-static void sendRegister(uint8_t addressBits, uint32_t dataBits, Receiver::ReceiverId rx_id)
+static void IRAM_ATTR sendRegister(uint8_t addressBits, uint32_t dataBits, Receiver::ReceiverId rx_id)
 {
     // LSB first
     uint32_t data = addressBits | (0x1 << 4) | (dataBits << 5);
@@ -116,7 +116,7 @@ static void sendRegister(uint8_t addressBits, uint32_t dataBits, Receiver::Recei
     }
 }
 
-static uint32_t converteFreqToSynthRegisterB(uint32_t freq)
+static uint32_t IRAM_ATTR converteFreqToSynthRegisterB(uint32_t freq)
 {
     //
     // Sends SPI command to receiver module to change frequency.

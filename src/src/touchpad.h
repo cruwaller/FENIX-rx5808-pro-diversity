@@ -38,8 +38,8 @@ namespace TouchPad {
     };
 
     void setup();
-    void ICACHE_RAM_ATTR update();
-    void ICACHE_RAM_ATTR clearTouchData();
+    void IRAM_ATTR update();
+    void IRAM_ATTR clearTouchData();
 }
 
 #endif

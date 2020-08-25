@@ -8,13 +8,13 @@
 namespace ReceiverSpi {
   void setup(void);
 
-  void setSynthRegisterB(uint32_t freq, Receiver::ReceiverId ReceiverId);
+  void IRAM_ATTR setSynthRegisterB(uint32_t freq, Receiver::ReceiverId ReceiverId);
 
-  void rxVideoOff(Receiver::ReceiverId ReceiverId);
-  void rxPowerOff(Receiver::ReceiverId ReceiverId);
-  void rxPowerUp(Receiver::ReceiverId ReceiverId);
-  void rxStandby(Receiver::ReceiverId ReceiverId);
-  void rxWakeup(Receiver::ReceiverId ReceiverId);
+  void IRAM_ATTR rxVideoOff(Receiver::ReceiverId ReceiverId);
+  void IRAM_ATTR rxPowerOff(Receiver::ReceiverId ReceiverId);
+  void IRAM_ATTR rxPowerUp(Receiver::ReceiverId ReceiverId);
+  void IRAM_ATTR rxStandby(Receiver::ReceiverId ReceiverId);
+  void IRAM_ATTR rxWakeup(Receiver::ReceiverId ReceiverId);
 };
 
 

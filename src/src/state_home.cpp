@@ -26,18 +26,20 @@
     #define CHANNELS_SIZE_DIVIDER 6
 #endif
 
-uint16_t DMA_ATTR rssiBandScanData[CHANNELS_SIZE] /*= { 0 }*/;
+static uint16_t DMA_ATTR rssiBandScanData[CHANNELS_SIZE];
 
 using StateMachine::HomeStateHandler;
 
-void HomeStateHandler::onEnter() {
 
+void HomeStateHandler::onEnter()
+{
     displayActiveChannel = Receiver::activeChannel;
     //this->onUpdateDraw(false);
 }
 
 
-void HomeStateHandler::onUpdate() {
+void HomeStateHandler::onUpdate()
+{
     this->onUpdateDraw(TouchPad::touchData.buttonPrimary);
 }
 
@@ -66,14 +68,7 @@ void HomeStateHandler::onUpdateDraw(uint8_t tapAction)
     /*************************************************/
     /*********      PRINT HOME      ******************/
 
-    // Display Band and Channel
-    Ui::display.setCursor( 2, 15);
-    Ui::display.printLarge(Channels::getName(displayActiveChannel), 8, 12);
-
-    // Display Frequency
-    Ui::display.setCursor( 0, 105);
-    Ui::display.printLarge(Channels::getFrequency(displayActiveChannel), 4, 3);
-
+    // Handle channel change before drawing
     if (tapAction) {
         if (cursor_x >= 0 && cursor_x < 61 &&
             cursor_y > 8  && cursor_y < 54) {
@@ -92,6 +87,14 @@ void HomeStateHandler::onUpdateDraw(uint8_t tapAction)
             this->setChannel(-1); // Down channel
         }
     }
+
+    // Display Band and Channel
+    Ui::display.setCursor( 2, 15);
+    Ui::display.printLarge(Channels::getName(displayActiveChannel), 8, 12);
+
+    // Display Frequency
+    Ui::display.setCursor( 0, 105);
+    Ui::display.printLarge(Channels::getFrequency(displayActiveChannel), 4, 3);
 
     // Channel labels
     x_off = 130;
@@ -320,7 +323,5 @@ void HomeStateHandler::bandScanUpdate()
             orderedChanelIndex = 0;
         }
         Receiver::setChannel(Channels::getOrderedIndex(orderedChanelIndex));
-
     }
-
 }

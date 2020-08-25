@@ -22,9 +22,9 @@ void StateMachine::SettingsRssiStateHandler::onUpdate()
 {
     onUpdateDraw();
 
-    if (TouchPad::touchData.buttonPrimary && internalState!=InternalState::SCANNING_LOW) {
+    if (TouchPad::touchData.buttonPrimary && internalState != InternalState::SCANNING_LOW) {
         TouchPad::touchData.buttonPrimary = false;
-        doTapAction(); // TODO: remove!
+        doTapAction();
     }
 
     if (!Receiver::isRssiStableAndUpdated())
@@ -59,14 +59,14 @@ void StateMachine::SettingsRssiStateHandler::onUpdate()
 
     Receiver::setChannel((Receiver::activeChannel + 1) % CHANNELS_SIZE);
 
-    if (internalState==InternalState::SCANNING_LOW || internalState==InternalState::SCANNING_HIGH) {
+    if (internalState == InternalState::SCANNING_LOW || internalState == InternalState::SCANNING_HIGH) {
 
-        Ui::display.setTextColor(100);
+        Ui::display.setTextColor(WHITE);
         Ui::display.setCursor( 100, 80);
         Ui::display.printLarge(Channels::getName(Receiver::activeChannel), 6, 6);
 
         uint8_t progressBar = (Ui::XRES-100-2) * (currentSweep * CHANNELS_SIZE + Receiver::activeChannel) / (RSSI_SETUP_RUN * CHANNELS_SIZE);
-        Ui::display.fillRect(52, 152, progressBar, 20, 100);
+        Ui::display.fillRect(52, 152, progressBar, 20, WHITE);
 
     }
 
@@ -119,7 +119,7 @@ void StateMachine::SettingsRssiStateHandler::onUpdateDraw()
     switch (internalState) {
         case InternalState::WAIT_FOR_LOW:
 
-            Ui::display.setTextColor(100);
+            Ui::display.setTextColor(WHITE);
             Ui::display.setCursor( 40, 40);
             Ui::display.print("Your module is not calibrated.");
             Ui::display.setCursor( 40, 50);
@@ -135,17 +135,17 @@ void StateMachine::SettingsRssiStateHandler::onUpdateDraw()
             break;
 
         case InternalState::SCANNING_LOW:
-            Ui::display.setTextColor(100);
+            Ui::display.setTextColor(WHITE);
             Ui::display.setCursor( 40, 40);
             Ui::display.print("Scanning for lowest & highest");
             Ui::display.setCursor( 40, 50);
             Ui::display.print("RSSI...");
             // Progress bar outer rect
-            Ui::display.rect(50, 150, Ui::XRES-100, 24, 100);
+            Ui::display.rect(50, 150, Ui::XRES-100, 24, WHITE);
             break;
 
         case InternalState::DONE:
-            Ui::display.setTextColor(100);
+            Ui::display.setTextColor(WHITE);
             Ui::display.setCursor( 60, 40);
             Ui::display.print("All done!");
 

@@ -22,11 +22,12 @@ namespace Receiver {
     uint32_t DMA_ATTR rssiBRaw = 0;
     uint16_t DMA_ATTR rssiBLast[RECEIVER_LAST_DATA_SIZE] = { 0 };
 
-    uint32_t DMA_ATTR previousSwitchTime = 0;
     uint32_t DMA_ATTR antennaAOnTime = 0;
     uint32_t DMA_ATTR antennaBOnTime = 0;
 
-    ReceiverId DMA_ATTR diversityTargetReceiver = activeReceiver;
+    static uint32_t DMA_ATTR previousSwitchTime = 0;
+
+    static ReceiverId DMA_ATTR diversityTargetReceiver = activeReceiver;
     static Timer DMA_ATTR diversityHysteresisTimer = Timer(5); // default value and is replce by value stored in eeprom during setup
 
     static Timer DMA_ATTR rssiStableTimer = Timer(30); // default value and is replce by value stored in eeprom during setup
@@ -34,22 +35,21 @@ namespace Receiver {
 
     static bool DMA_ATTR hasRssiUpdated = false;
 
-    void setChannel(uint8_t channel, ReceiverId rcvr_id)
+    void IRAM_ATTR setChannel(uint8_t channel, ReceiverId rcvr_id)
     {
         ReceiverSpi::setSynthRegisterB(Channels::getFrequency(channel), rcvr_id);
 
         rssiStableTimer.reset();
         activeChannel = channel;
-
         hasRssiUpdated = false;
     }
 
-    void setChannelByFreq(uint16_t freq)
+    void IRAM_ATTR setChannelByFreq(uint16_t freq)
     {
         setChannel(Channels::getClosestChannel(freq));
     }
 
-    static void setActiveReceiverSwitch(ReceiverId receiver)
+    static void IRAM_ATTR setActiveReceiverSwitch(ReceiverId receiver)
     {
         if (receiver == activeReceiver)
             return;
@@ -70,7 +70,8 @@ namespace Receiver {
         activeReceiver = receiver;
     }
 
-    void setDiversityMode(DiversityMode mode) {
+    void IRAM_ATTR setDiversityMode(DiversityMode mode)
+    {
         EepromSettings.diversityMode = mode;
         ReceiverId receiver = activeReceiver;
 
@@ -102,35 +103,39 @@ namespace Receiver {
             setActiveReceiverSwitch(receiver);
     }
 
-    bool isRssiStable()
+    bool IRAM_ATTR isRssiStable()
     {
         return rssiStableTimer.hasTicked();
     }
 
-    bool isRssiStableAndUpdated()
+    bool IRAM_ATTR isRssiStableAndUpdated()
     {
         return isRssiStable() && hasRssiUpdated;
     }
 
-    void updateRssi()
+    void IRAM_ATTR updateRssi()
     {
+        uint32_t _rssiARaw = 0, _rssiBRaw = 0;
         uint8_t iter;
 
 #define RSSI_READS 4 // 3;
 
-        rssiARaw = rssiBRaw = 0;
         for (iter = 0; iter < RSSI_READS; iter++) {
-            rssiARaw += analogRead(PIN_RSSI_A);
-            rssiBRaw += analogRead(PIN_RSSI_B);
+            _rssiARaw += analogRead(PIN_RSSI_A);
+            _rssiBRaw += analogRead(PIN_RSSI_B);
         }
-        rssiARaw /= RSSI_READS;
-        rssiBRaw /= RSSI_READS;
+
+        _rssiARaw /= RSSI_READS;
+        _rssiBRaw /= RSSI_READS;
+
+        rssiARaw = _rssiARaw;
+        rssiBRaw = _rssiBRaw;
 
         if (StateMachine::currentState != StateMachine::State::SETTINGS_RSSI) {
 
             rssiA = constrain(
                 map(
-                    rssiARaw,
+                    _rssiARaw,
                     EepromSettings.rssiAMin,
                     EepromSettings.rssiAMax,
                     0,
@@ -142,7 +147,7 @@ namespace Receiver {
 
             rssiB = constrain(
                 map(
-                    rssiBRaw,
+                    _rssiBRaw,
                     EepromSettings.rssiBMin,
                     EepromSettings.rssiBMax,
                     0,
@@ -154,33 +159,33 @@ namespace Receiver {
         }
 
         if (rssiLogTimer.hasTicked()) {
+#if !HOME_SHOW_LAPTIMES
             for (uint8_t i = 0; i < RECEIVER_LAST_DATA_SIZE - 1; i++) {
                 rssiALast[i] = rssiALast[i + 1];
                 rssiBLast[i] = rssiBLast[i + 1];
             }
-
             rssiALast[RECEIVER_LAST_DATA_SIZE - 1] = rssiA;
             rssiBLast[RECEIVER_LAST_DATA_SIZE - 1] = rssiB;
+#endif // HOME_SHOW_LAPTIMES
 
             rssiLogTimer.reset();
             hasRssiUpdated = true;
         }
     }
 
-    static void switchDiversity() {
-        int32_t rssiDiff = 0;
+    static void IRAM_ATTR switchDiversity()
+    {
         ReceiverId nextReceiver = activeReceiver;
         ReceiverId currentBestReceiver = activeReceiver;
-
-        rssiDiff = (int32_t)(rssiA - rssiB);
-
-        if (rssiDiff > 0) {
-            currentBestReceiver = ReceiverId::A;
-        } else if (rssiDiff < 0) {
-            currentBestReceiver = ReceiverId::B;
-        }
+        int32_t rssiDiff = (int32_t)(rssiA - rssiB);
 
         if (abs(rssiDiff) >= EepromSettings.rssiHysteresis) {
+            if (rssiDiff > 0) {
+                currentBestReceiver = ReceiverId::A;
+            } else if (rssiDiff < 0) {
+                currentBestReceiver = ReceiverId::B;
+            }
+
             if (currentBestReceiver == diversityTargetReceiver) {
                 if (diversityHysteresisTimer.hasTicked()) {
                     nextReceiver = diversityTargetReceiver;
@@ -196,7 +201,7 @@ namespace Receiver {
         setActiveReceiverSwitch(nextReceiver);
     }
 
-    void updateAntenaOnTime()
+    static void IRAM_ATTR updateAntenaOnTime()
     {
         uint32_t _sec_now = (millis() / 1000);
         uint32_t secs = _sec_now - previousSwitchTime;
@@ -221,7 +226,7 @@ namespace Receiver {
         setDiversityMode(EepromSettings.diversityMode);
     }
 
-    void update()
+    void IRAM_ATTR update()
     {
         if (isRssiStable()) {
 

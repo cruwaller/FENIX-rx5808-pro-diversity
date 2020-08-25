@@ -52,7 +52,7 @@ const struct EepromSettings EepromDefaults = {
 
 
 static Timer DMA_ATTR saveTimer = Timer(EEPROM_SAVE_TIME);
-static bool DMA_ATTR isDirty = false;
+static bool DMA_ATTR isDirty;
 
 struct EepromSettings DMA_ATTR EepromSettings;
 
@@ -62,7 +62,6 @@ void EepromSettings::setup() {
 
 void EepromSettings::update() {
     if (isDirty && saveTimer.hasTicked() && !Ui::isTvOn) {
-        isDirty = false;
         saveTimer.reset();
         this->save();
     }
@@ -73,11 +72,13 @@ void EepromSettings::load() {
 
     if (this->versionNumber != VERSION_NUMBER)
         this->initDefaults();
+    isDirty = false;
 }
 
 void EepromSettings::save() {
     EEPROM.put(0, *this);
     EEPROM.commit();
+    isDirty = false;
 }
 
 void EepromSettings::markDirty() {

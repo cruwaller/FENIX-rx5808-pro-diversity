@@ -276,7 +276,7 @@ static const uint8_t DMA_ATTR channelIndexToOrderedIndex[] PROGMEM = {
 #endif
 
 namespace Channels {
-    const uint16_t getFrequency(uint8_t index) {
+    const uint16_t IRAM_ATTR getFrequency(uint8_t index) {
         return pgm_read_word_near(channelFreqTable + index);
     }
 
@@ -293,7 +293,7 @@ namespace Channels {
         72     // H
         };
     char nameBuffer[2];
-    char *getName(uint8_t index) {
+    char * IRAM_ATTR getName(uint8_t index) {
         uint8_t band = index / 8;
         uint8_t channel = 48 + (index % 8) + 1;   // https://www.arduino.cc/en/Reference/ASCIIchart
 
@@ -303,15 +303,15 @@ namespace Channels {
         return nameBuffer;
     }
 
-    const uint8_t getOrderedIndex(uint8_t index) {
+    const uint8_t IRAM_ATTR getOrderedIndex(uint8_t index) {
         return pgm_read_byte_near(channelFreqOrderedIndex + index);
     }
 
-    const uint8_t getOrderedIndexFromIndex(uint8_t index) {
+    const uint8_t IRAM_ATTR getOrderedIndexFromIndex(uint8_t index) {
         return pgm_read_byte_near(channelIndexToOrderedIndex + index);
     }
 
-    const uint16_t getCenterFreq(uint16_t freq) {
+    const uint16_t IRAM_ATTR getCenterFreq(uint16_t freq) {
         uint16_t upperFreq = freq;
         uint16_t lowerFreq = freq;
         uint16_t rssi = 1000;
@@ -340,7 +340,7 @@ namespace Channels {
         return (lowerFreq + upperFreq) / 2;
     }
 
-    const uint8_t getClosestChannel(uint16_t freq) {
+    const uint8_t IRAM_ATTR getClosestChannel(uint16_t freq) {
 
         uint8_t closestChannel = 0;
         for (int j=0; j<CHANNELS_SIZE; j++) {

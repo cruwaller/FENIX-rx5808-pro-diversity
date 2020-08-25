@@ -19,14 +19,14 @@
 
 namespace TouchPad
 {
-    void ICACHE_RAM_ATTR Pinnacle_Init();
-    void ICACHE_RAM_ATTR Pinnacle_getRelative(relData_t * result);
-    void ICACHE_RAM_ATTR Pinnacle_ClearFlags();
-    void ICACHE_RAM_ATTR RAP_ReadBytes(uint8_t address, uint8_t * data, uint8_t count);
-    void ICACHE_RAM_ATTR RAP_Write(uint8_t address, uint8_t data);
-    void ICACHE_RAM_ATTR Assert_SS();
-    void ICACHE_RAM_ATTR DeAssert_SS();
-    bool ICACHE_RAM_ATTR isDataAvailable();
+    void IRAM_ATTR Pinnacle_Init();
+    void IRAM_ATTR Pinnacle_getRelative(relData_t * result);
+    void IRAM_ATTR Pinnacle_ClearFlags();
+    void IRAM_ATTR RAP_ReadBytes(uint8_t address, uint8_t * data, uint8_t count);
+    void IRAM_ATTR RAP_Write(uint8_t address, uint8_t data);
+    void IRAM_ATTR Assert_SS();
+    void IRAM_ATTR DeAssert_SS();
+    bool IRAM_ATTR isDataAvailable();
 
 #if GESTURES_ENABLED
     Gesture isGesture();
@@ -45,7 +45,7 @@ namespace TouchPad
 
 #if USE_ISR
     static volatile uint8_t DMA_ATTR _data_ready_state = LOW;
-    static void ICACHE_RAM_ATTR _data_ready_isr_handler(void)
+    static void IRAM_ATTR _data_ready_isr_handler(void)
     {
       Pinnacle_getRelative(&touchData);
       _data_ready_state = HIGH;
@@ -68,7 +68,7 @@ namespace TouchPad
         touchData.switchButtonOrder = false;
     }
 
-    void ICACHE_RAM_ATTR update() {
+    void IRAM_ATTR update() {
 
         if (isDataAvailable()) {
 
@@ -129,7 +129,7 @@ namespace TouchPad
 
     }
 
-    void ICACHE_RAM_ATTR clearTouchData() {
+    void IRAM_ATTR clearTouchData() {
         touchData.buttonPrimary = 0;
         touchData.buttonSecondary = 0;
         touchData.buttonAuxiliary = 0;
@@ -140,7 +140,7 @@ namespace TouchPad
     }
 
     /*  Pinnacle-based TM0XX0XX Functions  */
-    void ICACHE_RAM_ATTR Pinnacle_Init() {
+    void IRAM_ATTR Pinnacle_Init() {
 
       // Host clears SW_CC flag
       Pinnacle_ClearFlags();
@@ -152,7 +152,7 @@ namespace TouchPad
 
     // Reads X, Y, and Scroll-Wheel deltas from Pinnacle, as well as button states
     // NOTE: this function should be called immediately after DR is asserted (HIGH)
-    void ICACHE_RAM_ATTR Pinnacle_getRelative(relData_t * result) {
+    void IRAM_ATTR Pinnacle_getRelative(relData_t * result) {
 
       uint8_t data[3] = { 0,0,0 };
 
@@ -188,7 +188,7 @@ namespace TouchPad
     }
 
     // Clears Status1 register flags (SW_CC and SW_DR)
-    void ICACHE_RAM_ATTR Pinnacle_ClearFlags() {
+    void IRAM_ATTR Pinnacle_ClearFlags() {
 
       RAP_Write(0x02, 0x00);
 
@@ -199,7 +199,7 @@ namespace TouchPad
     /*  RAP Functions */
     // Reads <count> Pinnacle registers starting at <address>
     //void RAP_ReadBytes(byte address, byte * data, byte count)
-    void ICACHE_RAM_ATTR RAP_ReadBytes(uint8_t address, uint8_t * data, uint8_t count) {
+    void IRAM_ATTR RAP_ReadBytes(uint8_t address, uint8_t * data, uint8_t count) {
         byte cmdByte = TOUCHPAD_READ_MASK | address;   // Form the READ command byte
 
         SPI.beginTransaction(spi_settings);
@@ -218,7 +218,7 @@ namespace TouchPad
     }
 
     // Writes single-byte <data> to <address>
-    void ICACHE_RAM_ATTR RAP_Write(uint8_t address, uint8_t data) {
+    void IRAM_ATTR RAP_Write(uint8_t address, uint8_t data) {
         byte cmdByte = TOUCHPAD_WRITE_MASK | address;  // Form the WRITE command byte
 
         SPI.beginTransaction(spi_settings);
@@ -231,17 +231,17 @@ namespace TouchPad
         SPI.endTransaction();
     }
 
-    void ICACHE_RAM_ATTR Assert_SS()
+    void IRAM_ATTR Assert_SS()
     {
       digitalWrite(PIN_TOUCHPAD_SLAVE_SELECT, LOW);
     }
 
-    void ICACHE_RAM_ATTR DeAssert_SS()
+    void IRAM_ATTR DeAssert_SS()
     {
       digitalWrite(PIN_TOUCHPAD_SLAVE_SELECT, HIGH);
     }
 
-    bool ICACHE_RAM_ATTR isDataAvailable()
+    bool IRAM_ATTR isDataAvailable()
     {
 #if USE_ISR
       return _data_ready_state;
