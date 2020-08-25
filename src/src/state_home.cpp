@@ -201,44 +201,45 @@ void HomeStateHandler::onUpdateDraw(uint8_t tapAction)
     constexpr uint16_t x_min = 18;
     uint32_t rssi, rssi_h;
 
-    // RSSI bars
-    for (iter = 0; iter < CHANNELS_SIZE; iter++) {
-        rssi = rssiBandScanData[iter];
-        rssi_h = constrain((rssi * 8) / 100, 0, y_min);
-        Ui::display.fillRect(x_min + (CHANNELS_SIZE_DIVIDER * iter),
-                             y_min - rssi_h,
-                             CHANNELS_SIZE_DIVIDER,
-                             rssi_h,
-                             rssi / 10);
-    }
     // Frame
     Ui::display.line(0, (Ui::YRES - 11), (Ui::XRES - 1), (Ui::YRES - 11), WHITE);
+    // min freq
     Ui::display.setCursor( 1, (Ui::YRES - 9)); // Y=215
     Ui::display.print(Channels::getFrequency(Channels::getOrderedIndex(0)));
+    // max freq
     Ui::display.setCursor( 290, (Ui::YRES - 9)); // Y=215
     Ui::display.print(Channels::getFrequency(Channels::getOrderedIndex(CHANNELS_SIZE-1)));
-
-    // Marker triangle
-    uint16_t markerX = x_min + Channels::getOrderedIndexFromIndex(Receiver::activeChannel);
-    markerX *= CHANNELS_SIZE_DIVIDER;
-    for (iter = 0; iter < 7; iter++) {
-        Ui::display.line(markerX, y_min,
-                         (markerX + (-3 + iter)), (y_min + 5), WHITE);
-    }
-
     // Freq based on cursor position
     if (HomeStateHandler::isInBandScanRegion()) {
+        // Marker
+        uint16_t markerX = Channels::getOrderedIndexFromIndex(Receiver::activeChannel);
+        markerX *= CHANNELS_SIZE_DIVIDER;
+        markerX += x_min;
+        Ui::display.fillRect((markerX + 1), (y_min + 1), 4, 4, WHITE);
+
+        // RSSI bars
+        for (iter = 0; iter < CHANNELS_SIZE; iter++) {
+            rssi = rssiBandScanData[iter];
+            rssi_h = constrain((rssi * 8) / 100, 0, y_min);
+            Ui::display.fillRect(x_min + (CHANNELS_SIZE_DIVIDER * iter),
+                                y_min - rssi_h,
+                                CHANNELS_SIZE_DIVIDER,
+                                rssi_h,
+                                rssi / 10);
+        }
+
         if ((cursor_x > x_min) && (cursor_x < (Ui::XRES - x_min))) {
+            // reuse markerX for channel index
+            markerX = Channels::getOrderedIndex((cursor_x - x_min) / CHANNELS_SIZE_DIVIDER);
             Ui::display.fillRect( cursor_x - 33, cursor_y - 17, 33, 17, 10);
             Ui::display.setCursor( (cursor_x - (4 * Ui::CHAR_W)), (cursor_y - (2 * Ui::CHAR_H)) );
-            Ui::display.print(Channels::getName(
-                Channels::getOrderedIndex((cursor_x - x_min) / CHANNELS_SIZE_DIVIDER)));
+            Ui::display.print(Channels::getName(markerX));
             Ui::display.setCursor( (cursor_x - (4 * Ui::CHAR_W)), (cursor_y - Ui::CHAR_H) );
-            Ui::display.print(Channels::getFrequency(
-                Channels::getOrderedIndex((cursor_x - x_min) / CHANNELS_SIZE_DIVIDER)));
-        }
-        if (tapAction) {
-            setChannel(0, Channels::getOrderedIndex( (cursor_x-18) / CHANNELS_SIZE_DIVIDER ));
+            Ui::display.print(Channels::getFrequency(markerX));
+
+            if (tapAction) {
+                setChannel(0, markerX);
+            }
         }
     }
 }

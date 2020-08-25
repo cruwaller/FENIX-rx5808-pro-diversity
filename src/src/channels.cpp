@@ -296,18 +296,24 @@ namespace Channels {
     char * IRAM_ATTR getName(uint8_t index) {
         uint8_t band = index / 8;
         uint8_t channel = 48 + (index % 8) + 1;   // https://www.arduino.cc/en/Reference/ASCIIchart
-
-        nameBuffer[0] = bandNames[band];
+        if (band < sizeof(bandNames))
+            nameBuffer[0] = bandNames[band];
+        else
+            nameBuffer[0] = '_';
         nameBuffer[1] = channel;
 
         return nameBuffer;
     }
 
     const uint8_t IRAM_ATTR getOrderedIndex(uint8_t index) {
+        if (sizeof(channelFreqOrderedIndex) <= index)
+            return channelFreqOrderedIndex[sizeof(channelFreqOrderedIndex)-1];
         return channelFreqOrderedIndex[index];
     }
 
     const uint8_t IRAM_ATTR getOrderedIndexFromIndex(uint8_t index) {
+        if (sizeof(channelIndexToOrderedIndex) <= index)
+            return channelIndexToOrderedIndex[sizeof(channelIndexToOrderedIndex)-1];
         return channelIndexToOrderedIndex[index];
     }
 
