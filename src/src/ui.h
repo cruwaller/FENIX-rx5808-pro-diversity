@@ -18,8 +18,8 @@
 #define WHITE (100u)
 #define BLACK (0u)
 
-#define SPACE_BEF 4
-#define SPACE_AFT 3
+#define SPACE_BEF 3 //4
+#define SPACE_AFT 2 //3
 
 #define AREA_X_START(_x)        ((_x) - SPACE_BEF)
 #define AREA_X_END(_x, _cnt)    ((_x) + SPACE_AFT + ((_cnt) * Ui::CHAR_W))

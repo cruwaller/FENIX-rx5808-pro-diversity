@@ -28,6 +28,7 @@ typedef struct laptime {
 } lap_time_t;
 
 void lap_times_nodeidx_set(uint8_t nodeidx);
+void lap_times_nodeidx_roll(int8_t dir);
 uint8_t lap_times_nodeidx_get(void);
 
 void lap_times_reset(void);

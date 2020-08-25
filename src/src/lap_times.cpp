@@ -21,6 +21,14 @@ void lap_times_nodeidx_set(uint8_t nodeidx)
 }
 
 
+void lap_times_nodeidx_roll(int8_t dir)
+{
+    if ((_my_node_idx == 0 && dir < 0) || (_my_node_idx == (MAX_NODES-1) && 0 < dir))
+        return;
+    _my_node_idx += dir;
+}
+
+
 uint8_t lap_times_nodeidx_get(void)
 {
     return _my_node_idx;
