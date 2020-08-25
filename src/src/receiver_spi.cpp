@@ -92,23 +92,9 @@ static void sendRegister(uint8_t addressBits, uint32_t dataBits, Receiver::Recei
     case Receiver::ReceiverId::B:
         digitalWrite(PIN_SPI_SLAVE_SELECT_RX_B, LOW);
         break;
-    case Receiver::ReceiverId::C:
-#if defined(PIN_SPI_SLAVE_SELECT_RX_C)
-        digitalWrite(PIN_SPI_SLAVE_SELECT_RX_C, LOW);
-#endif
-        break;
-    case Receiver::ReceiverId::D:
-#if defined(PIN_SPI_SLAVE_SELECT_RX_D)
-        digitalWrite(PIN_SPI_SLAVE_SELECT_RX_D, LOW);
-#endif
-        break;
     default:
         digitalWrite(PIN_SPI_SLAVE_SELECT_RX_A, LOW);
         digitalWrite(PIN_SPI_SLAVE_SELECT_RX_B, LOW);
-#if defined(PIN_SPI_SLAVE_SELECT_RX_C) && defined(PIN_SPI_SLAVE_SELECT_RX_D)
-        digitalWrite(PIN_SPI_SLAVE_SELECT_RX_C, LOW);
-        digitalWrite(PIN_SPI_SLAVE_SELECT_RX_D, LOW);
-#endif
         break;
     }
 
@@ -123,22 +109,9 @@ static void sendRegister(uint8_t addressBits, uint32_t dataBits, Receiver::Recei
     case Receiver::ReceiverId::B:
         digitalWrite(PIN_SPI_SLAVE_SELECT_RX_B, HIGH);
         break;
-    case Receiver::ReceiverId::C:
-#if defined(PIN_SPI_SLAVE_SELECT_RX_C)
-        digitalWrite(PIN_SPI_SLAVE_SELECT_RX_C, HIGH);
-#endif
-        break;
-    case Receiver::ReceiverId::D:
-#if defined(PIN_SPI_SLAVE_SELECT_RX_D)
-        digitalWrite(PIN_SPI_SLAVE_SELECT_RX_D, HIGH);
-#endif
     default:
         digitalWrite(PIN_SPI_SLAVE_SELECT_RX_A, HIGH);
         digitalWrite(PIN_SPI_SLAVE_SELECT_RX_B, HIGH);
-#if defined(PIN_SPI_SLAVE_SELECT_RX_C) && defined(PIN_SPI_SLAVE_SELECT_RX_D)
-        digitalWrite(PIN_SPI_SLAVE_SELECT_RX_C, HIGH);
-        digitalWrite(PIN_SPI_SLAVE_SELECT_RX_D, HIGH);
-#endif
         break;
     }
 }

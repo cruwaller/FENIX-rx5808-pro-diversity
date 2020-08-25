@@ -312,17 +312,6 @@ namespace Channels {
     }
 
     const uint16_t getCenterFreq(uint16_t freq) {
-
-//        // Centering notification
-//        Ui::clearRect(30, 60, 100, 13);
-//        Ui::drawRoundRect(30, 60, 100, 13, 2, WHITE);
-//        Ui::setTextSize(1);
-//        Ui::setTextColor(WHITE);
-//        Ui::setCursor(33, 62);
-//        Ui::display.print(PSTR2("Centering..."));
-//        Ui::needDisplay();
-//        Ui::update();
-
         uint16_t upperFreq = freq;
         uint16_t lowerFreq = freq;
         uint16_t rssi = 1000;
@@ -335,11 +324,6 @@ namespace Channels {
           }
           Receiver::updateRssi();
           rssi = (Receiver::rssiA + Receiver::rssiB)/2;
-#if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
-          if (EepromSettings.quadversity) {
-            rssi = ((Receiver::rssiA + Receiver::rssiB)/2 + (Receiver::rssiC +  Receiver::rssiD)/2) / 2;
-          }
-#endif
         }
 
         rssi  = 1000;
@@ -351,14 +335,7 @@ namespace Channels {
           }
           Receiver::updateRssi();
           rssi = (Receiver::rssiA + Receiver::rssiB)/2;
-#if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
-          if (EepromSettings.quadversity) {
-            rssi = ((Receiver::rssiA + Receiver::rssiB)/2 + (Receiver::rssiC +  Receiver::rssiD)/2) / 2;
-          }
-#endif
         }
-
-//        Ui::clearRect(26, 27, 76, 12);
 
         return (lowerFreq + upperFreq) / 2;
     }

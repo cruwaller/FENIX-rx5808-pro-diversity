@@ -93,76 +93,33 @@ void HomeStateHandler::onUpdateDraw(uint8_t tapAction)
         }
     }
 
-#if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
-    if (EepromSettings.quadversity) {
-        // Channel labels
-        x_off = 190;
-        Ui::drawBigCharacter( x_off, 23,
-                              'A',
-                              3, 2);
-        Ui::drawBigCharacter( x_off, 23 + 28,
-                              'B',
-                              3, 2);
-        Ui::drawBigCharacter( x_off, 23 + 28*2,
-                              'C',
-                              3, 2);
-        Ui::drawBigCharacter( x_off, 23 + 28*3,
-                              'D',
-                              3, 2);
+    // Channel labels
+    x_off = 130;
+    Ui::display.setCursor( x_off, 12 + 28*0 + 3);
+    Ui::display.printLarge("A", 2, 2);
+    Ui::display.setCursor( x_off, 12 + 28*2 + 3);
+    Ui::display.printLarge("B", 2, 2);
 
-        // Channel selected square
-        x_off -= 5;
-        y_off = 20 + 28 * (uint8_t)Receiver::activeReceiver;
-        Ui::drawRoundRect(x_off, y_off, 34, 24, 2, WHITE);
-
-        // On percentage
-        sec_now = millis() / 1000;
-        x_off += 40;
-        Ui::setCursor(x_off, 25);
-        Ui::display.print( (100 * Receiver::antennaAOnTime) / (sec_now) );
-        Ui::display.print(PSTR2("%"));
-        Ui::setCursor(x_off, 25+28);
-        Ui::display.print( (100 * Receiver::antennaBOnTime) / (sec_now) );
-        Ui::display.print(PSTR2("%"));
-        Ui::setCursor(x_off, 25+28*2);
-        Ui::display.print( (100 * Receiver::antennaCOnTime) / (sec_now) );
-        Ui::display.print(PSTR2("%"));
-        Ui::setCursor(x_off, 25+28*3);
-        Ui::display.print( (100 * Receiver::antennaDOnTime) / (sec_now) );
-        Ui::display.print(PSTR2("%"));
+    // Channel selected square
+    x_off -= 2;
+    //y_off = 10 + 3 + 28 * (Receiver::activeReceiver == Receiver::ReceiverId::B) ? 2 : 0;
+    //Ui::display.rect(x_off, y_off, 19, 19, WHITE);
+    if (Receiver::activeReceiver == Receiver::ReceiverId::A) {
+        Ui::display.rect(128, (10 + 28*0 + 3), 19, 19, 100);
+    } else if (Receiver::activeReceiver == Receiver::ReceiverId::B) {
+        Ui::display.rect(128, (10 + 28*2 + 3), 18, 18, 100);
     }
-    else
-#else
-    {
-        // Channel labels
-        x_off = 130;
-        Ui::display.setCursor( x_off, 12 + 28*0 + 3);
-        Ui::display.printLarge("A", 2, 2);
-        Ui::display.setCursor( x_off, 12 + 28*2 + 3);
-        Ui::display.printLarge("B", 2, 2);
 
-        // Channel selected square
-        x_off -= 2;
-        //y_off = 10 + 3 + 28 * (Receiver::activeReceiver == Receiver::ReceiverId::B) ? 2 : 0;
-        //Ui::display.rect(x_off, y_off, 19, 19, WHITE);
-        if (Receiver::activeReceiver == Receiver::ReceiverId::A) {
-            Ui::display.rect(128, (10 + 28*0 + 3), 19, 19, 100);
-        } else if (Receiver::activeReceiver == Receiver::ReceiverId::B) {
-            Ui::display.rect(128, (10 + 28*2 + 3), 18, 18, 100);
-        }
+    // On percentage
+    sec_now = millis() / 1000;
+    Ui::display.setCursor(x_off, 30 + 28*0 + 3);
+    Ui::display.print( (100.0 * Receiver::antennaAOnTime) / (sec_now) );
+    Ui::display.print("%");
+    Ui::display.setCursor(x_off, 32 + 28*2 + 3);
+    Ui::display.print( (100.0 * Receiver::antennaBOnTime) / (sec_now) );
+    Ui::display.print("%");
 
-        // On percentage
-        sec_now = millis() / 1000;
-        Ui::display.setCursor(x_off, 30 + 28*0 + 3);
-        Ui::display.print( (100.0 * Receiver::antennaAOnTime) / (sec_now) );
-        Ui::display.print("%");
-        Ui::display.setCursor(x_off, 32 + 28*2 + 3);
-        Ui::display.print( (100.0 * Receiver::antennaBOnTime) / (sec_now) );
-        Ui::display.print("%");
-
-        //x_off += 2 + 3 + 4 * Ui::CHAR_W + 4;
-    }
-#endif
+    //x_off += 2 + 3 + 4 * Ui::CHAR_W + 4;
 
     // Send frequency to all peers
 #define SEND_Y_OFF 43
@@ -228,30 +185,12 @@ void HomeStateHandler::onUpdateDraw(uint8_t tapAction)
 
 #else // !HOME_SHOW_LAPTIMES
     // Draw RSSI Plots
-#if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
-    if (EepromSettings.quadversity) {
-        Ui::drawRect(250, 20 + 28*0 + 3, 64*3-1, 28*1-1, WHITE);
-        Ui::drawRect(250, 20 + 28*1 + 3, 64*3-1, 28*1-1, WHITE);
-        Ui::drawRect(250, 20 + 28*2 + 3, 64*3-1, 28*1-1, WHITE);
-        Ui::drawRect(250, 20 + 28*3 + 3, 64*3-1, 28*1-1, WHITE);
-        for (uint8_t i=0; i < RECEIVER_LAST_DATA_SIZE; i++) {
-            Ui::drawLine(250+3*i, (20 + 28*1)-Receiver::rssiALast[i]/4, 250+3*(i+1), (20 + 28*1)-Receiver::rssiALast[i+1]/4, WHITE);
-            Ui::drawLine(250+3*i, (20 + 28*2)-Receiver::rssiBLast[i]/4, 250+3*(i+1), (20 + 28*2)-Receiver::rssiBLast[i+1]/4, WHITE);
-            Ui::drawLine(250+3*i, (20 + 28*3)-Receiver::rssiBLast[i]/4, 250+3*(i+1), (20 + 28*3)-Receiver::rssiBLast[i+1]/4, WHITE);
-            Ui::drawLine(250+3*i, (20 + 28*4)-Receiver::rssiBLast[i]/4, 250+3*(i+1), (20 + 28*4)-Receiver::rssiBLast[i+1]/4, WHITE);
-        }
+    Ui::display.rect(195, 12 + 28*0 + 3, 64*2, 28*2-1, WHITE);
+    Ui::display.rect(195, 12 + 28*2 + 3, 64*2, 28*2-1, WHITE);
+    for (uint8_t i=0; i < RECEIVER_LAST_DATA_SIZE-1; i++) {
+        Ui::display.line(195+1*i, (12 + 28*2)-Receiver::rssiALast[i]/20, 195+1*(i+1), (12 + 28*2)-Receiver::rssiALast[i+1]/20, WHITE);
+        Ui::display.line(195+1*i, (12 + 28*4)-Receiver::rssiBLast[i]/20, 195+1*(i+1), (12 + 28*4)-Receiver::rssiBLast[i+1]/20, WHITE);
     }
-    else
-#else
-    {
-        Ui::display.rect(195, 12 + 28*0 + 3, 64*2, 28*2-1, WHITE);
-        Ui::display.rect(195, 12 + 28*2 + 3, 64*2, 28*2-1, WHITE);
-        for (uint8_t i=0; i < RECEIVER_LAST_DATA_SIZE-1; i++) {
-            Ui::display.line(195+1*i, (12 + 28*2)-Receiver::rssiALast[i]/20, 195+1*(i+1), (12 + 28*2)-Receiver::rssiALast[i+1]/20, WHITE);
-            Ui::display.line(195+1*i, (12 + 28*4)-Receiver::rssiBLast[i]/20, 195+1*(i+1), (12 + 28*4)-Receiver::rssiBLast[i+1]/20, WHITE);
-        }
-    }
-#endif
 #endif // HOME_SHOW_LAPTIMES
 
     // ================== Plot RSSI Spectrum ==================
@@ -374,15 +313,7 @@ void HomeStateHandler::bandScanUpdate()
 
     if (Receiver::isRssiStableAndUpdated()) {
 
-#if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
-        if (EepromSettings.quadversity) {
-            rssiBandScanData[orderedChanelIndex] = max(Receiver::rssiA, max(Receiver::rssiB, max(Receiver::rssiC, Receiver::rssiD)));
-        }
-        else
-#endif
-        {
-            rssiBandScanData[orderedChanelIndex] = max(Receiver::rssiA, Receiver::rssiB);
-        }
+        rssiBandScanData[orderedChanelIndex] = max(Receiver::rssiA, Receiver::rssiB);
 
         orderedChanelIndex = orderedChanelIndex + 1;
         if (orderedChanelIndex == CHANNELS_SIZE) {

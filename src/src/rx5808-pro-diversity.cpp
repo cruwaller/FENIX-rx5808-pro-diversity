@@ -141,26 +141,11 @@ void setupPins() {
     pinMode(PIN_SPI_SLAVE_SELECT_RX_B, OUTPUT);
     digitalWrite(PIN_SPI_SLAVE_SELECT_RX_B, HIGH);
 
-#if defined(PIN_SPI_SLAVE_SELECT_RX_C)
-    pinMode(PIN_SPI_SLAVE_SELECT_RX_C, OUTPUT);
-    digitalWrite(PIN_SPI_SLAVE_SELECT_RX_C, HIGH);
-#endif
-#if defined(PIN_SPI_SLAVE_SELECT_RX_D)
-    pinMode(PIN_SPI_SLAVE_SELECT_RX_D, OUTPUT);
-    digitalWrite(PIN_SPI_SLAVE_SELECT_RX_D, HIGH);
-#endif
-
     pinMode(PIN_RX_SWITCH, OUTPUT);
     digitalWrite(PIN_RX_SWITCH, LOW);
 
     pinMode(PIN_RSSI_A, INPUT);
     pinMode(PIN_RSSI_B, INPUT);
-#ifdef PIN_RSSI_C
-    pinMode(PIN_RSSI_C, INPUT);
-#endif
-#ifdef PIN_RSSI_D
-    pinMode(PIN_RSSI_D, INPUT);
-#endif
 #ifdef PIN_VBAT
     analogSetPinAttenuation(PIN_VBAT, ADC_2_5db);
 #endif

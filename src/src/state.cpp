@@ -115,20 +115,6 @@ namespace StateMachine {
                 Ui::display.print("Diversity");
                 break;
             }
-#if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
-            case Receiver::DiversityMode::ANTENNA_C: {
-                Ui::display.print("Antenna C");
-                break;
-            }
-            case Receiver::DiversityMode::ANTENNA_D: {
-                Ui::display.print("Antenna D");
-                break;
-            }
-            case Receiver::DiversityMode::QUADVERSITY: {
-                Ui::display.print("Quadversity"); // 11
-                break;
-            }
-#endif
             default:
                 Ui::display.print("FAIL");
                 break;
@@ -195,48 +181,19 @@ namespace StateMachine {
 
             } else if (TouchPad::touchData.cursorX < 130) {
                 // Change mode
-#if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
-                if (EepromSettings.quadversity) {
-                    switch ( EepromSettings.diversityMode )
-                    {
-                        case Receiver::DiversityMode::ANTENNA_A:
-                            setDiversityMode(Receiver::DiversityMode::ANTENNA_B);
-                            break;
-                        case Receiver::DiversityMode::ANTENNA_B:
-                            setDiversityMode(Receiver::DiversityMode::ANTENNA_C);
-                            break;
-                        case Receiver::DiversityMode::ANTENNA_C:
-                            setDiversityMode(Receiver::DiversityMode::ANTENNA_D);
-                            break;
-                        case Receiver::DiversityMode::ANTENNA_D:
-                            setDiversityMode(Receiver::DiversityMode::DIVERSITY);
-                            break;
-                        case Receiver::DiversityMode::DIVERSITY:
-                            setDiversityMode(Receiver::DiversityMode::QUADVERSITY);
-                            break;
-                        case Receiver::DiversityMode::QUADVERSITY:
-                            setDiversityMode(Receiver::DiversityMode::ANTENNA_A);
-                            break;
-                        default:
-                            break;
-                    }
-                } else
-#endif
+                switch ( EepromSettings.diversityMode )
                 {
-                    switch ( EepromSettings.diversityMode )
-                    {
-                        case Receiver::DiversityMode::ANTENNA_A:
-                            setDiversityMode(Receiver::DiversityMode::ANTENNA_B);
-                            break;
-                        case Receiver::DiversityMode::ANTENNA_B:
-                            setDiversityMode(Receiver::DiversityMode::DIVERSITY);
-                            break;
-                        case Receiver::DiversityMode::DIVERSITY:
-                            setDiversityMode(Receiver::DiversityMode::ANTENNA_A);
-                            break;
-                        default:
-                            break;
-                    }
+                    case Receiver::DiversityMode::ANTENNA_A:
+                        setDiversityMode(Receiver::DiversityMode::ANTENNA_B);
+                        break;
+                    case Receiver::DiversityMode::ANTENNA_B:
+                        setDiversityMode(Receiver::DiversityMode::DIVERSITY);
+                        break;
+                    case Receiver::DiversityMode::DIVERSITY:
+                        setDiversityMode(Receiver::DiversityMode::ANTENNA_A);
+                        break;
+                    default:
+                        break;
                 }
 
                 EepromSettings.markDirty();

@@ -93,16 +93,7 @@ void StateMachine::SettingsStateHandler::onUpdateDraw(uint8_t tapAction)
         switch(selectedMenuItem) {
 
             case 0:    // Diversity
-                  #ifdef FENIX_QUADVERSITY
-                      if (EepromSettings.quadversity) {
-//                          Ui::display.print(PSTR2("    On     "));
-                      } else {
-//                          Ui::display.print(PSTR2("    Off    "));
-                      }
-                      break;
-                  #else
 //                      Ui::display.print(PSTR2("    NA     "));
-                  #endif
             break;
 
             case 1:    // Home Page
@@ -118,27 +109,11 @@ void StateMachine::SettingsStateHandler::onUpdateDraw(uint8_t tapAction)
             break;
 
             case 2:    // Voltage Scale
-                  #ifdef FENIX_QUADVERSITY
-//                      Ui::display.print(PSTR2("  "));
-//                      Ui::display.print(Voltage::voltage);
-//                      Ui::display.print(PSTR2("."));
-//                      Ui::display.print(Voltage::voltageDec);
-//                      Ui::display.print(PSTR2(" V"));
-                  #else
 //                      Ui::display.print(PSTR2("    NA     "));
-                  #endif
             break;
 
             case 3:    // Volt Warning
-                  #ifdef FENIX_QUADVERSITY
-//                      Ui::display.print(PSTR2("  "));
-//                      Ui::display.print(EepromSettings.vbatWarning / 10);
-//                      Ui::display.print(PSTR2("."));
-//                      Ui::display.print(EepromSettings.vbatWarning % 10);
-//                      Ui::display.print(PSTR2(" V"));
-                  #else
 //                      Ui::display.print(PSTR2("    NA     "));
-                  #endif
             break;
 
             case 4:    // Save Screen
@@ -195,10 +170,7 @@ void StateMachine::SettingsStateHandler::onUpdateDraw(uint8_t tapAction)
             break;
 
             case 10:    // CUSTOMLOGO
-              #ifdef FENIX_QUADVERSITY
-//                  StateMachine::switchState(StateMachine::State::CUSTOMLOGO);
-              #endif
-            break;
+              break;
 
             case 11:    // Invert Display
 //              if (EepromSettings.invertDisplay) {
@@ -258,10 +230,6 @@ void StateMachine::SettingsStateHandler::onUpdateDraw(uint8_t tapAction)
 //            switch(selectedMenuItem) {
 //
 //                case (0):    // Diversity
-//                  #ifdef FENIX_QUADVERSITY
-//                    EepromSettings.quadversity = !EepromSettings.quadversity;
-//                    EepromSettings.isCalibrated = !EepromSettings.isCalibrated;
-//                  #endif
 //                break;
 //
 //                case (1):    // Home Page
@@ -282,11 +250,7 @@ void StateMachine::SettingsStateHandler::onUpdateDraw(uint8_t tapAction)
 //                case (4):    // Save Screen
 //                  EepromSettings.saveScreenOn--;
 //                  if (EepromSettings.saveScreenOn == 255) {
-//                    #ifdef FENIX_QUADVERSITY
-//                        EepromSettings.saveScreenOn = 5;
-//                    #else
 //                        EepromSettings.saveScreenOn = 4;
-//                    #endif
 //                  }
 //                break;
 //
@@ -337,10 +301,6 @@ void StateMachine::SettingsStateHandler::onUpdateDraw(uint8_t tapAction)
 //            switch(selectedMenuItem) {
 //
 //                case (0):    // Diversity
-//                    #ifdef FENIX_QUADVERSITY
-//                      EepromSettings.quadversity = !EepromSettings.quadversity;
-//                      EepromSettings.isCalibrated = !EepromSettings.isCalibrated;
-//                    #endif
 //                break;
 //
 //                case (1):    // Home Page
@@ -360,11 +320,7 @@ void StateMachine::SettingsStateHandler::onUpdateDraw(uint8_t tapAction)
 //
 //                case (4):    // Save Screen
 //                    EepromSettings.saveScreenOn++;
-//                    #ifdef FENIX_QUADVERSITY
-//                        if (EepromSettings.saveScreenOn == 6) {
-//                    #else
-//                        if (EepromSettings.saveScreenOn == 5) {
-//                    #endif
+//                    if (EepromSettings.saveScreenOn == 5) {
 //                      EepromSettings.saveScreenOn = 0;
 //                    }
 //                break;

@@ -16,28 +16,28 @@ const struct EepromSettings EepromDefaults = {
     .diversityMode = Receiver::DiversityMode::DIVERSITY,
 
     .startChannel = 27,
-    .lastKnownMenuItem = 0,
-    .lastKnownState = StateMachine::State::HOME,
+    .lastKnownMenuItem = 0, // remove
+    .lastKnownState = StateMachine::State::HOME, // remove
 
-    .beepEnabled = true,
+    .beepEnabled = true, // remove
 
     .rssiAMin = RSSI_MIN_VAL,
     .rssiAMax = RSSI_MAX_VAL,
     .rssiBMin = RSSI_MIN_VAL,
     .rssiBMax = RSSI_MAX_VAL,
-    .rssiCMin = RSSI_MIN_VAL,
-    .rssiCMax = RSSI_MAX_VAL,
-    .rssiDMin = RSSI_MIN_VAL,
-    .rssiDMax = RSSI_MAX_VAL,
+    .rssiCMin = RSSI_MIN_VAL, // remove
+    .rssiCMax = RSSI_MAX_VAL, // remove
+    .rssiDMin = RSSI_MIN_VAL, // remove
+    .rssiDMax = RSSI_MAX_VAL, // remove
 
     .vbatScale = VBAT_SCALE,
     .vbatWarning = WARNING_VOLTAGE,
     .vbatCritical = CRITICAL_VOLTAGE,
 
-    .favouriteChannels = {32, 33, 34, 35, 36, 37, 38, 39}, // Race band
-    .spectatorChannels = {-1, -1, -1, -1, -1, -1, -1, -1},
+    .favouriteChannels = {32, 33, 34, 35, 36, 37, 38, 39}, // Race band,  // remove
+    .spectatorChannels = {-1, -1, -1, -1, -1, -1, -1, -1}, // remove
 
-    .quadversity = false,
+    .quadversity = false, // remove
     .buttonBeep = true,
 
     // Internal settings

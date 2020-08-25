@@ -45,25 +45,12 @@ void StateMachine::SettingsRssiStateHandler::onUpdate()
                     EepromSettings.rssiAMax = Receiver::rssiARaw;
                     bestChannel = Receiver::activeChannel;
                 }
+
                 if (Receiver::rssiBRaw < EepromSettings.rssiBMin)
                     EepromSettings.rssiBMin = Receiver::rssiBRaw;
 
                 if (Receiver::rssiBRaw > EepromSettings.rssiBMax)
                     EepromSettings.rssiBMax = Receiver::rssiBRaw;
-
-#if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
-                if (EepromSettings.quadversity) {
-                    if (Receiver::rssiCRaw < EepromSettings.rssiCMin)
-                        EepromSettings.rssiCMin = Receiver::rssiCRaw;
-                    if (Receiver::rssiCRaw > EepromSettings.rssiCMax)
-                        EepromSettings.rssiCMax = Receiver::rssiCRaw;
-
-                    if (Receiver::rssiDRaw < EepromSettings.rssiDMin)
-                        EepromSettings.rssiDMin = Receiver::rssiDRaw;
-                    if (Receiver::rssiDRaw > EepromSettings.rssiDMax)
-                        EepromSettings.rssiDMax = Receiver::rssiDRaw;
-                }
-#endif
             }
             break;
         default:
@@ -106,10 +93,6 @@ void StateMachine::SettingsRssiStateHandler::doTapAction()
             EepromSettings.rssiAMax = 0;
             EepromSettings.rssiBMin = UINT16_MAX;
             EepromSettings.rssiBMax = 0;
-            EepromSettings.rssiCMin = UINT16_MAX;
-            EepromSettings.rssiCMax = 0;
-            EepromSettings.rssiDMin = UINT16_MAX;
-            EepromSettings.rssiDMax = 0;
             break;
 
         case InternalState::DONE:
@@ -178,20 +161,6 @@ void StateMachine::SettingsRssiStateHandler::onUpdateDraw()
             Ui::display.print(EepromSettings.rssiBMin);
             Ui::display.print(" -> ");
             Ui::display.print(EepromSettings.rssiBMax);
-    #if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
-            if (EepromSettings.quadversity) {
-                Ui::display.setCursor( 60, 80);
-                Ui::display.print("C: ");
-                Ui::display.print(EepromSettings.rssiCMin);
-                Ui::display.print(" -> ");
-                Ui::display.print(EepromSettings.rssiCMax);
-                Ui::display.setCursor( 60, 90);
-                Ui::display.print("D: ");
-                Ui::display.print(EepromSettings.rssiDMin);
-                Ui::display.print(" -> ");
-                Ui::display.print(EepromSettings.rssiDMax);
-            }
-    #endif
             Ui::display.setCursor( 60, 90);
             Ui::display.print("Tap to save.");
             break;

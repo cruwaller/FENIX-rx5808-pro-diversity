@@ -16,18 +16,13 @@ namespace Receiver {
     enum class ReceiverId : uint8_t {
         A,
         B,
-        C,
-        D,
         ALL,
     };
 
     enum class DiversityMode : uint8_t {
         ANTENNA_A,
         ANTENNA_B,
-        ANTENNA_C,
-        ANTENNA_D,
         DIVERSITY,
-        QUADVERSITY
     };
 
     extern ReceiverId DMA_ATTR activeReceiver;
@@ -39,17 +34,9 @@ namespace Receiver {
     extern uint16_t DMA_ATTR rssiB;
     extern uint32_t DMA_ATTR rssiBRaw;
     extern uint16_t DMA_ATTR rssiBLast[RECEIVER_LAST_DATA_SIZE];
-    extern uint16_t DMA_ATTR rssiC;
-    extern uint32_t DMA_ATTR rssiCRaw;
-    extern uint16_t DMA_ATTR rssiCLast[RECEIVER_LAST_DATA_SIZE];
-    extern uint16_t DMA_ATTR rssiD;
-    extern uint32_t DMA_ATTR rssiDRaw;
-    extern uint16_t DMA_ATTR rssiDLast[RECEIVER_LAST_DATA_SIZE];
 
     extern uint32_t DMA_ATTR antennaAOnTime;
     extern uint32_t DMA_ATTR antennaBOnTime;
-    extern uint32_t DMA_ATTR antennaCOnTime;
-    extern uint32_t DMA_ATTR antennaDOnTime;
 
     void setDiversityMode(DiversityMode mode);
 

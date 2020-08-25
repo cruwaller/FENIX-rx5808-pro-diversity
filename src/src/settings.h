@@ -70,15 +70,11 @@ SOFTWARE.
 
 #define PIN_SPI_SLAVE_SELECT_RX_A       32
 #define PIN_SPI_SLAVE_SELECT_RX_B       33
-//#define PIN_SPI_SLAVE_SELECT_RX_C       -1
-//#define PIN_SPI_SLAVE_SELECT_RX_D       -1
 
 #define PIN_RX_SWITCH                   27
 
 #define PIN_RSSI_A                      36
 #define PIN_RSSI_B                      39
-//#define PIN_RSSI_C                      39 // dummy pin
-//#define PIN_RSSI_D                      39 // dummy pin
 
 #define PIN_TOUCHPAD_SLAVE_SELECT       5
 #define PIN_TOUCHPAD_DATA_READY         34
