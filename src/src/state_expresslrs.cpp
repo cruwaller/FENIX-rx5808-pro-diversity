@@ -10,23 +10,17 @@
 
 void StateMachine::ExLRSStateHandler::onEnter()
 {
+    //onUpdateDraw(false);
 }
+
 
 void StateMachine::ExLRSStateHandler::onUpdate()
 {
-    onUpdateDraw();
-    if (TouchPad::touchData.buttonPrimary) {
-        TouchPad::touchData.buttonPrimary = false;
-        this->doTapAction();
-    }
+    onUpdateDraw(TouchPad::touchData.buttonPrimary);
 }
 
-void StateMachine::ExLRSStateHandler::onInitialDraw()
-{
-    onUpdateDraw();
-}
 
-void StateMachine::ExLRSStateHandler::onUpdateDraw()
+void StateMachine::ExLRSStateHandler::onUpdateDraw(uint8_t tapAction)
 {
     uint32_t off_x = 20, off_x2 = off_x + 17 * Ui::CHAR_W, off_y = 20;
     int16_t cursor_x = TouchPad::touchData.cursorX, cursor_y = TouchPad::touchData.cursorY;
@@ -198,16 +192,22 @@ void StateMachine::ExLRSStateHandler::onUpdateDraw()
             cursor_x > (20 + 17 * 8 - 4) && cursor_x < (20 + 19 * 8 + 3))
         {
             Ui::display.rect(20 + 17 * 8 - 4, 16, 23, 15, 100);
+            if (tapAction)
+                expresslrs_rate_send(ExLRS_50Hz);
         }
         else if ( // 100
             cursor_x > (20 + 23 * 8 - 4) && cursor_x < (20 + 26 * 8 + 3))
         {
             Ui::display.rect(20 + 23 * 8 - 4, 16, 31, 15, 100);
+            if (tapAction)
+                expresslrs_rate_send(ExLRS_100Hz);
         }
         else if ( // 200
             cursor_x > (20 + 30 * 8 - 4) && cursor_x < (20 + 33 * 8 + 3))
         {
             Ui::display.rect(20 + 30 * 8 - 4, 16, 31, 15, 100);
+            if (tapAction)
+                expresslrs_rate_send(ExLRS_200Hz);
         }
     }
     // Draw RF Power box
@@ -217,16 +217,22 @@ void StateMachine::ExLRSStateHandler::onUpdateDraw()
             cursor_x > (20 + 17 * 8 - 4) && cursor_x < (20 + 19 * 8 + 3))
         {
             Ui::display.rect(20 + 17 * 8 - 4, 36, 23, 15, 100);
+            if (tapAction)
+                expresslrs_power_send(ExLRS_PWR_25mW);
         }
         else if ( // 50mW
             cursor_x > (20 + 23 * 8 - 4) && cursor_x < (20 + 25 * 8 + 3))
         {
             Ui::display.rect(20 + 23 * 8 - 4, 36, 23, 15, 100);
+            if (tapAction)
+                expresslrs_power_send(ExLRS_PWR_50mW);
         }
         else if ( // 100mW
             cursor_x > (20 + 30 * 8 - 4) && cursor_x < (20 + 33 * 8 + 3))
         {
             Ui::display.rect(20 + 30 * 8 - 4, 36, 31, 15, 100);
+            if (tapAction)
+                expresslrs_power_send(ExLRS_PWR_100mW);
         }
     }
     // Draw TLM box
@@ -236,11 +242,15 @@ void StateMachine::ExLRSStateHandler::onUpdateDraw()
             cursor_x > (20 + 17 * 8 - 4) && cursor_x < (20 + 19 * 8 + 3))
         {
             Ui::display.rect(20 + 17 * 8 - 4, 56, 23, 15, 100);
+            if (tapAction)
+                expresslrs_tlm_send(ExLRS_TLM_ON);
         }
         else if ( // Off
             cursor_x > (20 + 23 * 8 - 4) && cursor_x < (20 + 26 * 8 + 3))
         {
             Ui::display.rect(20 + 23 * 8 - 4, 56, 31, 15, 100);
+            if (tapAction)
+                expresslrs_tlm_send(ExLRS_TLM_OFF);
         }
     }
     // Draw VTX SEND box
@@ -249,64 +259,8 @@ void StateMachine::ExLRSStateHandler::onUpdateDraw()
         if (cursor_x > (20 + 17 * 8 - 4) && cursor_x < (20 + 21 * 8 + 3))
         {
             Ui::display.rect((20 + 17 * 8 - 4), 76, (4 + 4 * 8 + 3), 15, 100);
-        }
-    }
-}
-
-void StateMachine::ExLRSStateHandler::doTapAction()
-{
-    int16_t cursor_x = TouchPad::touchData.cursorX, cursor_y = TouchPad::touchData.cursorY;
-
-    if (cursor_x > 314 && cursor_y < 8)
-    { // Menu
-        StateMachine::switchState(StateMachine::State::MENU);
-    }
-    else if (cursor_y > 16 && cursor_y < 31)
-    { // rate
-        if (cursor_x > (20 + 17 * 8 - 4) && cursor_x < (20 + 19 * 8 + 3))
-        {
-            expresslrs_rate_send(ExLRS_50Hz);
-        }
-        else if (cursor_x > (20 + 23 * 8 - 4) && cursor_x < (20 + 26 * 8 + 3))
-        {
-            expresslrs_rate_send(ExLRS_100Hz);
-        }
-        else if (cursor_x > (20 + 30 * 8 - 4) && cursor_x < (20 + 33 * 8 + 3))
-        {
-            expresslrs_rate_send(ExLRS_200Hz);
-        }
-    }
-    else if (cursor_y > 36 && cursor_y < 51)
-    { // power
-        if (cursor_x > (20 + 17 * 8 - 4) && cursor_x < (20 + 19 * 8 + 3))
-        {
-            expresslrs_power_send(ExLRS_PWR_25mW);
-        }
-        else if (cursor_x > (20 + 23 * 8 - 4) && cursor_x < (20 + 25 * 8 + 3))
-        {
-            expresslrs_power_send(ExLRS_PWR_50mW);
-        }
-        else if (cursor_x > (20 + 30 * 8 - 4) && cursor_x < (20 + 33 * 8 + 3))
-        {
-            expresslrs_power_send(ExLRS_PWR_100mW);
-        }
-    }
-    else if (cursor_y > 56 && cursor_y < 71)
-    { // TLM
-        if (cursor_x > (20 + 17 * 8 - 4) && cursor_x < (20 + 19 * 8 + 3))
-        {
-            expresslrs_tlm_send(ExLRS_TLM_ON);
-        }
-        else if (cursor_x > (20 + 23 * 8 - 4) && cursor_x < (20 + 26 * 8 + 3))
-        {
-            expresslrs_tlm_send(ExLRS_TLM_OFF);
-        }
-    }
-    else if (cursor_y > 76 && cursor_y < 91)
-    { // VTX SEND
-        if (cursor_x > (20 + 17 * 8 - 4) && cursor_x < (20 + 21 * 8 + 3))
-        {
-            expresslrs_vtx_freq_send(Channels::getFrequency(Receiver::activeChannel));
+            if (tapAction)
+                expresslrs_vtx_freq_send(Channels::getFrequency(Receiver::activeChannel));
         }
     }
 }

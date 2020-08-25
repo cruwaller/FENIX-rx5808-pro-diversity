@@ -13,7 +13,7 @@
 #include "ui.h"
 #include "settings_eeprom.h"
 #include "timer.h"
-
+#include "touchpad.h"
 #include "temperature.h"
 #include "voltage.h"
 
@@ -64,7 +64,6 @@ namespace StateMachine {
 
         if (currentHandler != nullptr) {
             currentHandler->onEnter();
-            currentHandler->onInitialDraw();
         }
     }
 
@@ -179,5 +178,61 @@ namespace StateMachine {
 
         // Horixontal line
         Ui::display.line( 0, 9, Ui::XRES, 9, WHITE);
+
+        // Check touch
+        if (TouchPad::touchData.buttonPrimary && TouchPad::touchData.cursorY < 8) {
+            if (TouchPad::touchData.cursorX > 314) {
+                // Menu
+                StateMachine::switchState(StateMachine::State::MENU);
+
+            } else if (TouchPad::touchData.cursorX < 130) {
+                // Change mode
+#if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
+                if (EepromSettings.quadversity) {
+                    switch ( EepromSettings.diversityMode )
+                    {
+                        case Receiver::DiversityMode::ANTENNA_A:
+                            setDiversityMode(Receiver::DiversityMode::ANTENNA_B);
+                            break;
+                        case Receiver::DiversityMode::ANTENNA_B:
+                            setDiversityMode(Receiver::DiversityMode::ANTENNA_C);
+                            break;
+                        case Receiver::DiversityMode::ANTENNA_C:
+                            setDiversityMode(Receiver::DiversityMode::ANTENNA_D);
+                            break;
+                        case Receiver::DiversityMode::ANTENNA_D:
+                            setDiversityMode(Receiver::DiversityMode::DIVERSITY);
+                            break;
+                        case Receiver::DiversityMode::DIVERSITY:
+                            setDiversityMode(Receiver::DiversityMode::QUADVERSITY);
+                            break;
+                        case Receiver::DiversityMode::QUADVERSITY:
+                            setDiversityMode(Receiver::DiversityMode::ANTENNA_A);
+                            break;
+                        default:
+                            break;
+                    }
+                } else
+#endif
+                {
+                    switch ( EepromSettings.diversityMode )
+                    {
+                        case Receiver::DiversityMode::ANTENNA_A:
+                            setDiversityMode(Receiver::DiversityMode::ANTENNA_B);
+                            break;
+                        case Receiver::DiversityMode::ANTENNA_B:
+                            setDiversityMode(Receiver::DiversityMode::DIVERSITY);
+                            break;
+                        case Receiver::DiversityMode::DIVERSITY:
+                            setDiversityMode(Receiver::DiversityMode::ANTENNA_A);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                EepromSettings.markDirty();
+            }
+        }
     }
 }

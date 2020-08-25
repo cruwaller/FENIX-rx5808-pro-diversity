@@ -1,8 +1,8 @@
 #ifndef STATE_H
 #define STATE_H
 
-#include <esp_attr.h>
 #include <stdint.h>
+#include <esp_attr.h>
 
 
 namespace StateMachine {
@@ -20,9 +20,6 @@ namespace StateMachine {
 
     class StateHandler {
         public:
-            virtual void onInitialDraw() {};
-            virtual void onUpdateDraw() {};
-
             virtual void onEnter() {};
             virtual void onUpdate() {};
             virtual void onExit() {};

@@ -77,25 +77,26 @@ namespace Ui {
 
     void drawCursor() {
 
-        int i = 0;
-        for(int py = 0; py < Cursor::yres; py++) {
-            for(int px = 0; px < Cursor::xres; px++) {
-                int pixelValue = Cursor::pixels[i++];
+        uint8_t i = 0, py, px, pixelValue;
+        int16_t cursor_x = TouchPad::touchData.cursorX, cursor_y = TouchPad::touchData.cursorY;
+
+        for (py = 0; py < Cursor::yres; py++) {
+            for (px = 0; px < Cursor::xres; px++) {
+                pixelValue = Cursor::pixels[i++];
                 if (pixelValue == 255) {
-                    display.dot(px + TouchPad::touchData.cursorX, py + TouchPad::touchData.cursorY, 100);
-                }
-                if (pixelValue == 1) {
-                    display.dot(px + TouchPad::touchData.cursorX, py + TouchPad::touchData.cursorY, 0);
+                    display.dot(px + cursor_x, py + cursor_y, 100);
+                } else if (pixelValue == 1) {
+                    display.dot(px + cursor_x, py + cursor_y, 0);
                 }
             }
         }
 
     //    // For testing print the cursor location.  Helps with positioning widgits.
-    //    display.setCursor(TouchPad::touchData.cursorX, TouchPad::touchData.cursorY);
+    //    display.setCursor(cursor_x, cursor_y);
     //    display.print("  [");
-    //    display.print(TouchPad::touchData.cursorX);
+    //    display.print(cursor_x);
     //    display.print(", ");
-    //    display.print(TouchPad::touchData.cursorY);
+    //    display.print(cursor_y);
     //    display.print("]");
 
     }

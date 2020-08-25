@@ -26,22 +26,17 @@ void StateMachine::SettingsInternalStateHandler::onEnter() {
     selectedInternalMenuItem = 0;
     factoryReset = 0;
     showChangeInternalMenuOptions = false;
-//    Ui::clear();
+    //this->onUpdateDraw(false);
 }
 
 void StateMachine::SettingsInternalStateHandler::onExit() {
 }
 
 void StateMachine::SettingsInternalStateHandler::onUpdate() {
-//    Ui::needUpdate();
-    this->onUpdateDraw();
+    this->onUpdateDraw(false);
 }
 
-void StateMachine::SettingsInternalStateHandler::onInitialDraw() {
-    this->onUpdateDraw();
-}
-
-void StateMachine::SettingsInternalStateHandler::onUpdateDraw() {
+void StateMachine::SettingsInternalStateHandler::onUpdateDraw(uint8_t tapAction) {
 
 
     if (!showChangeInternalMenuOptions) {

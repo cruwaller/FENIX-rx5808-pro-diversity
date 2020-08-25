@@ -8,22 +8,15 @@
 
 void StateMachine::ChorusStateHandler::onEnter()
 {
+    //onUpdateDraw(false);
 }
+
 
 void StateMachine::ChorusStateHandler::onUpdate()
 {
     onUpdateDraw(TouchPad::touchData.buttonPrimary);
-    TouchPad::touchData.buttonPrimary = false;
-    /*if (TouchPad::touchData.buttonPrimary) {
-        TouchPad::touchData.buttonPrimary = false;
-        this->doTapAction();
-    }*/
 }
 
-void StateMachine::ChorusStateHandler::onInitialDraw()
-{
-    onUpdateDraw(false);
-}
 
 void StateMachine::ChorusStateHandler::onUpdateDraw(uint8_t tapAction)
 {
@@ -63,7 +56,7 @@ void StateMachine::ChorusStateHandler::onUpdateDraw(uint8_t tapAction)
     }
 
 #define LAP_MIN_X               (X_BASE_OFF)
-#define LAP_MIN_Y               (40)
+#define LAP_MIN_Y               (NODE_Y + 2*Ui::CHAR_H)
 // 'MIN LAP:  [-]  10s  [+]
 #define LAP_MIN_X_OFFSET_DEC    (LAP_MIN_X + NODE_X_OFFSET)
 #define LAP_MIN_X_OFFSET_TIME   (LAP_MIN_X_OFFSET_DEC + 5*Ui::CHAR_W)
@@ -106,7 +99,7 @@ void StateMachine::ChorusStateHandler::onUpdateDraw(uint8_t tapAction)
 
 
 #define START_BTN_X (X_BASE_OFF)
-#define START_BTN_Y (60)
+#define START_BTN_Y (LAP_MIN_Y + 2*Ui::CHAR_H)
     Ui::display.setCursor(START_BTN_X, START_BTN_Y);
     if (chorus_race_is_start())
         Ui::display.print("STOP");
@@ -119,8 +112,10 @@ void StateMachine::ChorusStateHandler::onUpdateDraw(uint8_t tapAction)
     Ui::display.print("GET LAPS");
 
 
-#define RET_CURSOR_X (Ui::XRES - 6 * Ui::CHAR_W)
-#define RET_CURSOR_Y (20)
+//#define RET_CURSOR_X (Ui::XRES - 6 * Ui::CHAR_W)
+//#define RET_CURSOR_Y (20)
+#define RET_CURSOR_X (X_BASE_OFF)
+#define RET_CURSOR_Y (START_BTN_Y + 2*Ui::CHAR_H)
     Ui::display.setCursor(RET_CURSOR_X, RET_CURSOR_Y);
     Ui::display.print("[ X ]");
 
@@ -129,14 +124,8 @@ void StateMachine::ChorusStateHandler::onUpdateDraw(uint8_t tapAction)
 
     // Draw selection boxes and handle touches
 
-    if (cursor_x > 314 && cursor_y < 8)
-    {
-        // Menu
-        if (tapAction)
-            StateMachine::switchState(StateMachine::State::MENU);
-    }
-    else if (cursor_y > AREA_Y_START(START_BTN_Y) && cursor_y < AREA_Y_END(START_BTN_Y, 1) &&
-             cursor_x > AREA_X_START(START_BTN_X) && cursor_x < AREA_X_END(START_BTN_X, 5))
+    if (cursor_y > AREA_Y_START(START_BTN_Y) && cursor_y < AREA_Y_END(START_BTN_Y, 1) &&
+        cursor_x > AREA_X_START(START_BTN_X) && cursor_x < AREA_X_END(START_BTN_X, 5))
     {
         // START/STOP
         Ui::display.rect(AREA_X_START(START_BTN_X), AREA_Y_START(START_BTN_Y),
@@ -164,60 +153,5 @@ void StateMachine::ChorusStateHandler::onUpdateDraw(uint8_t tapAction)
                          AREA_X_LEN(5), AREA_Y_LEN(1), WHITE);
         if (tapAction)
             StateMachine::switchState(StateMachine::lastState);
-    }
-}
-
-void StateMachine::ChorusStateHandler::doTapAction()
-{
-    uint32_t x_off;
-    int16_t cursor_x = TouchPad::touchData.cursorX, cursor_y = TouchPad::touchData.cursorY;
-    uint8_t iter;
-
-    if (cursor_x > 314 && cursor_y < 8)
-    { // Menu
-        StateMachine::switchState(StateMachine::State::MENU);
-    }
-    else if (cursor_y > (START_BTN_Y - SPACE_BEF) && cursor_y < (START_BTN_Y + Ui::CHAR_H + SPACE_AFT) &&
-             cursor_x > (START_BTN_X - SPACE_BEF) && cursor_x < (START_BTN_X + 5 * Ui::CHAR_W + SPACE_AFT))
-    {
-        if (chorus_race_is_start())
-            chorus_race_end();
-        else
-            chorus_race_start();
-    }
-    else if (cursor_y > (READ_BTN_Y - SPACE_BEF) && cursor_y < (READ_BTN_Y + Ui::CHAR_H + SPACE_AFT) &&
-             cursor_x > (READ_BTN_X - SPACE_BEF) && cursor_x < (READ_BTN_X + 8 * Ui::CHAR_W + SPACE_AFT))
-    {
-        // GET LAPS
-        chorus_race_laps_get();
-    }
-    else if (cursor_y > (RET_CURSOR_Y - SPACE_BEF) && cursor_y < (RET_CURSOR_Y + Ui::CHAR_H + SPACE_AFT) &&
-             cursor_x > (RET_CURSOR_X - SPACE_BEF) && cursor_x < (RET_CURSOR_X + 5 * Ui::CHAR_W + SPACE_AFT))
-    {
-        StateMachine::switchState(StateMachine::lastState);
-    }
-    else if (cursor_y > (LAP_MIN_Y - SPACE_BEF) && cursor_y < (LAP_MIN_Y + Ui::CHAR_H + SPACE_AFT))
-    {
-        // Minimum lap time
-        if ((cursor_x > (LAP_MIN_X_OFFSET_DEC - SPACE_BEF)) &&
-            (cursor_x < (LAP_MIN_X_OFFSET_DEC + 3 * Ui::CHAR_W + SPACE_AFT))) {
-            // Decrease
-            chorus_race_lap_time_min_change(-1);
-        } else if ((cursor_x > (LAP_MIN_X_OFFSET_INC - SPACE_BEF)) &&
-                   (cursor_x < (LAP_MIN_X_OFFSET_INC + 3 * Ui::CHAR_W + SPACE_AFT))) {
-            // Increase
-            chorus_race_lap_time_min_change(1);
-        }
-    }
-    else if (cursor_y > (NODE_Y - SPACE_BEF) && cursor_y < (NODE_Y + Ui::CHAR_H + SPACE_AFT))
-    {
-        x_off = NODE_X + NODE_X_OFFSET;
-        for (iter = 0; iter < MAX_NODES; iter++, x_off+=(2*Ui::CHAR_W)) {
-            if (cursor_x > (x_off - SPACE_BEF) && cursor_x < (x_off + Ui::CHAR_W + SPACE_AFT))
-            {
-                lap_times_nodeidx_set(iter);
-                break;
-            }
-        }
     }
 }

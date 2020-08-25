@@ -9,7 +9,7 @@
 namespace StateMachine {
     class HomeStateHandler : public StateMachine::StateHandler {
         private:
-            void doTapAction();
+            void onUpdateDraw(uint8_t tapAction);
 
             uint8_t displayActiveChannel = 0;
             bool wasInBandScanRegion = false;
@@ -26,9 +26,6 @@ namespace StateMachine {
         public:
             void onEnter();
             void onUpdate();
-
-            void onInitialDraw();
-            void onUpdateDraw();
     };
 }
 

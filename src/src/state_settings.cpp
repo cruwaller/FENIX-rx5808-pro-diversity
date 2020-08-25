@@ -1,6 +1,7 @@
 
 #include "state_settings.h"
 #include "settings_eeprom.h"
+#include "touchpad.h"
 
 #include "state.h"
 #include "ui.h"
@@ -10,7 +11,7 @@ int8_t selectedMenuItem = 0;
 bool showChangeMenuOptions = false;
 
 uint8_t menuItems = 13; // Number of items in settingsMenu[]
-const char* settingsMenu[]={
+const char* settingsMenu[] = {
     "Quadversity",
     "Home Page", //defaut, simple, stats
     "Voltage Scale",
@@ -24,29 +25,25 @@ const char* settingsMenu[]={
     "Draw Logo",
     "Invert Display",
     "Rotate OLED",
-    };
+};
 
-void StateMachine::SettingsStateHandler::onEnter() {
+
+void StateMachine::SettingsStateHandler::onEnter()
+{
     selectedMenuItem = 0;
     showChangeMenuOptions = false;
-//    Ui::clear();
+    //this->onUpdateDraw(false);
 }
 
-void StateMachine::SettingsStateHandler::onExit() {
+
+void StateMachine::SettingsStateHandler::onUpdate()
+{
+    this->onUpdateDraw(TouchPad::touchData.buttonPrimary);
 }
 
-void StateMachine::SettingsStateHandler::onUpdate() {
-//    Ui::needUpdate();
-    this->onUpdateDraw();
-}
 
-void StateMachine::SettingsStateHandler::onInitialDraw() {
-    this->onUpdateDraw();
-}
-
-void StateMachine::SettingsStateHandler::onUpdateDraw() {
-
-
+void StateMachine::SettingsStateHandler::onUpdateDraw(uint8_t tapAction)
+{
     if (!showChangeMenuOptions) {
 
         int8_t index;

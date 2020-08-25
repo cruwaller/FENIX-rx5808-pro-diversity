@@ -17,19 +17,16 @@ namespace StateMachine {
             };
 
             void doTapAction();
+            void onUpdateDraw();
 
             InternalState internalState = InternalState::WAIT_FOR_LOW;
             uint8_t currentSweep = 0;
-            uint8_t bestChannel = 0; 
+            uint8_t bestChannel = 0;
 
 
         public:
             void onEnter();
             void onUpdate();
-
-            void onInitialDraw();
-            void onUpdateDraw();
-
     };
 }
 

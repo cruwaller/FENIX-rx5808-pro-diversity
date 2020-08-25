@@ -12,17 +12,19 @@
 
 #include "touchpad.h"
 
-void StateMachine::SettingsRssiStateHandler::onEnter() {
+void StateMachine::SettingsRssiStateHandler::onEnter()
+{
     internalState = InternalState::WAIT_FOR_LOW;
+    //onUpdateDraw();
 }
 
-void StateMachine::SettingsRssiStateHandler::onUpdate() {
-
+void StateMachine::SettingsRssiStateHandler::onUpdate()
+{
     onUpdateDraw();
 
     if (TouchPad::touchData.buttonPrimary && internalState!=InternalState::SCANNING_LOW) {
-      TouchPad::touchData.buttonPrimary = false;
-      doTapAction();
+        TouchPad::touchData.buttonPrimary = false;
+        doTapAction(); // TODO: remove!
     }
 
     if (!Receiver::isRssiStableAndUpdated())
@@ -90,8 +92,9 @@ void StateMachine::SettingsRssiStateHandler::onUpdate() {
     }
 }
 
-void StateMachine::SettingsRssiStateHandler::doTapAction() {
 
+void StateMachine::SettingsRssiStateHandler::doTapAction()
+{
     switch (internalState) {
         case InternalState::WAIT_FOR_LOW:
             internalState = InternalState::SCANNING_LOW;
@@ -120,87 +123,80 @@ void StateMachine::SettingsRssiStateHandler::doTapAction() {
                   Channels::getFrequency(bestChannel))));
 
             StateMachine::switchState(StateMachine::State::HOME);
-
             break;
 
         default:
             break;
     }
-
 }
 
 
-void StateMachine::SettingsRssiStateHandler::onInitialDraw() {
-//    Ui::needUpdate(); // Lazy. :(
-    onUpdateDraw(); // Lazier. :(
-}
-
-void StateMachine::SettingsRssiStateHandler::onUpdateDraw() {
-
+void StateMachine::SettingsRssiStateHandler::onUpdateDraw()
+{
     switch (internalState) {
-      case InternalState::WAIT_FOR_LOW:
+        case InternalState::WAIT_FOR_LOW:
 
-          Ui::display.setTextColor(100);
-          Ui::display.setCursor( 40, 40);
-          Ui::display.print("Your module is not calibrated.");
-          Ui::display.setCursor( 40, 50);
-          Ui::display.print("Follow the below steps.");
-          Ui::display.setCursor( 40, 70);
-          Ui::display.print("- Turn on a VTx at 25mW & place");
-          Ui::display.setCursor( 40, 80);
-          Ui::display.print("  1m away.");
-          Ui::display.setCursor( 40, 90);
-          Ui::display.print("- Remove Rx antennas.");
-          Ui::display.setCursor( 40, 110);
-          Ui::display.print("Tap to continue.");
-      break;
+            Ui::display.setTextColor(100);
+            Ui::display.setCursor( 40, 40);
+            Ui::display.print("Your module is not calibrated.");
+            Ui::display.setCursor( 40, 50);
+            Ui::display.print("Follow the below steps.");
+            Ui::display.setCursor( 40, 70);
+            Ui::display.print("- Turn on a VTx at 25mW & place");
+            Ui::display.setCursor( 40, 80);
+            Ui::display.print("  1m away.");
+            Ui::display.setCursor( 40, 90);
+            Ui::display.print("- Remove Rx antennas.");
+            Ui::display.setCursor( 40, 110);
+            Ui::display.print("Tap to continue.");
+            break;
 
-      case InternalState::SCANNING_LOW:
-          Ui::display.setTextColor(100);
-          Ui::display.setCursor( 40, 40);
-          Ui::display.print("Scanning for lowest & highest");
-          Ui::display.setCursor( 40, 50);
-          Ui::display.print("RSSI...");
-          // Progress bar outer rect
-          Ui::display.rect(50, 150, Ui::XRES-100, 24, 100);
-      break;
+        case InternalState::SCANNING_LOW:
+            Ui::display.setTextColor(100);
+            Ui::display.setCursor( 40, 40);
+            Ui::display.print("Scanning for lowest & highest");
+            Ui::display.setCursor( 40, 50);
+            Ui::display.print("RSSI...");
+            // Progress bar outer rect
+            Ui::display.rect(50, 150, Ui::XRES-100, 24, 100);
+            break;
 
-      case InternalState::DONE:
-          Ui::display.setTextColor(100);
-          Ui::display.setCursor( 60, 40);
-          Ui::display.print("All done!");
+        case InternalState::DONE:
+            Ui::display.setTextColor(100);
+            Ui::display.setCursor( 60, 40);
+            Ui::display.print("All done!");
 
-          //Ui::display.setCursor(0, Ui::CHAR_H * 2);
+            //Ui::display.setCursor(0, Ui::CHAR_H * 2);
 
-          Ui::display.setCursor( 60, 60);
-          Ui::display.print("A: ");
-          Ui::display.print(EepromSettings.rssiAMin);
-          Ui::display.print(" -> ");
-          Ui::display.print(EepromSettings.rssiAMax);
-          Ui::display.setCursor( 60, 70);
-          Ui::display.print("B: ");
-          Ui::display.print(EepromSettings.rssiBMin);
-          Ui::display.print(" -> ");
-          Ui::display.print(EepromSettings.rssiBMax);
-#if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
-          if (EepromSettings.quadversity) {
-              Ui::display.setCursor( 60, 80);
-              Ui::display.print("C: ");
-              Ui::display.print(EepromSettings.rssiCMin);
-              Ui::display.print(" -> ");
-              Ui::display.print(EepromSettings.rssiCMax);
-              Ui::display.setCursor( 60, 90);
-              Ui::display.print("D: ");
-              Ui::display.print(EepromSettings.rssiDMin);
-              Ui::display.print(" -> ");
-              Ui::display.print(EepromSettings.rssiDMax);
-          }
-#endif
-          Ui::display.setCursor( 60, 90);
-          Ui::display.print("Tap to save.");
-      break;
+            Ui::display.setCursor( 60, 60);
+            Ui::display.print("A: ");
+            Ui::display.print(EepromSettings.rssiAMin);
+            Ui::display.print(" -> ");
+            Ui::display.print(EepromSettings.rssiAMax);
+            Ui::display.setCursor( 60, 70);
+            Ui::display.print("B: ");
+            Ui::display.print(EepromSettings.rssiBMin);
+            Ui::display.print(" -> ");
+            Ui::display.print(EepromSettings.rssiBMax);
+    #if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
+            if (EepromSettings.quadversity) {
+                Ui::display.setCursor( 60, 80);
+                Ui::display.print("C: ");
+                Ui::display.print(EepromSettings.rssiCMin);
+                Ui::display.print(" -> ");
+                Ui::display.print(EepromSettings.rssiCMax);
+                Ui::display.setCursor( 60, 90);
+                Ui::display.print("D: ");
+                Ui::display.print(EepromSettings.rssiDMin);
+                Ui::display.print(" -> ");
+                Ui::display.print(EepromSettings.rssiDMax);
+            }
+    #endif
+            Ui::display.setCursor( 60, 90);
+            Ui::display.print("Tap to save.");
+            break;
 
-      default:
-      break;
+        default:
+            break;
     }
 }

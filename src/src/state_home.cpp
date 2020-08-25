@@ -33,23 +33,16 @@ using StateMachine::HomeStateHandler;
 void HomeStateHandler::onEnter() {
 
     displayActiveChannel = Receiver::activeChannel;
-
+    //this->onUpdateDraw(false);
 }
+
 
 void HomeStateHandler::onUpdate() {
-    this->onUpdateDraw();
-    if (TouchPad::touchData.buttonPrimary) {
-      TouchPad::touchData.buttonPrimary = false;
-      this->doTapAction();
-    }
+    this->onUpdateDraw(TouchPad::touchData.buttonPrimary);
 }
 
-void HomeStateHandler::onInitialDraw()
-{
-    this->onUpdateDraw();
-}
 
-void HomeStateHandler::onUpdateDraw()
+void HomeStateHandler::onUpdateDraw(uint8_t tapAction)
 {
     uint32_t sec_now;
     uint32_t x_off, y_off;
@@ -69,7 +62,7 @@ void HomeStateHandler::onUpdateDraw()
 
     drawHeader();
 
-    Ui::display.setTextColor(100);
+    Ui::display.setTextColor(WHITE);
 
     /*************************************************/
     /*********      PRINT HOME      ******************/
@@ -81,6 +74,25 @@ void HomeStateHandler::onUpdateDraw()
     // Display Frequency
     Ui::display.setCursor( 0, 105);
     Ui::display.printLarge(Channels::getFrequency(displayActiveChannel), 4, 3);
+
+    if (tapAction) {
+        if (cursor_x >= 0 && cursor_x < 61 &&
+            cursor_y > 8  && cursor_y < 54) {
+            this->setChannel(8); // Up band
+        }
+        else if (cursor_x >= 0 && cursor_x < 61 &&
+                 cursor_y > 54 && cursor_y < 99) {
+            this->setChannel(-8); // Down band
+        }
+        else if (cursor_x > 61 && cursor_x < 122 &&
+                 cursor_y > 8  && cursor_y < 54) {
+            this->setChannel(1); // Up channel
+        }
+        else if (cursor_x > 61 && cursor_x < 122 &&
+                 cursor_y > 54 && cursor_y < 99) {
+            this->setChannel(-1); // Down channel
+        }
+    }
 
 #if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
     if (EepromSettings.quadversity) {
@@ -167,11 +179,14 @@ void HomeStateHandler::onUpdateDraw()
     Ui::display.setCursor( x_off, y_off + Ui::CHAR_H * 3);
     Ui::display.print("D");
     // Draw selection box over SEND
-    if (cursor_y > (y_off - 4) && cursor_y < (y_off + 4*Ui::CHAR_H + 4 + 3) &&
+    if (cursor_y > (y_off - 4) && cursor_y < (y_off + 4 * Ui::CHAR_H + 4 + 3) &&
         cursor_x > (x_off - 4) && cursor_x < (x_off + Ui::CHAR_W + 3))
     {
         Ui::display.rect(x_off - 4, y_off - 4,
                          (4 + 3 + Ui::CHAR_W), (3 + 4 + 4 * Ui::CHAR_H), WHITE);
+        if (tapAction) {
+            expresslrs_vtx_freq_send(Channels::getFrequency(Receiver::activeChannel));
+        }
     }
 
 
@@ -192,6 +207,10 @@ void HomeStateHandler::onUpdateDraw()
         cursor_x > (LAPTIMES_X_POS - 4) && cursor_x < (LAPTIMES_X_POS + 15 * Ui::CHAR_W + 3))
     {
         Ui::display.rect(LAPTIMES_X_POS-4, 12-4, 4+3+15*8, 15, WHITE);
+        if (tapAction) {
+            StateMachine::switchState(StateMachine::State::CHORUS);
+            return; // No need to draw reset
+        }
     }
 
     y_off += 9;
@@ -267,135 +286,25 @@ void HomeStateHandler::onUpdateDraw()
     }
 
     // Freq based on cursor position
-    if (HomeStateHandler::isInBandScanRegion() && (cursor_x > x_min) && (cursor_x < (Ui::XRES - x_min))) {
-        Ui::display.fillRect( cursor_x - 33, cursor_y - 17, 33, 17, 10);
-        Ui::display.setCursor( (cursor_x - (4 * Ui::CHAR_W)), (cursor_y - (2 * Ui::CHAR_H)) );
-        Ui::display.print(Channels::getName(
-            Channels::getOrderedIndex((cursor_x - x_min) / CHANNELS_SIZE_DIVIDER)));
-        Ui::display.setCursor( (cursor_x - (4 * Ui::CHAR_W)), (cursor_y - Ui::CHAR_H) );
-        Ui::display.print(Channels::getFrequency(
-            Channels::getOrderedIndex((cursor_x - x_min) / CHANNELS_SIZE_DIVIDER)));
-    }
-}
-
-
-void HomeStateHandler::doTapAction()
-{
-    int16_t cursor_x = TouchPad::touchData.cursorX, cursor_y = TouchPad::touchData.cursorY;
-
-    // Draw selection box
-    if (cursor_y > (SEND_Y_OFF - 4) && cursor_y < (SEND_Y_OFF + 4 * Ui::CHAR_H + 4 + 3) &&
-        cursor_x > (SEND_X_OFF - 4) && cursor_x < (SEND_X_OFF + Ui::CHAR_W + 3))
-    {
-        expresslrs_vtx_freq_send(Channels::getFrequency(Receiver::activeChannel));
-    }
-#if HOME_SHOW_LAPTIMES
-    else if (cursor_y > (12 - 4) && cursor_y < (12 + 8 + 3) &&
-             cursor_x > (LAPTIMES_X_POS - 4) && cursor_x < (LAPTIMES_X_POS + 15 * 8 + 3))
-    { // Open Chorus menu
-        StateMachine::switchState(StateMachine::State::CHORUS);
-    }
-#endif
-    else if ( // Up band
-        cursor_x >= 0  && cursor_x < 61 &&
-        cursor_y > 8 && cursor_y < 54
-        ) {
-        this->setChannel(8);
-    }
-    else if ( // Down band
-        cursor_x >= 0  && cursor_x < 61 &&
-        cursor_y > 54 && cursor_y < 99
-     ) {
-        this->setChannel(-8);
-    }
-    else if ( // Up channel
-        cursor_x > 61  && cursor_x < 122 &&
-        cursor_y > 8 && cursor_y < 54
-     ) {
-        this->setChannel(1);
-    }
-    else if ( // Down channel
-        cursor_x > 61  && cursor_x < 122 &&
-        cursor_y > 54 && cursor_y < 99
-     ) {
-        this->setChannel(-1);
-    }
-    else if ( // Menu
-        cursor_x > 314  && cursor_y < 8
-     ) {
-        EepromSettings.save();
-        StateMachine::switchState(StateMachine::State::MENU);
-    }
-    else if ( // Change mode
-        cursor_x < 130 &&
-        cursor_y < 8
-        ) {
-#if defined(PIN_RSSI_C) && defined(PIN_RSSI_D)
-        if (EepromSettings.quadversity) {
-            switch ( EepromSettings.diversityMode )
-            {
-                case Receiver::DiversityMode::ANTENNA_A:
-                    setDiversityMode(Receiver::DiversityMode::ANTENNA_B);
-                    break;
-                case Receiver::DiversityMode::ANTENNA_B:
-                    setDiversityMode(Receiver::DiversityMode::ANTENNA_C);
-                    break;
-                case Receiver::DiversityMode::ANTENNA_C:
-                    setDiversityMode(Receiver::DiversityMode::ANTENNA_D);
-                    break;
-                case Receiver::DiversityMode::ANTENNA_D:
-                    setDiversityMode(Receiver::DiversityMode::DIVERSITY);
-                    break;
-                case Receiver::DiversityMode::DIVERSITY:
-                    setDiversityMode(Receiver::DiversityMode::QUADVERSITY);
-                    break;
-                case Receiver::DiversityMode::QUADVERSITY:
-                    setDiversityMode(Receiver::DiversityMode::ANTENNA_A);
-                    break;
-                default:
-                    break;
-            }
-        } else
-#endif
-        {
-            switch ( EepromSettings.diversityMode )
-            {
-                case Receiver::DiversityMode::ANTENNA_A:
-                    setDiversityMode(Receiver::DiversityMode::ANTENNA_B);
-                    break;
-                case Receiver::DiversityMode::ANTENNA_B:
-                    setDiversityMode(Receiver::DiversityMode::DIVERSITY);
-                    break;
-                case Receiver::DiversityMode::DIVERSITY:
-                    setDiversityMode(Receiver::DiversityMode::ANTENNA_A);
-                    break;
-                default:
-                    break;
-            }
+    if (HomeStateHandler::isInBandScanRegion()) {
+        if ((cursor_x > x_min) && (cursor_x < (Ui::XRES - x_min))) {
+            Ui::display.fillRect( cursor_x - 33, cursor_y - 17, 33, 17, 10);
+            Ui::display.setCursor( (cursor_x - (4 * Ui::CHAR_W)), (cursor_y - (2 * Ui::CHAR_H)) );
+            Ui::display.print(Channels::getName(
+                Channels::getOrderedIndex((cursor_x - x_min) / CHANNELS_SIZE_DIVIDER)));
+            Ui::display.setCursor( (cursor_x - (4 * Ui::CHAR_W)), (cursor_y - Ui::CHAR_H) );
+            Ui::display.print(Channels::getFrequency(
+                Channels::getOrderedIndex((cursor_x - x_min) / CHANNELS_SIZE_DIVIDER)));
         }
-
-        EepromSettings.markDirty();
-
-    }
-    else if ( // Select channel from spectrum
-        HomeStateHandler::isInBandScanRegion()
-        ) {
-        setChannel(0, Channels::getOrderedIndex( (cursor_x-18) / CHANNELS_SIZE_DIVIDER ));
-#if 0
-        Receiver::setChannel(
-                            Channels::getOrderedIndex( (cursor_x-18) / CHANNELS_SIZE_DIVIDER )
-                            );
-        HomeStateHandler::centreFrequency();
-        displayActiveChannel = Receiver::activeChannel;
-
-        EepromSettings.startChannel = displayActiveChannel;
-        EepromSettings.markDirty();
-#endif
+        if (tapAction) {
+            setChannel(0, Channels::getOrderedIndex( (cursor_x-18) / CHANNELS_SIZE_DIVIDER ));
+        }
     }
 }
 
-void HomeStateHandler::setChannel(int channelIncrement, int setChannel) {
 
+void HomeStateHandler::setChannel(int channelIncrement, int setChannel)
+{
     uint8_t activeChannel = (setChannel < 0) ? Receiver::activeChannel : setChannel;
 
     int band = activeChannel / 8;
@@ -438,16 +347,17 @@ void HomeStateHandler::setChannel(int channelIncrement, int setChannel) {
 // The function walks up and then down from the currently Rx frequency
 // in 1 MHz steps until RSSI < threshold.  The Rx is then set to the
 // centre of these 2 frequencies.
-void HomeStateHandler::centreFrequency() {
+void HomeStateHandler::centreFrequency()
+{
+    uint16_t activeChannelFreq = Channels::getFrequency(Receiver::activeChannel);
+    uint16_t centerFreq = Channels::getCenterFreq(activeChannelFreq);
+    Receiver::setChannel(Channels::getClosestChannel(centerFreq));
 
-  uint16_t activeChannelFreq = Channels::getFrequency(Receiver::activeChannel);
-  uint16_t centerFreq = Channels::getCenterFreq(activeChannelFreq);
-  Receiver::setChannel(Channels::getClosestChannel(centerFreq));
-
-  wasInBandScanRegion = false;
+    wasInBandScanRegion = false;
 }
 
-bool HomeStateHandler::isInBandScanRegion() {
+bool HomeStateHandler::isInBandScanRegion()
+{
     if (TouchPad::touchData.cursorY > 130 ) {
         return true;
     } else {
@@ -455,8 +365,8 @@ bool HomeStateHandler::isInBandScanRegion() {
     }
 }
 
-void HomeStateHandler::bandScanUpdate() {
-
+void HomeStateHandler::bandScanUpdate()
+{
     Ui::UiTimeOut.reset();
 
     if (!wasInBandScanRegion) {

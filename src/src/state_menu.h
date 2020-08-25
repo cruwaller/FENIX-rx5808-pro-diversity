@@ -8,15 +8,11 @@
 namespace StateMachine {
     class MenuStateHandler : public StateMachine::StateHandler {
         private:
-            void doTapAction();
+            void onUpdateDraw(uint8_t tapAction);
 
         public:
             void onEnter();
             void onUpdate();
-
-            void onInitialDraw();
-            void onUpdateDraw();
-
     };
 }
 

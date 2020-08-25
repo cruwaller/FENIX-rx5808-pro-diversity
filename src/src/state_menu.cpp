@@ -1,4 +1,3 @@
-#include <stdint.h>
 #include "state_menu.h"
 #include "ui.h"
 #include "touchpad.h"
@@ -12,6 +11,8 @@
 #include "WebUpdater.h"
 #endif
 
+#define INFO_TXT_Y_POS (200U)
+
 Image<CompositeGraphics> iconHome(home::xres, home::yres, home::pixels);
 Image<CompositeGraphics> iconExLRS(exlrs::xres, exlrs::yres, exlrs::pixels);
 Image<CompositeGraphics> iconCalibrate(calibrate::xres, calibrate::yres, calibrate::pixels);
@@ -19,104 +20,19 @@ Image<CompositeGraphics> iconUpdate(update::xres, update::yres, update::pixels);
 Image<CompositeGraphics> iconBookmark(bookmark::xres, bookmark::yres, bookmark::pixels);
 Image<CompositeGraphics> iconChorus(chorus::xres, chorus::yres, chorus::pixels);
 
-void StateMachine::MenuStateHandler::onEnter() {
+void StateMachine::MenuStateHandler::onEnter()
+{
+   //onUpdateDraw(false);
 }
 
-void StateMachine::MenuStateHandler::onUpdate() {
-    onUpdateDraw();
-    if (TouchPad::touchData.buttonPrimary) {
-      TouchPad::touchData.buttonPrimary = false;
-      this->doTapAction();
-    }
+
+void StateMachine::MenuStateHandler::onUpdate()
+{
+   onUpdateDraw(TouchPad::touchData.buttonPrimary);
 }
 
-void StateMachine::MenuStateHandler::doTapAction() {
 
-   if ( // Home
-      TouchPad::touchData.cursorX > 47  && TouchPad::touchData.cursorX < 47+50 &&
-      TouchPad::touchData.cursorY > 57 && TouchPad::touchData.cursorY < 107
-   )
-   {
-      StateMachine::switchState(StateMachine::State::HOME);
-   }
-   else if ( // ExpressLRS Settings
-      TouchPad::touchData.cursorX > 47+60  && TouchPad::touchData.cursorX < 47+60+50 &&
-      TouchPad::touchData.cursorY > 57 && TouchPad::touchData.cursorY < 107
-   )
-   {
-      StateMachine::switchState(StateMachine::State::EXPRESSLRS);
-   }
-   else if ( // item 3
-      TouchPad::touchData.cursorX > 47+120  && TouchPad::touchData.cursorX < 47+120+50 &&
-      TouchPad::touchData.cursorY > 57 && TouchPad::touchData.cursorY < 107
-   )
-   {
-      StateMachine::switchState(StateMachine::State::CHORUS);
-   }
-   else if ( // item 4
-      TouchPad::touchData.cursorX > 47+180  && TouchPad::touchData.cursorX < 47+180+50 &&
-      TouchPad::touchData.cursorY > 57 && TouchPad::touchData.cursorY < 107
-   )
-   {
-
-   }
-   else if ( // item 5
-      TouchPad::touchData.cursorX > 47  && TouchPad::touchData.cursorX < 47+50 &&
-      TouchPad::touchData.cursorY > 117 && TouchPad::touchData.cursorY < 167
-   )
-   {
-
-   }
-   else if ( // item 6
-      TouchPad::touchData.cursorX > 47+60  && TouchPad::touchData.cursorX < 47+60+50 &&
-      TouchPad::touchData.cursorY > 117 && TouchPad::touchData.cursorY < 167
-   )
-   {
-
-   }
-   else if ( // Calibration
-      TouchPad::touchData.cursorX > 47+120  && TouchPad::touchData.cursorX < 47+120+50 &&
-      TouchPad::touchData.cursorY > 117 && TouchPad::touchData.cursorY < 167
-   )
-   {
-      //EepromSettings.initDefaults();
-      EepromSettings.isCalibrated = false;
-      EepromSettings.save();
-      ESP.restart();
-   }
-   else if ( // WiFi OTA Update
-      TouchPad::touchData.cursorX > 47+180  && TouchPad::touchData.cursorX < 47+180+50 &&
-      TouchPad::touchData.cursorY > 117 && TouchPad::touchData.cursorY < 167
-   )
-   {
-#if OTA_UPDATE_STORE
-      EepromSettings.otaUpdateRequested = true;
-      EepromSettings.save();
-      ESP.restart();
-#else // !OTA_UPDATE_STORE
-      BeginWebUpdate(); // Start updater
-
-      uint32_t previousLEDTime = 0, now;
-      // ... and handle client requests
-      while (1) {
-         HandleWebUpdate();
-         now = millis();
-         if (100u <= (now - previousLEDTime)) {
-               digitalWrite(PIN_RX_SWITCH, !digitalRead(PIN_RX_SWITCH));
-               previousLEDTime = now;
-         }
-         yield();
-      }
-#endif // OTA_UPDATE_STORE
-   }
-
-}
-
-void StateMachine::MenuStateHandler::onInitialDraw() {
-   onUpdateDraw();
-}
-
-void StateMachine::MenuStateHandler::onUpdateDraw()
+void StateMachine::MenuStateHandler::onUpdateDraw(uint8_t tapAction)
 {
    drawHeader();
 
@@ -131,84 +47,122 @@ void StateMachine::MenuStateHandler::onUpdateDraw()
    iconCalibrate.draw(Ui::display, 47+120, 117); // Calibration
    iconUpdate.draw(Ui::display, 47+180, 117);    // OTA update
 
-   Ui::display.setTextColor(100);
+   Ui::display.setTextColor(WHITE);
 
    if ( // Home
       TouchPad::touchData.cursorX > 47  && TouchPad::touchData.cursorX < 47+50 &&
       TouchPad::touchData.cursorY > 57 && TouchPad::touchData.cursorY < 107
    )
    {
-      Ui::display.rect(47-5, 57-6, 60, 60, 100);
-      Ui::display.setCursor(UI_GET_MID_X(11), 200);
+      Ui::display.rect(47-5, 57-6, 60, 60, WHITE);
+      Ui::display.setCursor(UI_GET_MID_X(11), INFO_TXT_Y_POS);
       Ui::display.print("Home Screen");
+      if (tapAction)
+         StateMachine::switchState(StateMachine::State::HOME);
    }
    else if ( // ExpressLRS Settings
-   TouchPad::touchData.cursorX > 47+60  && TouchPad::touchData.cursorX < 47+60+50 &&
-   TouchPad::touchData.cursorY > 57 && TouchPad::touchData.cursorY < 107
+      TouchPad::touchData.cursorX > 47+60  && TouchPad::touchData.cursorX < 47+60+50 &&
+      TouchPad::touchData.cursorY > 57 && TouchPad::touchData.cursorY < 107
    )
    {
-      Ui::display.rect(47+60-5, 57-6, 60, 60, 100);
-      Ui::display.setCursor(UI_GET_MID_X(19), 200);
+      Ui::display.rect(47+60-5, 57-6, 60, 60, WHITE);
+      Ui::display.setCursor(UI_GET_MID_X(19), INFO_TXT_Y_POS);
       Ui::display.print("ExpressLRS Settings");
+      if (tapAction)
+         StateMachine::switchState(StateMachine::State::EXPRESSLRS);
    }
-   else if ( // item 3
-   TouchPad::touchData.cursorX > 47+120  && TouchPad::touchData.cursorX < 47+120+50 &&
-   TouchPad::touchData.cursorY > 57 && TouchPad::touchData.cursorY < 107
+   else if ( // Chorus settings
+      TouchPad::touchData.cursorX > 47+120  && TouchPad::touchData.cursorX < 47+120+50 &&
+      TouchPad::touchData.cursorY > 57 && TouchPad::touchData.cursorY < 107
    )
    {
-      Ui::display.rect(47+120-5, 57-6, 60, 60, 100);
-      Ui::display.setCursor(UI_GET_MID_X(14), 200);
+      Ui::display.rect(47+120-5, 57-6, 60, 60, WHITE);
+      Ui::display.setCursor(UI_GET_MID_X(14), INFO_TXT_Y_POS);
       Ui::display.print("Chorus control");
+      if (tapAction)
+         StateMachine::switchState(StateMachine::State::CHORUS);
    }
    else if ( // item 4
-   TouchPad::touchData.cursorX > 47+180  && TouchPad::touchData.cursorX < 47+180+50 &&
-   TouchPad::touchData.cursorY > 57 && TouchPad::touchData.cursorY < 107
+      TouchPad::touchData.cursorX > 47+180  && TouchPad::touchData.cursorX < 47+180+50 &&
+      TouchPad::touchData.cursorY > 57 && TouchPad::touchData.cursorY < 107
    )
    {
-      Ui::display.rect(47+180-5, 57-6, 60, 60, 100);
-      Ui::display.setCursor( 140, 200);
+      Ui::display.rect(47+180-5, 57-6, 60, 60, WHITE);
+      Ui::display.setCursor(UI_GET_MID_X(6), INFO_TXT_Y_POS);
       Ui::display.print("Menu 4");
+      //if (tapAction)
+      //   StateMachine::switchState(StateMachine::State::);
    }
    else if ( // item 5
-   TouchPad::touchData.cursorX > 47  && TouchPad::touchData.cursorX < 47+50 &&
-   TouchPad::touchData.cursorY > 117 && TouchPad::touchData.cursorY < 167
+      TouchPad::touchData.cursorX > 47  && TouchPad::touchData.cursorX < 47+50 &&
+      TouchPad::touchData.cursorY > 117 && TouchPad::touchData.cursorY < 167
    )
    {
-      Ui::display.rect(47-5, 117-5, 60, 60, 100);
-      Ui::display.setCursor( 140, 200);
+      Ui::display.rect(47-5, 117-5, 60, 60, WHITE);
+      Ui::display.setCursor(UI_GET_MID_X(6), INFO_TXT_Y_POS);
       Ui::display.print("Menu 5");
+      //if (tapAction)
+      //   StateMachine::switchState(StateMachine::State::);
    }
    else if ( // item 6
-   TouchPad::touchData.cursorX > 47+60  && TouchPad::touchData.cursorX < 47+60+50 &&
-   TouchPad::touchData.cursorY > 117 && TouchPad::touchData.cursorY < 167
+      TouchPad::touchData.cursorX > 47+60  && TouchPad::touchData.cursorX < 47+60+50 &&
+      TouchPad::touchData.cursorY > 117 && TouchPad::touchData.cursorY < 167
    )
    {
-      Ui::display.rect(47+60-5, 117-5, 60, 60, 100);
-      Ui::display.setCursor( 140, 200);
+      Ui::display.rect(47+60-5, 117-5, 60, 60, WHITE);
+      Ui::display.setCursor(UI_GET_MID_X(6), INFO_TXT_Y_POS);
       Ui::display.print("Menu 6");
+      //if (tapAction)
+      //   StateMachine::switchState(StateMachine::State::);
    }
    else if ( // Receiver Calibration
-   TouchPad::touchData.cursorX > 47+120  && TouchPad::touchData.cursorX < 47+120+50 &&
-   TouchPad::touchData.cursorY > 117 && TouchPad::touchData.cursorY < 167
+      TouchPad::touchData.cursorX > 47+120  && TouchPad::touchData.cursorX < 47+120+50 &&
+      TouchPad::touchData.cursorY > 117 && TouchPad::touchData.cursorY < 167
    )
    {
-      Ui::display.rect(47+120-5, 117-5, 60, 60, 100);
-      Ui::display.setCursor(UI_GET_MID_X(20), 200);
+      Ui::display.rect(47+120-5, 117-5, 60, 60, WHITE);
+      Ui::display.setCursor(UI_GET_MID_X(20), INFO_TXT_Y_POS);
       Ui::display.print("Receiver Calibration");
+      if (tapAction) {
+         //EepromSettings.initDefaults();
+         EepromSettings.isCalibrated = false;
+         EepromSettings.save();
+         ESP.restart();
+      }
    }
    else if ( // WiFi OTA Update
-   TouchPad::touchData.cursorX > 47+180  && TouchPad::touchData.cursorX < 47+180+50 &&
-   TouchPad::touchData.cursorY > 117 && TouchPad::touchData.cursorY < 167
+      TouchPad::touchData.cursorX > 47+180  && TouchPad::touchData.cursorX < 47+180+50 &&
+      TouchPad::touchData.cursorY > 117 && TouchPad::touchData.cursorY < 167
    )
    {
-      Ui::display.rect(47+180-5, 117-5, 60, 60, 100);
-      Ui::display.setCursor(UI_GET_MID_X(11), 193);
+      Ui::display.rect(47+180-5, 117-5, 60, 60, WHITE);
+      Ui::display.setCursor(UI_GET_MID_X(11), (INFO_TXT_Y_POS - Ui::CHAR_H));
       Ui::display.print("WiFi Update");
-      Ui::display.setCursor( 50, 205);
+      Ui::display.setCursor( 50, INFO_TXT_Y_POS);
       Ui::display.print("SSID: ");
       Ui::display.print(STASSID);
-      Ui::display.setCursor( 50, 214);
+      Ui::display.setCursor( 50, (INFO_TXT_Y_POS + Ui::CHAR_H));
       Ui::display.print("IP:   192.168.4.1");
-   }
+      if (tapAction) {
+#if OTA_UPDATE_STORE
+         EepromSettings.otaUpdateRequested = true;
+         EepromSettings.save();
+         ESP.restart();
+#else // !OTA_UPDATE_STORE
+         BeginWebUpdate(); // Start updater
 
+         uint32_t previousLEDTime = 0, now;
+         // ... and handle client requests
+         while (1) {
+            HandleWebUpdate();
+            now = millis();
+            if (100u <= (now - previousLEDTime)) {
+                  digitalWrite(PIN_RX_SWITCH, !digitalRead(PIN_RX_SWITCH));
+                  previousLEDTime = now;
+            }
+            yield();
+         }
+#endif // OTA_UPDATE_STORE
+      }
+   }
 }

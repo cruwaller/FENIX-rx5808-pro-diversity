@@ -7,13 +7,13 @@
 
 namespace StateMachine {
     class SettingsInternalStateHandler : public StateMachine::StateHandler {
+        private:
+            void onUpdateDraw(uint8_t tapAction);
+
         public:
             void onEnter();
             void onExit();
             void onUpdate();
-
-            void onInitialDraw();
-            void onUpdateDraw();
     };
 }
 

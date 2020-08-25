@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <esp_attr.h>
+#include <esp8266-compat.h>
 
 namespace TouchPad {
 
