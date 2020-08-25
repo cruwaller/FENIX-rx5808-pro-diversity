@@ -70,21 +70,19 @@ void HomeStateHandler::onUpdateDraw(uint8_t tapAction)
 
     // Handle channel change before drawing
     if (tapAction) {
-        if (cursor_x >= 0 && cursor_x < 61 &&
-            cursor_y > 8  && cursor_y < 54) {
-            this->setChannel(8); // Up band
-        }
-        else if (cursor_x >= 0 && cursor_x < 61 &&
-                 cursor_y > 54 && cursor_y < 99) {
-            this->setChannel(-8); // Down band
-        }
-        else if (cursor_x > 61 && cursor_x < 122 &&
-                 cursor_y > 8  && cursor_y < 54) {
-            this->setChannel(1); // Up channel
-        }
-        else if (cursor_x > 61 && cursor_x < 122 &&
-                 cursor_y > 54 && cursor_y < 99) {
-            this->setChannel(-1); // Down channel
+        if (cursor_x >= 0 && cursor_x < 61) {
+            if (cursor_y > 8 && cursor_y < 54) {
+                this->setChannel(8); // Up band
+            }
+            else if (cursor_y > 54 && cursor_y < 99) {
+                this->setChannel(-8); // Down band
+            }
+        } else if (cursor_x > 61 && cursor_x < 122) {
+            if (cursor_y > 8 && cursor_y < 54) {
+                this->setChannel(1); // Up channel
+            } else if (cursor_y > 54 && cursor_y < 99) {
+                this->setChannel(-1); // Down channel
+            }
         }
     }
 
@@ -201,6 +199,16 @@ void HomeStateHandler::onUpdateDraw(uint8_t tapAction)
     constexpr uint16_t x_min = 18;
     uint32_t rssi, rssi_h;
 
+    // RSSI bars
+    for (iter = 0; iter < CHANNELS_SIZE; iter++) {
+        rssi = rssiBandScanData[iter]; // range: 0...1000
+        rssi_h = constrain((rssi * 8) / 100, 0, y_min);
+        Ui::display.fillRect(x_min + (CHANNELS_SIZE_DIVIDER * iter),
+                             y_min - rssi_h,
+                             CHANNELS_SIZE_DIVIDER,
+                             rssi_h,
+                             rssi / 10);
+    }
     // Frame
     Ui::display.line(0, (Ui::YRES - 11), (Ui::XRES - 1), (Ui::YRES - 11), WHITE);
     // min freq
@@ -217,25 +225,22 @@ void HomeStateHandler::onUpdateDraw(uint8_t tapAction)
         markerX += x_min;
         Ui::display.fillRect((markerX + 1), (y_min + 1), 4, 4, WHITE);
 
-        // RSSI bars
-        for (iter = 0; iter < CHANNELS_SIZE; iter++) {
-            rssi = rssiBandScanData[iter];
-            rssi_h = constrain((rssi * 8) / 100, 0, y_min);
-            Ui::display.fillRect(x_min + (CHANNELS_SIZE_DIVIDER * iter),
-                                y_min - rssi_h,
-                                CHANNELS_SIZE_DIVIDER,
-                                rssi_h,
-                                rssi / 10);
-        }
-
         if ((cursor_x > x_min) && (cursor_x < (Ui::XRES - x_min))) {
             // reuse markerX for channel index
             markerX = Channels::getOrderedIndex((cursor_x - x_min) / CHANNELS_SIZE_DIVIDER);
-            Ui::display.fillRect( cursor_x - 33, cursor_y - 17, 33, 17, 10);
-            Ui::display.setCursor( (cursor_x - (4 * Ui::CHAR_W)), (cursor_y - (2 * Ui::CHAR_H)) );
+
+            if (cursor_x >= 120)
+                cursor_x -= (4 * Ui::CHAR_W);
+            cursor_y -= (2 * Ui::CHAR_H);
+
+            Ui::display.fillRect((cursor_x - 2), (cursor_y - 2),
+                                 (4 * Ui::CHAR_W + 4), (2 * Ui::CHAR_H + 4), 10);
+            Ui::display.setCursor(cursor_x, cursor_y);
             Ui::display.print(Channels::getName(markerX));
-            Ui::display.setCursor( (cursor_x - (4 * Ui::CHAR_W)), (cursor_y - Ui::CHAR_H) );
+            cursor_y += Ui::CHAR_H;
+            Ui::display.setCursor(cursor_x, cursor_y);
             Ui::display.print(Channels::getFrequency(markerX));
+            //cursor_y += Ui::CHAR_H;
 
             if (tapAction) {
                 setChannel(0, markerX);
