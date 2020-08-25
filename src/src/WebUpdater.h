@@ -38,9 +38,7 @@ void handleMacAddress()
 
 void BeginWebUpdate(void)
 {
-#if !OTA_UPDATE_STORE
   comm_espnow_deinit();
-#endif
 
 #if DEBUG_ENABLED
 //  Serial.println("Begin Webupdater");

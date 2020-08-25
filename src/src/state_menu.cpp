@@ -7,9 +7,7 @@
 
 #include "icons.h"
 
-#if !OTA_UPDATE_STORE
 #include "WebUpdater.h"
-#endif
 
 #define INFO_TXT_Y_POS (200U)
 
@@ -143,11 +141,6 @@ void StateMachine::MenuStateHandler::onUpdateDraw(uint8_t tapAction)
       Ui::display.setCursor( 50, (INFO_TXT_Y_POS + Ui::CHAR_H));
       Ui::display.print("IP:   192.168.4.1");
       if (tapAction) {
-#if OTA_UPDATE_STORE
-         EepromSettings.otaUpdateRequested = true;
-         EepromSettings.save();
-         ESP.restart();
-#else // !OTA_UPDATE_STORE
          BeginWebUpdate(); // Start updater
 
          uint32_t previousLEDTime = 0, now;
@@ -161,7 +154,6 @@ void StateMachine::MenuStateHandler::onUpdateDraw(uint8_t tapAction)
             }
             yield();
          }
-#endif // OTA_UPDATE_STORE
       }
    }
 }

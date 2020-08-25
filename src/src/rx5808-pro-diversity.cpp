@@ -46,20 +46,12 @@
 #include "touchpad.h"
 #include "receiver_spi.h"
 #include "comm_espnow.h"
-#if OTA_UPDATE_STORE
-#include "WebUpdater.h"
-#endif
 
 void setupPins();
 
 #ifdef SPEED_TEST
     uint32_t speed_test_hz = 0;
     uint32_t speed_test_previousTime = 0;
-#endif
-
-#if HANDLE_OTA_IN_LOOP && OTA_UPDATE_STORE
-bool updatingOTA = false;
-uint32_t previousLEDTime = 0;
 #endif
 
 void setup()
@@ -95,32 +87,7 @@ void setup()
         StateMachine::switchState(StateMachine::State::HOME);
     }
 
-#if OTA_UPDATE_STORE
-    if (EepromSettings.otaUpdateRequested)
-    {
-        BeginWebUpdate();
-        EepromSettings.otaUpdateRequested = false;
-        EepromSettings.save();
-#if HANDLE_OTA_IN_LOOP
-        updatingOTA = true;
-#else
-        uint32_t previousLEDTime = 0, now;
-        while (1) {
-            HandleWebUpdate();
-            now = millis();
-            if (100u <= (now - previousLEDTime)) {
-                digitalWrite(PIN_RX_SWITCH, !digitalRead(PIN_RX_SWITCH));
-                previousLEDTime = now;
-            }
-            yield();
-        }
-#endif
-    }
-    else
-#endif // OTA_UPDATE_STORE
-    {
-        comm_espnow_init();
-    }
+    comm_espnow_init();
 }
 
 void setupPins() {
@@ -152,56 +119,41 @@ void setupPins() {
 }
 
 void loop() {
-#if HANDLE_OTA_IN_LOOP && OTA_UPDATE_STORE
-    if (updatingOTA)
-    {
-        HandleWebUpdate();
-        uint32_t now = millis();
-        if (100u <= (now - previousLEDTime))
-        {
-            digitalWrite(PIN_RX_SWITCH, !digitalRead(PIN_RX_SWITCH));
-            previousLEDTime = now;
-        }
-    }
-    else
-#endif // HANDLE_OTA_IN_LOOP
-    {
-        Receiver::update();
-        TouchPad::update();
+    Receiver::update();
+    TouchPad::update();
 
-        if (Ui::isTvOn) {
+    if (Ui::isTvOn) {
 
 #ifdef USE_VOLTAGE_MONITORING
-            Voltage::update();
+        Voltage::update();
 #endif
-            Ui::display.begin(0); // reset OSD to black
-            StateMachine::update();
-            Ui::update();
-            Ui::display.end(); // draw OSD
+        Ui::display.begin(0); // reset OSD to black
+        StateMachine::update();
+        Ui::update();
+        Ui::display.end(); // draw OSD
 
-            if (Ui::UiTimeOut.hasTicked() &&
-                StateMachine::currentState != StateMachine::State::SETTINGS_RSSI )
-            {
-                Ui::tvOff();
-                EepromSettings.update();
-            }
-        }
-        else if (TouchPad::touchData.buttonPrimary) // TV is off, check if touch has happened
+        if (Ui::UiTimeOut.hasTicked() &&
+            StateMachine::currentState != StateMachine::State::SETTINGS_RSSI )
         {
-            Ui::tvOn();
+            Ui::tvOff();
+            EepromSettings.update();
         }
+    }
+    else if (TouchPad::touchData.buttonPrimary) // TV is off, check if touch has happened
+    {
+        Ui::tvOn();
+    }
 
-        TouchPad::clearTouchData();
+    TouchPad::clearTouchData();
 
 #ifdef SPEED_TEST
-            speed_test_hz++;
-            uint32_t nowTime = millis();
-            if (1000u <= (nowTime - speed_test_previousTime)) {
-                Serial.print(speed_test_hz);
-                Serial.println(" Hz");
-                speed_test_previousTime = nowTime;
-                speed_test_hz = 0;
-            }
+        speed_test_hz++;
+        uint32_t nowTime = millis();
+        if (1000u <= (nowTime - speed_test_previousTime)) {
+            Serial.print(speed_test_hz);
+            Serial.println(" Hz");
+            speed_test_previousTime = nowTime;
+            speed_test_hz = 0;
+        }
 #endif // SPEED_TEST
-    }
 }
