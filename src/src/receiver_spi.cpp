@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <stdint.h>
+#include <SPI.h>
 
 #include "receiver_spi.h"
 #include "settings.h"

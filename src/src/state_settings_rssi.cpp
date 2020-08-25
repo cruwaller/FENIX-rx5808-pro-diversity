@@ -12,14 +12,29 @@
 
 #include "touchpad.h"
 
+static Receiver::DiversityMode DRAM_ATTR start_mode;
+
 void StateMachine::SettingsRssiStateHandler::onEnter()
 {
+    // Save mode and change to diversity
+    start_mode = EepromSettings.diversityMode;
+    EepromSettings.diversityMode = Receiver::DiversityMode::DIVERSITY;
+    // Init internal state
     internalState = InternalState::WAIT_FOR_LOW;
+    // Draw initial view
     //onUpdateDraw();
+}
+
+void StateMachine::SettingsRssiStateHandler::onExit()
+{
+    // restore mode
+    EepromSettings.diversityMode = start_mode;
 }
 
 void StateMachine::SettingsRssiStateHandler::onUpdate()
 {
+    uint32_t rssiARaw = 0, rssiBRaw = 0, iter;
+
     onUpdateDraw();
 
     if (TouchPad::touchData.buttonPrimary && internalState != InternalState::SCANNING_LOW) {
@@ -30,27 +45,38 @@ void StateMachine::SettingsRssiStateHandler::onUpdate()
     if (!Receiver::isRssiStableAndUpdated())
         return;
 
-    for (int i = 0; i < 100; i++) {
-        Receiver::rssiARaw = 0.9 * Receiver::rssiARaw + 0.1 * analogRead(PIN_RSSI_A);
-        Receiver::rssiBRaw = 0.9 * Receiver::rssiBRaw + 0.1 * analogRead(PIN_RSSI_B);
+    rssiARaw = Receiver::rssiARaw;
+    rssiBRaw = Receiver::rssiBRaw;
+
+    adcAttachPin(PIN_RSSI_A);
+    for (iter = 0; iter < 100; iter++) {
+        adcStart(PIN_RSSI_A);
+        rssiARaw = (rssiARaw * 9) / 10;
+        rssiARaw += adcEnd(PIN_RSSI_A) / 10;
+    }
+
+    adcAttachPin(PIN_RSSI_B);
+    for (iter = 0; iter < 100; iter++) {
+        adcStart(PIN_RSSI_B);
+        rssiBRaw = (rssiBRaw * 9) / 10;
+        rssiBRaw += adcEnd(PIN_RSSI_B) / 10;
     }
 
     switch (internalState) {
         case InternalState::SCANNING_LOW:
             if ( Channels::getFrequency(Receiver::activeChannel) >= 5658) { // Only use min max above R1 to stay within RX5808 freq range
-                if (Receiver::rssiARaw < EepromSettings.rssiAMin)
-                    EepromSettings.rssiAMin = Receiver::rssiARaw;
-
-                if (Receiver::rssiARaw > EepromSettings.rssiAMax) {
-                    EepromSettings.rssiAMax = Receiver::rssiARaw;
+                if (rssiARaw < EepromSettings.rssiAMin) {
+                    EepromSettings.rssiAMin = rssiARaw;
+                } else if (rssiARaw > EepromSettings.rssiAMax) {
+                    EepromSettings.rssiAMax = rssiARaw;
                     bestChannel = Receiver::activeChannel;
                 }
 
-                if (Receiver::rssiBRaw < EepromSettings.rssiBMin)
-                    EepromSettings.rssiBMin = Receiver::rssiBRaw;
-
-                if (Receiver::rssiBRaw > EepromSettings.rssiBMax)
-                    EepromSettings.rssiBMax = Receiver::rssiBRaw;
+                if (rssiBRaw < EepromSettings.rssiBMin) {
+                    EepromSettings.rssiBMin = rssiBRaw;
+                } else if (rssiBRaw > EepromSettings.rssiBMax) {
+                    EepromSettings.rssiBMax = rssiBRaw;
+                }
             }
             break;
         default:

@@ -102,12 +102,6 @@ SOFTWARE.
 #define RSSI_MIN_VAL 500
 #define RSSI_MAX_VAL 2000
 
-// 75% threshold, when channel is printed in spectrum.
-#define RSSI_SEEK_FOUND 75
-
-// 80% under max value for RSSI.
-//#define RSSI_SEEK_TRESHOLD 50
-
 // Scan loops for setup run.
 #define RSSI_SETUP_RUN 1
 

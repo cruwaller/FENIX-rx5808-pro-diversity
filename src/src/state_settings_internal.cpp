@@ -89,17 +89,17 @@ void StateMachine::SettingsInternalStateHandler::onUpdateDraw(uint8_t tapAction)
 
             case 0:    // Factory Reset
               if (factoryReset == 0) {
-//                  Ui::display.print(PSTR2("    No     "));
+//                  Ui::display.print(("    No     "));
               } else if (factoryReset == 1) {
-//                  Ui::display.print(PSTR2("       No  "));
+//                  Ui::display.print(("       No  "));
               } else if (factoryReset == 2) {
-//                  Ui::display.print(PSTR2("  No       "));
+//                  Ui::display.print(("  No       "));
               } else if (factoryReset == 3) {
-//                  Ui::display.print(PSTR2("    Yes     "));
+//                  Ui::display.print(("    Yes     "));
               } else if (factoryReset == 4) {
-//                  Ui::display.print(PSTR2("  No       "));
+//                  Ui::display.print(("  No       "));
               } else if (factoryReset == 5) {
-//                  Ui::display.print(PSTR2("       No  "));
+//                  Ui::display.print(("       No  "));
               }
             break;
 

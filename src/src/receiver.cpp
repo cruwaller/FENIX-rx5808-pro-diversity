@@ -10,6 +10,11 @@
 
 #include "timer.h"
 
+#define RSSI_READS 4 // 3;
+
+#define RSSI_MIN 0
+#define RSSI_MAX 1000
+
 namespace Receiver {
     ReceiverId DMA_ATTR activeReceiver = ReceiverId::ALL; // Init to ALL to make sure the initial value is set correctly!
     uint8_t DMA_ATTR activeChannel;
@@ -113,49 +118,54 @@ namespace Receiver {
         return isRssiStable() && hasRssiUpdated;
     }
 
+    uint32_t IRAM_ATTR updateRssiPin(uint8_t const pin, uint8_t const oversample)
+    {
+        uint32_t _rssiARaw = 0;
+        uint8_t iter;
+        adcAttachPin(pin);
+        for (iter = 0; iter < oversample; iter++) {
+            adcStart(pin);
+            _rssiARaw += adcEnd(pin);
+        }
+        _rssiARaw /= oversample;
+        return _rssiARaw;
+    }
+
     void IRAM_ATTR updateRssi()
     {
-        uint32_t _rssiARaw = 0, _rssiBRaw = 0;
-        uint8_t iter;
+        DiversityMode mode = EepromSettings.diversityMode;
 
-#define RSSI_READS 4 // 3;
-
-        for (iter = 0; iter < RSSI_READS; iter++) {
-            _rssiARaw += analogRead(PIN_RSSI_A);
-            _rssiBRaw += analogRead(PIN_RSSI_B);
+        if (mode == Receiver::DiversityMode::ANTENNA_A ||
+            mode == Receiver::DiversityMode::DIVERSITY) {
+            rssiARaw = updateRssiPin(PIN_RSSI_A, RSSI_READS);
+            if (StateMachine::currentState != StateMachine::State::SETTINGS_RSSI)
+                rssiA = constrain(
+                    map(
+                        rssiARaw,
+                        EepromSettings.rssiAMin,
+                        EepromSettings.rssiAMax,
+                        RSSI_MIN,
+                        RSSI_MAX
+                    ),
+                    RSSI_MIN,
+                    RSSI_MAX
+                );
         }
-
-        _rssiARaw /= RSSI_READS;
-        _rssiBRaw /= RSSI_READS;
-
-        rssiARaw = _rssiARaw;
-        rssiBRaw = _rssiBRaw;
-
-        if (StateMachine::currentState != StateMachine::State::SETTINGS_RSSI) {
-
-            rssiA = constrain(
-                map(
-                    _rssiARaw,
-                    EepromSettings.rssiAMin,
-                    EepromSettings.rssiAMax,
-                    0,
-                    1000
-                ),
-                0,
-                1000
-            );
-
-            rssiB = constrain(
-                map(
-                    _rssiBRaw,
-                    EepromSettings.rssiBMin,
-                    EepromSettings.rssiBMax,
-                    0,
-                    1000
-                ),
-                0,
-                1000
-            );
+        if (mode == Receiver::DiversityMode::ANTENNA_B ||
+            mode == Receiver::DiversityMode::DIVERSITY) {
+            rssiBRaw = updateRssiPin(PIN_RSSI_B, RSSI_READS);
+            if (StateMachine::currentState != StateMachine::State::SETTINGS_RSSI)
+                rssiB = constrain(
+                    map(
+                        rssiBRaw,
+                        EepromSettings.rssiBMin,
+                        EepromSettings.rssiBMax,
+                        RSSI_MIN,
+                        RSSI_MAX
+                    ),
+                    RSSI_MIN,
+                    RSSI_MAX
+                );
         }
 
         if (rssiLogTimer.hasTicked()) {

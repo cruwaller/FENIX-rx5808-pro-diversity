@@ -93,68 +93,68 @@ void StateMachine::SettingsStateHandler::onUpdateDraw(uint8_t tapAction)
         switch(selectedMenuItem) {
 
             case 0:    // Diversity
-//                      Ui::display.print(PSTR2("    NA     "));
+//                      Ui::display.print(("    NA     "));
             break;
 
             case 1:    // Home Page
 //              if (EepromSettings.selectedHomePage == 0) {
-////                  Ui::display.print(PSTR2("  Default  "));
+////                  Ui::display.print(("  Default  "));
 //              }
 //              if (EepromSettings.selectedHomePage == 1) {
-////                  Ui::display.print(PSTR2("  Simple   "));
+////                  Ui::display.print(("  Simple   "));
 //              }
 //              if (EepromSettings.selectedHomePage == 2) {
-////                  Ui::display.print(PSTR2("  Stats    "));
+////                  Ui::display.print(("  Stats    "));
 //              }
             break;
 
             case 2:    // Voltage Scale
-//                      Ui::display.print(PSTR2("    NA     "));
+//                      Ui::display.print(("    NA     "));
             break;
 
             case 3:    // Volt Warning
-//                      Ui::display.print(PSTR2("    NA     "));
+//                      Ui::display.print(("    NA     "));
             break;
 
             case 4:    // Save Screen
 //              if (EepromSettings.saveScreenOn == 0) {
-////                  Ui::display.print(PSTR2("    Off    "));
+////                  Ui::display.print(("    Off    "));
 //              }
 //              if (EepromSettings.saveScreenOn == 1) {
-////                  Ui::display.print(PSTR2("  Default  "));
+////                  Ui::display.print(("  Default  "));
 //              }
 //              if (EepromSettings.saveScreenOn == 2) {
-////                  Ui::display.print(PSTR2("Betaflight "));
+////                  Ui::display.print(("Betaflight "));
 //              }
 //              if (EepromSettings.saveScreenOn == 3) {
-////                  Ui::display.print(PSTR2(" RotorRiot "));
+////                  Ui::display.print((" RotorRiot "));
 //              }
 //              if (EepromSettings.saveScreenOn == 4) {
-////                  Ui::display.print(PSTR2("  Random   "));
+////                  Ui::display.print(("  Random   "));
 //              }
 //              if (EepromSettings.saveScreenOn == 5) {
-////                  Ui::display.print(PSTR2("  Custom   "));
+////                  Ui::display.print(("  Custom   "));
 //              }
             break;
 
             case 5:    // Use OLED Screen
 //              if (EepromSettings.useOledScreen) {
-////                  Ui::display.print(PSTR2("    Yes     "));
+////                  Ui::display.print(("    Yes     "));
 //              } else {
-////                  Ui::display.print(PSTR2("    No    "));
+////                  Ui::display.print(("    No    "));
 //              }
             break;
 
             case 6:    // Use Fast Boot
 //              if (EepromSettings.useFastBoot) {
-////                  Ui::display.print(PSTR2("    On     "));
+////                  Ui::display.print(("    On     "));
 //              } else {
-////                  Ui::display.print(PSTR2("    Off    "));
+////                  Ui::display.print(("    Off    "));
 //              }
             break;
 
             case 7:    // Version
-//              Ui::display.print(PSTR2("Version v0.2"));
+//              Ui::display.print(("Version v0.2"));
             break;
 
             case 8:    // Adv Settings
@@ -163,9 +163,9 @@ void StateMachine::SettingsStateHandler::onUpdateDraw(uint8_t tapAction)
 
             case 9:    // Button Beep
               if (EepromSettings.buttonBeep) {
-//                  Ui::display.print(PSTR2("    On     "));
+//                  Ui::display.print(("    On     "));
               } else {
-//                  Ui::display.print(PSTR2("    Off    "));
+//                  Ui::display.print(("    Off    "));
               }
             break;
 
@@ -174,17 +174,17 @@ void StateMachine::SettingsStateHandler::onUpdateDraw(uint8_t tapAction)
 
             case 11:    // Invert Display
 //              if (EepromSettings.invertDisplay) {
-////                  Ui::display.print(PSTR2("    On     "));
+////                  Ui::display.print(("    On     "));
 //              } else {
-////                  Ui::display.print(PSTR2("    Off    "));
+////                  Ui::display.print(("    Off    "));
 //              }
             break;
 
             case 12:    // Rotate OLED
 //              if (EepromSettings.rotateOled) {
-////                  Ui::display.print(PSTR2("  Rotated  "));
+////                  Ui::display.print(("  Rotated  "));
 //              } else {
-////                  Ui::display.print(PSTR2("  Normal   "));
+////                  Ui::display.print(("  Normal   "));
 //              }
             break;
 

@@ -2,7 +2,6 @@
 #define RECEIVER_SPI_H
 
 #include <stdint.h>
-#include <SPI.h>
 #include "receiver.h"
 
 namespace ReceiverSpi {

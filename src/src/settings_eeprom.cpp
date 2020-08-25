@@ -1,5 +1,5 @@
 #include <string.h>
-#include "EEPROM.h"
+#include <EEPROM.h>
 
 #include "settings.h"
 #include "settings_eeprom.h"
@@ -57,6 +57,7 @@ static bool DMA_ATTR isDirty;
 struct EepromSettings DMA_ATTR EepromSettings;
 
 void EepromSettings::setup() {
+    EEPROM.begin(2048); // Change size to match sizeof(*this)
     this->load();
 }
 
@@ -86,6 +87,6 @@ void EepromSettings::markDirty() {
 }
 
 void EepromSettings::initDefaults() {
-    memcpy_P(this, &EepromDefaults, sizeof(EepromDefaults));
+    memcpy(this, &EepromDefaults, sizeof(EepromDefaults));
     this->save();
 }

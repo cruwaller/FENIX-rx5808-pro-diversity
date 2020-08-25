@@ -32,7 +32,7 @@
   SOFTWARE.
 */
 
-#include <EEPROM.h>
+
 #include "settings.h"
 #include "settings_eeprom.h"
 #include "state_home.h"
@@ -47,11 +47,13 @@
 #include "receiver_spi.h"
 #include "comm_espnow.h"
 
+#include <SPI.h>
+
 void setupPins();
 
 #ifdef SPEED_TEST
-    uint32_t speed_test_hz = 0;
-    uint32_t speed_test_previousTime = 0;
+uint32_t speed_test_hz = 0;
+uint32_t speed_test_previousTime = 0;
 #endif
 
 void setup()
@@ -59,8 +61,6 @@ void setup()
 #if DEBUG_ENABLED || defined(SPEED_TEST)
     Serial.begin(115200);
 #endif
-
-    EEPROM.begin(2048);
 
     EepromSettings.setup();
     setupPins();

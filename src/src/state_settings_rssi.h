@@ -27,6 +27,7 @@ namespace StateMachine {
         public:
             void onEnter();
             void onUpdate();
+            void onExit();
     };
 }
 

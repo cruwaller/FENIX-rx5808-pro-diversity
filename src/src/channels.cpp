@@ -6,7 +6,7 @@
 #include "settings_eeprom.h"
 
 // Channels with their Mhz Values
-static const uint16_t DMA_ATTR channelFreqTable[] PROGMEM = {
+static const uint16_t DMA_ATTR channelFreqTable[] = {
     5865, 5845, 5825, 5805, 5785, 5765, 5745, 5725, // A
     5733, 5752, 5771, 5790, 5809, 5828, 5847, 5866, // B
     5705, 5685, 5665, 5645, 5885, 5905, 5925, 5945, // E
@@ -20,7 +20,7 @@ static const uint16_t DMA_ATTR channelFreqTable[] PROGMEM = {
 
 #if (CHANNELS_SIZE == 48)
 // All Channels of the above List ordered by Mhz
-static const uint8_t DMA_ATTR channelFreqOrderedIndex[] PROGMEM = {
+static const uint8_t DMA_ATTR channelFreqOrderedIndex[] = {
         40, // 5362
         41, // 5399
         42, // 5436
@@ -71,7 +71,7 @@ static const uint8_t DMA_ATTR channelFreqOrderedIndex[] PROGMEM = {
         23  // 5945
 };
 
-static const uint8_t DMA_ATTR channelIndexToOrderedIndex[] PROGMEM = {
+static const uint8_t DMA_ATTR channelIndexToOrderedIndex[] = {
         39,
         36,
         32,
@@ -124,7 +124,7 @@ static const uint8_t DMA_ATTR channelIndexToOrderedIndex[] PROGMEM = {
 
 #elif (CHANNELS_SIZE == 72)
 // All Channels of the above List ordered by Mhz
-static const uint8_t DMA_ATTR channelFreqOrderedIndex[] PROGMEM = {
+static const uint8_t DMA_ATTR channelFreqOrderedIndex[] = {
         48, //5325
         49, //5348
         40, //5362
@@ -199,7 +199,7 @@ static const uint8_t DMA_ATTR channelFreqOrderedIndex[] PROGMEM = {
         23  //5945
 };
 
-static const uint8_t DMA_ATTR channelIndexToOrderedIndex[] PROGMEM = {
+static const uint8_t DMA_ATTR channelIndexToOrderedIndex[] = {
         61,
         57,
         53,
@@ -277,7 +277,7 @@ static const uint8_t DMA_ATTR channelIndexToOrderedIndex[] PROGMEM = {
 
 namespace Channels {
     const uint16_t IRAM_ATTR getFrequency(uint8_t index) {
-        return pgm_read_word_near(channelFreqTable + index);
+        return channelFreqTable[index];
     }
 
     // Returns channel name as a string.
@@ -304,11 +304,11 @@ namespace Channels {
     }
 
     const uint8_t IRAM_ATTR getOrderedIndex(uint8_t index) {
-        return pgm_read_byte_near(channelFreqOrderedIndex + index);
+        return channelFreqOrderedIndex[index];
     }
 
     const uint8_t IRAM_ATTR getOrderedIndexFromIndex(uint8_t index) {
-        return pgm_read_byte_near(channelIndexToOrderedIndex + index);
+        return channelIndexToOrderedIndex[index];
     }
 
     const uint16_t IRAM_ATTR getCenterFreq(uint16_t freq) {
