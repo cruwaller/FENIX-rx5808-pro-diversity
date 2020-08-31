@@ -62,25 +62,27 @@ void StateMachine::SettingsRssiStateHandler::onUpdate()
         rssiBRaw += adcEnd(PIN_RSSI_B) / 10;
     }
 
-    switch (internalState) {
-        case InternalState::SCANNING_LOW:
-            if ( Channels::getFrequency(Receiver::activeChannel) >= 5658) { // Only use min max above R1 to stay within RX5808 freq range
-                if (rssiARaw < EepromSettings.rssiAMin) {
-                    EepromSettings.rssiAMin = rssiARaw;
-                } else if (rssiARaw > EepromSettings.rssiAMax) {
-                    EepromSettings.rssiAMax = rssiARaw;
+    if (internalState == InternalState::SCANNING_LOW) {
+        // Only use min max above R1 to stay within RX5808 freq range
+        if ( Channels::getFrequency(Receiver::activeChannel) >= 5658) {
+            if (rssiARaw < EepromSettings.rssiAMin) {
+                EepromSettings.rssiAMin = rssiARaw;
+            } else if (rssiARaw > EepromSettings.rssiAMax) {
+                EepromSettings.rssiAMax = rssiARaw;
+                bestChannel = Receiver::activeChannel;
+            }
+
+            if (rssiBRaw < EepromSettings.rssiBMin) {
+                EepromSettings.rssiBMin = rssiBRaw;
+            } else if (rssiBRaw > EepromSettings.rssiBMax) {
+                EepromSettings.rssiBMax = rssiBRaw;
+
+                /* Check if B RSSI is higher than A */
+                if (rssiBRaw > EepromSettings.rssiAMax) {
                     bestChannel = Receiver::activeChannel;
                 }
-
-                if (rssiBRaw < EepromSettings.rssiBMin) {
-                    EepromSettings.rssiBMin = rssiBRaw;
-                } else if (rssiBRaw > EepromSettings.rssiBMax) {
-                    EepromSettings.rssiBMax = rssiBRaw;
-                }
             }
-            break;
-        default:
-            break;
+        }
     }
 
     Receiver::setChannel((Receiver::activeChannel + 1) % CHANNELS_SIZE);
@@ -93,7 +95,6 @@ void StateMachine::SettingsRssiStateHandler::onUpdate()
 
         uint8_t progressBar = (Ui::XRES-100-2) * (currentSweep * CHANNELS_SIZE + Receiver::activeChannel) / (RSSI_SETUP_RUN * CHANNELS_SIZE);
         Ui::display.fillRect(52, 152, progressBar, 20, WHITE);
-
     }
 
     if (Receiver::activeChannel == 0) {
