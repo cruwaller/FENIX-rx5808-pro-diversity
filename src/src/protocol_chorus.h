@@ -3,7 +3,9 @@
 
 #include <stdint.h>
 
-uint8_t chorus_race_is_start(void);
+void chorus_race_init(void);
+
+uint8_t chorus_race_is_started(void);
 void chorus_race_state_set(uint8_t);
 
 void chorus_race_start(void);
@@ -14,5 +16,5 @@ uint8_t chorus_race_lap_time_min(void);
 void    chorus_race_lap_time_min_get(void);
 void    chorus_race_lap_time_min_change(int val);
 
-void chorus_command_handle(uint8_t const * buff, uint8_t len);
+int chorus_command_handle(uint8_t const * buff, uint8_t len);
 #endif /* _PROTOCOL_CHORUS_H_ */

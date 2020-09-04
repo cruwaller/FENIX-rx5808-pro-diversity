@@ -66,12 +66,10 @@ static void esp_now_recv_cb(const uint8_t *mac_addr, const uint8_t *data, int da
             };
         }
 
-    } else if ((data[0] == 'S') &&
-               (data[1] == ('0' + lap_times_nodeidx_get()) || data[1] == '*')) {
-        // Handle string commands set by Chorus
-        chorus_command_handle(data, data_len);
-
-    } else if (data_len == sizeof(esp_now_send_lap_s)) {
+    // Check if string command sent by Chorus
+    } else if ((0 > chorus_command_handle(data, data_len)) &&
+               (sizeof(esp_now_send_lap_s) == data_len)) {
+        // command is specific ESP-NOW command
         esp_now_send_lap_s * lap_info = (esp_now_send_lap_s*)data;
         lap_times_handle(lap_info);
 
@@ -153,7 +151,8 @@ void comm_espnow_init(void)
             }
         }
 
-        expresslrs_params_get(); // Get params from ELRS
+        expresslrs_params_get();    // Get params from ELRS
+        chorus_race_init();         // Init Chorus32 communication
 #if DEBUG_ENABLED
         Serial.println(" ... init DONE");
     } else {

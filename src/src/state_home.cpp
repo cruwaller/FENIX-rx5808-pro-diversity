@@ -136,11 +136,11 @@ void HomeStateHandler::onUpdateDraw(uint8_t tapAction)
     Ui::display.setCursor( x_off, y_off + Ui::CHAR_H * 3);
     Ui::display.print("D");
     // Draw selection box over SEND
-    if (cursor_y > (y_off - 4) && cursor_y < (y_off + 4 * Ui::CHAR_H + 4 + 3) &&
-        cursor_x > (x_off - 4) && cursor_x < (x_off + Ui::CHAR_W + 3))
+    if (cursor_y > AREA_Y_START(y_off) && cursor_y < AREA_Y_END(y_off, 4) &&
+        cursor_x > AREA_X_START(x_off) && cursor_x < AREA_X_END(x_off, 1))
     {
-        Ui::display.rect(x_off - 4, y_off - 4,
-                         (4 + 3 + Ui::CHAR_W), (3 + 4 + 4 * Ui::CHAR_H), WHITE);
+        Ui::display.rect(AREA_X_START(x_off), AREA_Y_START(y_off),
+                         AREA_X_LEN(1), AREA_Y_LEN(4), WHITE);
         if (tapAction) {
             expresslrs_vtx_freq_send(Channels::getFrequency(Receiver::activeChannel));
         }
@@ -148,7 +148,9 @@ void HomeStateHandler::onUpdateDraw(uint8_t tapAction)
 
 
 #if HOME_SHOW_LAPTIMES
-#define LAPTIMES_X_POS 188 // max is 200
+#define LAPTIMES_X_POS      188 // max is 200
+#define LAPTIMES_OFFSET_Y   (Ui::CHAR_H + 1U)
+
     //x_off = Ui::XRES - 16 * Ui::CHAR_W;
     y_off = 12;
     char tmp_buff[16]; // '11) 00:00.000\n' => 13 chars
@@ -157,22 +159,23 @@ void HomeStateHandler::onUpdateDraw(uint8_t tapAction)
     Ui::display.setCursor(LAPTIMES_X_POS, y_off);
     Ui::display.print("LAP TIMES "); // "LAP TIMES [  1]", 15chars
     snprintf(tmp_buff, sizeof(tmp_buff), "[%3u]\n", lapt_time_race_idx_get());
-    Ui::display.print(tmp_buff, chorus_race_is_start()); // inverted if race is started
+    Ui::display.print(tmp_buff, chorus_race_is_started()); // inverted if race is started
 
     // Draw selection box
-    if (cursor_y > (y_off - 4) && cursor_y < (y_off + Ui::CHAR_H + 3) &&
-        cursor_x > (LAPTIMES_X_POS - 4) && cursor_x < (LAPTIMES_X_POS + 15 * Ui::CHAR_W + 3))
+    if (cursor_y > AREA_Y_START(y_off) && cursor_y < AREA_Y_END(y_off, 1) &&
+        cursor_x > AREA_X_START(LAPTIMES_X_POS) && cursor_x < AREA_X_END(LAPTIMES_X_POS, 15))
     {
-        Ui::display.rect(LAPTIMES_X_POS-4, 12-4, 4+3+15*8, 15, WHITE);
+        Ui::display.rect(AREA_X_START(LAPTIMES_X_POS), AREA_Y_START(y_off),
+                         AREA_X_LEN(15), AREA_Y_LEN(1), WHITE);
         if (tapAction) {
             StateMachine::switchState(StateMachine::State::CHORUS);
             return; // No need to draw reset
         }
     }
 
-    y_off += 9;
+    y_off += LAPTIMES_OFFSET_Y;
     lap_time_t lap_time;
-    for (iter = 1; iter <= num_laps; iter++, y_off += 9) {
+    for (iter = FIRST_LAP_IDX; iter <= num_laps; iter++, y_off += LAPTIMES_OFFSET_Y) {
         lap_time = lapt_time_laptime_get(iter, fastest); // time in ms
         if (*((uint32_t*)&lap_time) == 0)
             break;
@@ -180,7 +183,7 @@ void HomeStateHandler::onUpdateDraw(uint8_t tapAction)
         Ui::display.setCursor(LAPTIMES_X_POS, y_off);
 
         snprintf(tmp_buff, sizeof(tmp_buff), "%2u) %02u:%02u.%03u\n",
-                 iter, lap_time.m, lap_time.s, lap_time.ms);
+                 (iter - 1), lap_time.m, lap_time.s, lap_time.ms);
         Ui::display.print(tmp_buff, fastest); // invert colors if fastest
     }
 

@@ -56,19 +56,29 @@ int32_t IRAM_ATTR HEX_TO_SIGNED_LONG (uint8_t * buf) {
 
 /*************** FUNCS *****************/
 
-static uint8_t started;
+static uint8_t race_mode;
 static uint8_t min_lap_time = 5;
 
-uint8_t chorus_race_is_start(void)
+void chorus_race_init(void)
 {
-    return started;
+    chorus_race_lap_time_min_get();
+}
+
+uint8_t chorus_race_is_started(void)
+{
+    return (race_mode != 0);
 }
 
 void chorus_race_state_set(uint8_t state)
 {
-    started = state;
-    if (!state) // end, get lap times
+    race_mode = state;
+    if (state) {
+        // Race is started so cleanup the existing laps
+        lap_times_reset();
+    } else {
+        // end, get lap times
         chorus_race_laps_get();
+    }
 }
 
 void chorus_number_of_nodes_get(void)
@@ -79,16 +89,20 @@ void chorus_number_of_nodes_get(void)
 
 void chorus_race_start(void)
 {
-    char command[] = "R*R1\n";
+    char command[] = "R*R1\n"; // 1 = relative mode, 2 = absolute mode
     comm_espnow_send((uint8_t*)command, sizeof(command), ESPNOW_CHORUS);
-    //started = 1;
 }
 
 void chorus_race_end(void)
 {
     char command[] = "R*R0\n";
     comm_espnow_send((uint8_t*)command, sizeof(command), ESPNOW_CHORUS);
-    //started = 0;
+}
+
+void chorus_race_get_state(void)
+{
+    char command[] = "R*R\n";
+    comm_espnow_send((uint8_t*)command, sizeof(command), ESPNOW_CHORUS);
 }
 
 void chorus_race_laps_get(void)
@@ -98,7 +112,6 @@ void chorus_race_laps_get(void)
     command[1] = '0' + lap_times_nodeidx_get();
     comm_espnow_send(command, sizeof(command), ESPNOW_CHORUS);
 }
-
 
 uint8_t chorus_race_lap_time_min(void)
 {
@@ -119,16 +132,42 @@ void chorus_race_lap_time_min_change(int val)
     comm_espnow_send((uint8_t*)command, strlen(command), ESPNOW_CHORUS);
 }
 
-void chorus_command_handle(uint8_t const * buff, uint8_t const len)
+int chorus_command_handle(uint8_t const * buff, uint8_t const len)
 {
-    // Chorus commands
-    switch (buff[2]) {
-        case RESPONSE_MIN_LAP_TIME: {
-            min_lap_time = HEX_TO_BYTE(buff[3], buff[4]);
-            break;
-        }
-        default:
-            // just ignore
-            break;
+    uint8_t extended = (buff[0] == 'E' && buff[1] == 'S');
+    uint8_t temp8;
+    if (extended) {
+        // Extended command, just ignore first byte
+        buff++;
     }
+
+    if ((buff[0] == 'S') && ((buff[1] == '*') || (buff[1] == ('0' + lap_times_nodeidx_get())))) {
+        // Normal Chorus command
+        switch (buff[2]) {
+            // ==== Extended commands ====
+            case RESPONSE_RACE_MODE: {
+                temp8 = HEX_TO_BYTE(buff[3], buff[4]);
+#if 0
+                // ESP-NOW is used
+                if (extended)// Ext + R == Race number
+                    lapt_time_race_idx_set(temp8);
+                else // R == Race mode
+                    chorus_race_state_set(temp8);
+#endif
+                break;
+            }
+
+            // ==== Normal commands ====
+            case RESPONSE_MIN_LAP_TIME: {
+                min_lap_time = HEX_TO_BYTE(buff[3], buff[4]);
+                break;
+            }
+            default: {
+                // just ignore
+                return -1;
+            }
+        }
+    }
+
+    return 0; // Command handled
 }
