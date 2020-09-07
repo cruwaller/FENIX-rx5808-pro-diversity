@@ -55,6 +55,8 @@ namespace ReceiverSpi {
 
     void IRAM_ATTR rxVideoOff(Receiver::ReceiverId ReceiverId)
     {
+        // shutdown video amplifier
+        // 0b01010000110000010011 => PD_PLL1D8|PD_DIV80|PD_REG1D8|PD_5GVCO|PD_DIV4|PD_IFAF | PD_VAMP
         setPowerDownRegister(0b01010000110000010011, ReceiverId); // Put PD_VAMP to off state
     }
 
@@ -65,6 +67,7 @@ namespace ReceiverSpi {
 
     void IRAM_ATTR rxPowerUp(Receiver::ReceiverId ReceiverId)
     {
+        // 0b00010000110000010011 => PD_PLL1D8|PD_DIV80|PD_REG1D8|PD_5GVCO|PD_DIV4|PD_IFAF
         setPowerDownRegister(0b00010000110000010011, ReceiverId);
     }
 
