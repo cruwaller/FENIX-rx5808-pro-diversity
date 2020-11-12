@@ -56,8 +56,10 @@ int32_t IRAM_ATTR HEX_TO_SIGNED_LONG (uint8_t * buf) {
 
 /*************** FUNCS *****************/
 
-static uint8_t race_mode;
-static uint8_t min_lap_time = 5;
+static uint8_t DRAM_ATTR _my_node_idx;
+static uint8_t DRAM_ATTR _race_id;
+static uint8_t DRAM_ATTR race_mode;
+static uint8_t DRAM_ATTR min_lap_time = 5;
 
 void chorus_race_init(void)
 {
@@ -109,7 +111,7 @@ void chorus_race_laps_get(void)
 {
     uint8_t command[3] = {'l', '*', '\n'};
     // Node: 0...MAX or '*' for all
-    command[1] = '0' + lap_times_nodeidx_get();
+    command[1] = '0' + chorus_nodeidx_get();
     comm_espnow_send(command, sizeof(command), ESPNOW_CHORUS);
 }
 
@@ -120,7 +122,7 @@ uint8_t chorus_race_lap_time_min(void)
 
 void chorus_race_lap_time_min_get(void)
 {
-    uint8_t command[4] = {'R', (uint8_t)('0'+lap_times_nodeidx_get()), RESPONSE_MIN_LAP_TIME, '\n'};
+    uint8_t command[4] = {'R', (uint8_t)('0' + chorus_nodeidx_get()), RESPONSE_MIN_LAP_TIME, '\n'};
     comm_espnow_send(command, sizeof(command), ESPNOW_CHORUS);
 }
 
@@ -128,7 +130,7 @@ void chorus_race_lap_time_min_change(int val)
 {
     char command[8];
     min_lap_time += val;
-    snprintf(command, sizeof(command), "R%uM%02X\n", lap_times_nodeidx_get(), min_lap_time);
+    snprintf(command, sizeof(command), "R%uM%02X\n", chorus_nodeidx_get(), min_lap_time);
     comm_espnow_send((uint8_t*)command, strlen(command), ESPNOW_CHORUS);
 }
 
@@ -141,7 +143,7 @@ int chorus_command_handle(uint8_t const * buff, uint8_t const len)
         buff++;
     }
 
-    if ((buff[0] == 'S') && ((buff[1] == '*') || (buff[1] == ('0' + lap_times_nodeidx_get())))) {
+    if ((buff[0] == 'S') && ((buff[1] == '*') || (buff[1] == ('0' + chorus_nodeidx_get())))) {
         // Normal Chorus command
         switch (buff[2]) {
             // ==== Extended commands ====
@@ -150,9 +152,11 @@ int chorus_command_handle(uint8_t const * buff, uint8_t const len)
 #if 0
                 // ESP-NOW is used
                 if (extended)// Ext + R == Race number
-                    lapt_time_race_idx_set(temp8);
+                    chorus_race_idx_set(temp8);
                 else // R == Race mode
                     chorus_race_state_set(temp8);
+#else
+                (void)temp8;
 #endif
                 break;
             }
@@ -170,4 +174,32 @@ int chorus_command_handle(uint8_t const * buff, uint8_t const len)
     }
 
     return 0; // Command handled
+}
+
+void chorus_nodeidx_set(uint8_t nodeidx)
+{
+    if (nodeidx < MAX_NODES)
+        _my_node_idx = nodeidx;
+}
+
+void chorus_nodeidx_roll(int8_t dir)
+{
+    if ((_my_node_idx == 0 && dir < 0) || (_my_node_idx == (MAX_NODES-1) && 0 < dir))
+        return;
+    _my_node_idx += dir;
+}
+
+uint8_t chorus_nodeidx_get(void)
+{
+    return _my_node_idx;
+}
+
+uint32_t chorus_race_idx_get(void)
+{
+    return _race_id;
+}
+
+void chorus_race_idx_set(uint8_t const race_id)
+{
+    _race_id = race_id;
 }

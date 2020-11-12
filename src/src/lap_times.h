@@ -34,15 +34,9 @@ typedef struct laptime {
   uint8_t m;
 } lap_time_t;
 
-void lap_times_nodeidx_set(uint8_t nodeidx);
-void lap_times_nodeidx_roll(int8_t dir);
-uint8_t lap_times_nodeidx_get(void);
 
 void lap_times_reset(void);
 void lap_times_handle(esp_now_send_lap_s * lap_info);
-
-uint32_t lapt_time_race_idx_get(void);
-void lapt_time_race_idx_set(uint8_t race_id);
 
 uint8_t lapt_time_race_num_laps(void);
 lap_time_t lapt_time_laptime_get(uint8_t lap, uint8_t &fastest);

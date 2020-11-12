@@ -162,11 +162,11 @@ void StateMachine::SettingsStateHandler::onUpdateDraw(uint8_t tapAction)
             break;
 
             case 9:    // Button Beep
-              if (EepromSettings.buttonBeep) {
+//              if (EepromSettings.buttonBeep) {
 //                  Ui::display.print(("    On     "));
-              } else {
+//              } else {
 //                  Ui::display.print(("    Off    "));
-              }
+//              }
             break;
 
             case 10:    // CUSTOMLOGO

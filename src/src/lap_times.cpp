@@ -13,8 +13,6 @@ typedef struct {
     lap_time_t  time;
 } lap_times_store_t;
 
-static uint8_t  DRAM_ATTR _my_node_idx;
-static uint8_t  DRAM_ATTR _race_id;
 static lap_times_store_t DRAM_ATTR _lap_times[MAX_LAP_TIMES];
 static uint32_t DRAM_ATTR _best_lap_time;
 static uint8_t  DRAM_ATTR _best_lap_idx;
@@ -32,27 +30,6 @@ static lap_time_t convert_ms_time(uint32_t lap_time)
     mins  = (secs - (hours * 3600)) / 60;
     secs  = secs - (hours * 3600) - (mins * 60);
     return (lap_time_t){.ms = ms, .s = (uint8_t)secs, .m = mins};
-}
-
-
-void lap_times_nodeidx_set(uint8_t nodeidx)
-{
-    if (nodeidx < MAX_NODES)
-        _my_node_idx = nodeidx;
-}
-
-
-void lap_times_nodeidx_roll(int8_t dir)
-{
-    if ((_my_node_idx == 0 && dir < 0) || (_my_node_idx == (MAX_NODES-1) && 0 < dir))
-        return;
-    _my_node_idx += dir;
-}
-
-
-uint8_t lap_times_nodeidx_get(void)
-{
-    return _my_node_idx;
 }
 
 
@@ -149,20 +126,22 @@ void lap_times_reset(void)
 
 void lap_times_handle(esp_now_send_lap_s * lap_info)
 {
+    uint32_t lap_time;
 #if 0
     uint32_t secs;
     uint16_t ms;
     uint8_t hours, mins;
 #endif
+    uint8_t node_idx = chorus_nodeidx_get();
 
     /* Accept only correct node index */
-    if (_my_node_idx != lap_info->node)
+    if (node_idx != lap_info->node)
         return;
 
     switch (lap_info->type) {
         case ESPNOW_TYPE_RACE_START: {
             chorus_race_state_set(1);
-            _race_id = lap_info->race_id;
+            chorus_race_idx_set(lap_info->race_id);
             break;
         }
         case ESPNOW_TYPE_RACE_STOP: {
@@ -174,33 +153,36 @@ void lap_times_handle(esp_now_send_lap_s * lap_info)
             Serial.printf("Race ID: %u, Node: %u, Lap: %u, time: %u\n",
                           lap_info->race_id, lap_info->node, lap_info->lap, lap_info->lap_time);
 #endif
-            if (_race_id == lap_info->race_id && _my_node_idx == lap_info->node) {
+            if (chorus_race_idx_get() == lap_info->race_id) {
                 if (lap_info->lap < MAX_LAP_TIMES) {
                     if ((_last_lap_idx + 1) != lap_info->lap)
                         _error = 1;
                     _last_lap_idx = lap_info->lap;
 
+                    lap_time = lap_info->lap_time;
+
                     /* Collect best lap, ignore initial time */
-                    if (1 < lap_info->lap && lap_info->lap_time < _best_lap_time) {
+                    if (1 < lap_info->lap && lap_time < _best_lap_time) {
                         _best_lap_idx = lap_info->lap;
-                        _best_lap_time = lap_info->lap_time;
+                        _best_lap_time = lap_time;
                     }
 #if 0
                     /* Convert time */
-                    secs = lap_info->lap_time / 1000;
+                    secs = lap_time / 1000;
 
                     hours = secs / 3600;
                     mins  = (secs - (hours * 3600)) / 60;
                     secs  = secs - (hours * 3600) - (mins * 60);
-                    ms = lap_info->lap_time % 1000;
+                    ms = lap_time % 1000;
 
                     /* Store lap time */
-                    _lap_times[lap_info->lap].ms = lap_info->lap_time;
+                    _lap_times[lap_info->lap].ms = lap_time;
                     _lap_times[lap_info->lap].time.ms = ms;
                     _lap_times[lap_info->lap].time.s = secs;
                     _lap_times[lap_info->lap].time.m = mins;
 #else
-                    _lap_times[lap_info->lap].time = convert_ms_time(lap_info->lap_time);
+                    _lap_times[lap_info->lap].ms = lap_time;
+                    _lap_times[lap_info->lap].time = convert_ms_time(lap_time);
 #endif
                 }
             }
@@ -217,15 +199,6 @@ uint8_t lapt_time_race_num_laps(void)
         return 0;
     //return (_last_lap_idx + 1);
     return _last_lap_idx;
-}
-
-uint32_t lapt_time_race_idx_get(void)
-{
-    return _race_id;
-}
-void lapt_time_race_idx_set(uint8_t const race_id)
-{
-    _race_id = race_id;
 }
 
 lap_time_t lapt_time_laptime_get(uint8_t lap, uint8_t &fastest)

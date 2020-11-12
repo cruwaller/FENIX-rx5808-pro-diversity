@@ -27,7 +27,7 @@ SOFTWARE.
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
-#define VERSION_NUMBER 0002
+#define VERSION_NUMBER 0003
 
 
 // === Features ===============================================================
@@ -84,17 +84,8 @@ SOFTWARE.
 // === Voltage Monitoring ======================================================
 
 // Voltage levels
-#define WARNING_VOLTAGE 72 // 3.6V per cell for 2S
-#define CRITICAL_VOLTAGE 66 // 3.3V per cell for 2S
 #define VBAT_SCALE 26 // 100k 10k resistor potential divider
-#define VBAT_OFFSET 0
 
-// Alarm sounds
-#define ALARM_EVERY_SEC 20000
-#define CRITICAL_BEEP_EVERY_MSEC 400
-#define CRITICAL_BEEPS 3
-#define WARNING_BEEP_EVERY_MSEC 200
-#define WARNING_BEEPS 2
 
 // === RSSI ====================================================================
 

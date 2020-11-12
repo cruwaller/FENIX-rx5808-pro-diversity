@@ -4,11 +4,10 @@
 #include "touchpad.h"
 #include "protocol_chorus.h"
 #include "lap_times.h"
+#include "settings_eeprom.h"
 
 #define RETURN_WHEN_RDY 1
 
-/* TODO: Store these settings into EEPROM if not get from Chorus32 at boot */
-static uint8_t DRAM_ATTR consecutives = 5;
 
 void StateMachine::ChorusStateHandler::onEnter()
 {
@@ -26,6 +25,7 @@ void StateMachine::ChorusStateHandler::onUpdateDraw(uint8_t tapAction)
 {
     int16_t cursor_x = TouchPad::touchData.cursorX, cursor_y = TouchPad::touchData.cursorY;
     uint8_t iter, range_valid_node, range_valid_lap, range_valid_consec;
+    uint8_t consecutives = EepromSettings.consecutives;
 
     if (drawHeader())
         return;
@@ -55,7 +55,7 @@ void StateMachine::ChorusStateHandler::onUpdateDraw(uint8_t tapAction)
     Ui::display.print("-");
     // Node index
     Ui::display.setCursor(NODE_X_OFFSET_CNT, NODE_Y);
-    Ui::display.print(lap_times_nodeidx_get(), 10, 1); // Base 10, 1 digits
+    Ui::display.print(chorus_nodeidx_get(), 10, 1); // Base 10, 1 digits
     // Inc node
     Ui::display.setCursor(NODE_X_OFFSET_INC, NODE_Y);
     Ui::display.print("+");
@@ -67,14 +67,14 @@ void StateMachine::ChorusStateHandler::onUpdateDraw(uint8_t tapAction)
             Ui::display.rect(AREA_X_START(NODE_X_OFFSET_DEC), AREA_Y_START(NODE_Y),
                              AREA_X_LEN(1), AREA_Y_LEN(1), WHITE);
             if (tapAction)
-                lap_times_nodeidx_roll(-1);
+                chorus_nodeidx_roll(-1);
         } else if ((cursor_x > AREA_X_START(NODE_X_OFFSET_INC)) &&
                    (cursor_x < AREA_X_END(NODE_X_OFFSET_INC, 1))) {
             // Increase
             Ui::display.rect(AREA_X_START(NODE_X_OFFSET_INC), AREA_Y_START(NODE_Y),
                              AREA_X_LEN(1), AREA_Y_LEN(1), WHITE);
             if (tapAction)
-                lap_times_nodeidx_roll(1);
+                chorus_nodeidx_roll(1);
         }
 
 #if RETURN_WHEN_RDY
@@ -161,15 +161,19 @@ void StateMachine::ChorusStateHandler::onUpdateDraw(uint8_t tapAction)
             // Decrease
             Ui::display.rect(AREA_X_START(CONSECUTIVE_X_OFFSET_DEC), AREA_Y_START(CONSECUTIVE_Y),
                              AREA_X_LEN(1), AREA_Y_LEN(1), WHITE);
-            if (tapAction && (1 < consecutives))
-                consecutives--;
+            if (tapAction && (1 < consecutives)) {
+                EepromSettings.consecutives--;
+                EepromSettings.markDirty();
+            }
         } else if ((cursor_x > AREA_X_START(CONSECUTIVE_X_OFFSET_INC)) &&
                    (cursor_x < AREA_X_END(CONSECUTIVE_X_OFFSET_INC, 1))) {
             // Increase
             Ui::display.rect(AREA_X_START(CONSECUTIVE_X_OFFSET_INC), AREA_Y_START(CONSECUTIVE_Y),
                              AREA_X_LEN(1), AREA_Y_LEN(1), WHITE);
-            if (tapAction && (99 > consecutives))
-                consecutives++;
+            if (tapAction && (99 > consecutives)) {
+                EepromSettings.consecutives++;
+                EepromSettings.markDirty();
+            }
         }
 
 #if RETURN_WHEN_RDY
@@ -209,7 +213,7 @@ void StateMachine::ChorusStateHandler::onUpdateDraw(uint8_t tapAction)
 
     Ui::display.setCursor(LAPTIMES_X_POS, y_off);
     Ui::display.print("LAP TIMES "); // "LAP TIMES [  1]", 15chars
-    snprintf(tmp_buff, sizeof(tmp_buff), "[%3u]\n", lapt_time_race_idx_get());
+    snprintf(tmp_buff, sizeof(tmp_buff), "[%3u]\n", chorus_race_idx_get());
     Ui::display.print(tmp_buff, chorus_race_is_started()); // inverted if race is started
 
     y_off += LAPTIMES_OFFSET;

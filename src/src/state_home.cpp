@@ -158,7 +158,7 @@ void HomeStateHandler::onUpdateDraw(uint8_t tapAction)
 
     Ui::display.setCursor(LAPTIMES_X_POS, y_off);
     Ui::display.print("LAP TIMES "); // "LAP TIMES [  1]", 15chars
-    snprintf(tmp_buff, sizeof(tmp_buff), "[%3u]\n", lapt_time_race_idx_get());
+    snprintf(tmp_buff, sizeof(tmp_buff), "[%3u]\n", chorus_race_idx_get());
     Ui::display.print(tmp_buff, chorus_race_is_started()); // inverted if race is started
 
     // Draw selection box

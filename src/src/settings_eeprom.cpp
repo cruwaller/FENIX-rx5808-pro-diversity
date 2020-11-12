@@ -9,44 +9,27 @@
 
 const struct EepromSettings EepromDefaults = {
     .versionNumber = VERSION_NUMBER,
-
     .isCalibrated = false,
-    .otaUpdateRequested = false,
+    .startChannel = 27,
+    .dummy = 0,
 
     .diversityMode = Receiver::DiversityMode::DIVERSITY,
 
-    .startChannel = 27,
-    .lastKnownMenuItem = 0, // remove
     .lastKnownState = StateMachine::State::HOME, // remove
-
-    .beepEnabled = true, // remove
 
     .rssiAMin = RSSI_MIN_VAL,
     .rssiAMax = RSSI_MAX_VAL,
     .rssiBMin = RSSI_MIN_VAL,
     .rssiBMax = RSSI_MAX_VAL,
-    .rssiCMin = RSSI_MIN_VAL, // remove
-    .rssiCMax = RSSI_MAX_VAL, // remove
-    .rssiDMin = RSSI_MIN_VAL, // remove
-    .rssiDMax = RSSI_MAX_VAL, // remove
-
-    .vbatScale = VBAT_SCALE,
-    .vbatWarning = WARNING_VOLTAGE,
-    .vbatCritical = CRITICAL_VOLTAGE,
-
-    .favouriteChannels = {32, 33, 34, 35, 36, 37, 38, 39}, // Race band,  // remove
-    .spectatorChannels = {-1, -1, -1, -1, -1, -1, -1, -1}, // remove
-
-    .quadversity = false, // remove
-    .buttonBeep = true,
 
     // Internal settings
-    .spectatorFreqScanStep = 5,
-    .spectatorFWHM = 20,
     .rssiSeekTreshold = 500,
     .rssiMinTuneTime = 30, // ms
     .rssiHysteresis = 0,
     .rssiHysteresisPeriod = 0, // ms
+
+    // Chorus32 settings
+    .consecutives = 5,
 };
 
 
