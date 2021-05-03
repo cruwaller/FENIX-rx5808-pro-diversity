@@ -47,24 +47,15 @@ SOFTWARE.
 // WARNING: Makes RSSI act a little weird.
 #define DISABLE_AUDIO
 
-// Wifi update params
-#define STASSID "FENIX.PeHo"
-
 /* How many channel receiver has */
-// #define CHANNELS_72
-#define CHANNELS_48
+#ifndef CHANNELS_SIZE
+#define CHANNELS_SIZE 48
+#endif
 
 /* Video output mode: PAL or NTSC */
-#define VIDEO_MODE PAL
-
-// === ESP-NOW =================================================================
-
-/* Defines ESPNOW peers and allow to exchange values between nodes
- *  Currently ELRS and Chorus32 are supported!
- */
-#define ESP_NOW_ENABLED      1
-#define ESP_NOW_PEERS_ELRS   {0x5C, 0xCF, 0x7F, 0xAC, 0xD9, 0x0F}, {0x5E, 0xCF, 0x7F, 0xAC, 0xD9, 0x0F}
-#define ESP_NOW_PEERS_CHORUS {0xF0, 0x08, 0xD1, 0xD4, 0xED, 0x7D}
+#ifndef VIDEO_MODE
+#define VIDEO_MODE NTSC
+#endif
 
 // === Pins ====================================================================
 
@@ -115,8 +106,14 @@ SOFTWARE.
 #ifndef PIN_VBAT
 #undef USE_VOLTAGE_MONITORING
 #endif
-#ifndef STASSID
-#define STASSID "FENIX"
-#endif // STASSID
+#ifndef WIFI_AP_SSID
+#define WIFI_AP_SSID "FENIX"
+#endif
+#ifndef WIFI_AP_PSK
+#define WIFI_AP_PSK NULL
+#endif
+#ifndef WIFI_TIMEOUT
+#define WIFI_TIMEOUT 60
+#endif
 
 #endif // file_defined

@@ -9,6 +9,8 @@
 
 #include "WebUpdater.h"
 
+#include <WiFi.h>
+
 #define INFO_TXT_Y_POS (200U)
 
 Image<CompositeGraphics> iconHome(home::xres, home::yres, home::pixels);
@@ -136,23 +138,31 @@ void StateMachine::MenuStateHandler::onUpdateDraw(uint8_t tapAction)
       Ui::display.setCursor(UI_GET_MID_X(11), (INFO_TXT_Y_POS - Ui::CHAR_H));
       Ui::display.print("WiFi Update");
       Ui::display.setCursor( 50, INFO_TXT_Y_POS);
-      Ui::display.print("SSID: ");
-      Ui::display.print(STASSID);
-      Ui::display.setCursor( 50, (INFO_TXT_Y_POS + Ui::CHAR_H));
-      Ui::display.print("IP:   192.168.4.1");
-      if (tapAction) {
-         BeginWebUpdate(); // Start updater
+      if (WiFi.isConnected()) {
+         // STA - connected
+         Ui::display.setCursor( 50, (INFO_TXT_Y_POS + Ui::CHAR_H));
+         Ui::display.print("IP:   ");
+         Ui::display.print(WiFi.localIP());
+      } else {
+         // Start AP
+         Ui::display.print("SSID: ");
+         Ui::display.print(WIFI_AP_SSID);
+         Ui::display.setCursor( 50, (INFO_TXT_Y_POS + Ui::CHAR_H));
+         Ui::display.print("IP:   192.168.4.1");
+         if (tapAction) {
+            BeginWebUpdate(); // Start updater
 
-         uint32_t previousLEDTime = 0, now;
-         // ... and handle client requests
-         while (1) {
-            HandleWebUpdate();
-            now = millis();
-            if (100u <= (now - previousLEDTime)) {
-                  digitalWrite(PIN_RX_SWITCH, !digitalRead(PIN_RX_SWITCH));
-                  previousLEDTime = now;
+            uint32_t previousLEDTime = 0, now;
+            // ... and handle client requests
+            while (1) {
+               HandleWebUpdate();
+               now = millis();
+               if (100u <= (now - previousLEDTime)) {
+                     digitalWrite(PIN_RX_SWITCH, !digitalRead(PIN_RX_SWITCH));
+                     previousLEDTime = now;
+               }
+               yield();
             }
-            yield();
          }
       }
    }

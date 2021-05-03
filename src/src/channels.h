@@ -5,11 +5,7 @@
 #include <stdint.h>
 #include <esp_attr.h>
 
-#ifdef CHANNELS_72
-    #define CHANNELS_SIZE 72
-#elif defined(CHANNELS_48)
-    #define CHANNELS_SIZE 48
-#else
+#if (CHANNELS_SIZE != 48) && (CHANNELS_SIZE != 72)
     #error "Invalid CHANNELS_SIZE"
 #endif
 

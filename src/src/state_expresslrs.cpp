@@ -8,6 +8,59 @@
 #include "protocol_ExpressLRS.h"
 
 
+#define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
+
+
+static const char* unknown_value = "---";
+
+static const char* elrs_lookuptable_rates_900[ExLRS_RATE_MAX] = {
+    "200Hz", "100Hz", "50Hz",
+};
+static const char* elrs_lookuptable_rates_2400[ExLRS_RATE_ISM_MAX] = {
+    "500Hz", "250Hz", "125Hz", "50Hz",
+};
+static const char* elrs_lookuptable_power[ExLRS_PWR_MAX] = {
+    "dynamic", "10mW", "25mW", "50mW", "100mW", "250mW", "500mW", "1000mW", "2000mW",
+};
+static const char* elrs_lookuptable_tlm[ExLRS_TLM_RATIO_MAX] = {
+    "OFF", "1/128", "1/64", "1/32", "1/16", "1/8", "1/4", "1/2"
+};
+
+#define BOX_OFFSET_S    4
+#define BOX_OFFSET_E    3
+#define BOX_OFFSET      (BOX_OFFSET_S + BOX_OFFSET_E)
+
+#define BASE_OFF_X      20
+#define BASE_OFF_Y      20
+
+#define LINE_SPACING    (2*Ui::CHAR_H)
+
+#define GET_X(idx)      (BASE_OFF_X + ((idx)*Ui::CHAR_W))
+#define GET_X2(idx)     (BASE_OFF_X + 20 + ((idx)*Ui::CHAR_W))
+
+#define GET_Y(idx)      (BASE_OFF_Y + ((idx)*(LINE_SPACING)))
+
+#define GET_X_BOX(idx)  (GET_X(idx) - BOX_OFFSET_S)
+#define GET_Y_BOX(idx)  (GET_Y(idx) - BOX_OFFSET_S)
+
+#define GET_X_BOX_END(I,H)  (GET_X_BOX(I) + GET_BOX_W(H))
+#define GET_Y_BOX_END(I,H)  (GET_Y_BOX(I) + GET_BOX_H(H))
+
+#define GET_BOX_W(c)    (((c) * Ui::CHAR_W) + BOX_OFFSET)
+#define GET_BOX_H(c)    (((c) * Ui::CHAR_H) + BOX_OFFSET)
+
+// Lines
+enum {
+    LINE_DOMAIN = 0,
+    LINE_RATE,
+    LINE_POWER,
+    LINE_TLM,
+    LINE_VTX,
+    /* Empty line */
+    LINE_CURRENT = LINE_VTX+2,
+};
+
+
 void StateMachine::ExLRSStateHandler::onEnter()
 {
     //onUpdateDraw(false);
@@ -22,244 +75,213 @@ void StateMachine::ExLRSStateHandler::onUpdate()
 
 void StateMachine::ExLRSStateHandler::onUpdateDraw(uint8_t tapAction)
 {
-    uint32_t off_x = 20, off_x2 = off_x + 17 * Ui::CHAR_W, off_y = 20;
+    const char * param_str;
     int16_t cursor_x = TouchPad::touchData.cursorX, cursor_y = TouchPad::touchData.cursorY;
     uint8_t region = expresslrs_params_get_region();
+    uint8_t param_value;
 
     if (drawHeader())
         return;
 
-    // Mode
-    Ui::display.setCursor(off_x, off_y);
-    Ui::display.print("Mode (Hz):");
-    Ui::display.setCursor(off_x2, off_y);
-    if (region == 3)
-        Ui::display.print("50    125    250");
+#define SELECT_OFFSET  17
+
+    // Frequency domain
+    Ui::display.setCursor(GET_X(0), GET_Y(LINE_DOMAIN));
+    Ui::display.print("Domain:");
+    Ui::display.setCursor(GET_X(SELECT_OFFSET), GET_Y(LINE_DOMAIN));
+    Ui::display.print("900   2400");
+
+    // Rate
+    Ui::display.setCursor(GET_X(0), GET_Y(LINE_RATE));
+    Ui::display.print("Rate (Hz):");
+    Ui::display.setCursor(GET_X(SELECT_OFFSET), GET_Y(LINE_RATE));
+    if (ExLRS_RF_MODE_2400_ISM <= region)
+        Ui::display.print("125   250   500");
     else
-        Ui::display.print("50    100    200");
-    off_y += 20;
+        Ui::display.print(" 50   100   200");
 
     // RF Power
-    Ui::display.setCursor(off_x, off_y);
+    Ui::display.setCursor(GET_X(0), GET_Y(LINE_POWER));
     Ui::display.print("Power (mW):");
-    Ui::display.setCursor(off_x2, off_y);
-    Ui::display.print("25    50     100");
-    off_y += 20;
+    Ui::display.setCursor(GET_X(SELECT_OFFSET), GET_Y(LINE_POWER));
+    Ui::display.print("25    50    100");
 
     // TLM Rate
-    Ui::display.setCursor(off_x, off_y);
+    Ui::display.setCursor(GET_X(0), GET_Y(LINE_TLM));
     Ui::display.print("Telemetry:");
-    Ui::display.setCursor(off_x2, off_y);
+    Ui::display.setCursor(GET_X(SELECT_OFFSET), GET_Y(LINE_TLM));
     Ui::display.print("On    Off");
-    off_y += 20;
 
     // Set VTX channel
-    Ui::display.setCursor(off_x, off_y);
+    Ui::display.setCursor(GET_X(0), GET_Y(LINE_VTX));
     Ui::display.print("VTX channel:");
-    Ui::display.setCursor(off_x2, off_y);
+    Ui::display.setCursor(GET_X(SELECT_OFFSET), GET_Y(LINE_VTX));
     Ui::display.print("SEND");
-    off_y += 20;
-
-
-    /*************************************/
-    // Print current settings
-    off_y += 20;
-
-    Ui::display.setCursor(off_x, off_y);
-    Ui::display.print("== Current settings ==");
-
-    off_y += 12;
-    off_x = 40;
-    off_x2 = off_x + 100;
-
-    Ui::display.setCursor(off_x, off_y);
-    Ui::display.print("Frequency:");
-    Ui::display.setCursor(off_x2, off_y);
-    switch (expresslrs_params_get_region()) {
-        case 0:
-            Ui::display.print("915MHz");
-            break;
-        case 1:
-            Ui::display.print("868MHz");
-            break;
-        case 2:
-            Ui::display.print("433MHz");
-            break;
-        case 3:
-            Ui::display.print("2.4GHz");
-            break;
-        default:
-            Ui::display.print("---");
-            break;
-    };
-
-    off_y += 10;
-    Ui::display.setCursor(off_x, off_y);
-    Ui::display.print("Rate:");
-    Ui::display.setCursor(off_x2, off_y);
-    switch (expresslrs_params_get_rate()) {
-        case 0:
-            Ui::display.print((region == 3) ? "250Hz" : "200Hz");
-            break;
-        case 1:
-            Ui::display.print((region == 3) ? "125Hz" : "100Hz");
-            break;
-        case 2:
-            Ui::display.print("50Hz");
-            break;
-        default:
-            Ui::display.print("---");
-            break;
-    };
-
-    off_y += 10;
-    Ui::display.setCursor(off_x, off_y);
-    Ui::display.print("Power:");
-    Ui::display.setCursor(off_x2, off_y);
-    switch (expresslrs_params_get_power()) {
-        case 0:
-            Ui::display.print("dynamic");
-            break;
-        case 1:
-            Ui::display.print("10mW");
-            break;
-        case 2:
-            Ui::display.print("25mW");
-            break;
-        case 3:
-            Ui::display.print("50mW");
-            break;
-        case 4:
-            Ui::display.print("100mW");
-            break;
-        case 5:
-            Ui::display.print("250mW");
-            break;
-        case 6:
-            Ui::display.print("500mW");
-            break;
-        case 7:
-            Ui::display.print("1000mW");
-            break;
-        case 8:
-            Ui::display.print("2000mW");
-            break;
-        default:
-            Ui::display.print("---");
-            break;
-    };
-
-    off_y += 10;
-    Ui::display.setCursor(off_x, off_y);
-    Ui::display.print("Telemetry:");
-    Ui::display.setCursor(off_x2, off_y);
-    switch (expresslrs_params_get_tlm()) {
-        case 0:
-            Ui::display.print("OFF");
-            break;
-        case 1:
-            Ui::display.print("1/128");
-            break;
-        case 2:
-            Ui::display.print("1/64");
-            break;
-        case 3:
-            Ui::display.print("1/32");
-            break;
-        case 4:
-            Ui::display.print("1/16");
-            break;
-        case 5:
-            Ui::display.print("1/8");
-            break;
-        case 6:
-            Ui::display.print("1/4");
-            break;
-        case 7:
-            Ui::display.print("1/2");
-            break;
-        default:
-            Ui::display.print("---");
-            break;
-    };
-
 
     // Draw Mode box
-    if (cursor_y > 16 && cursor_y < 31)
+    if (cursor_y > GET_Y_BOX(LINE_DOMAIN) && cursor_y < GET_Y_BOX_END(LINE_DOMAIN, 1))
     {
-        if ( // 50
-            cursor_x > (20 + 17 * 8 - 4) && cursor_x < (20 + 19 * 8 + 3))
+        uint8_t next_domain = ExLRS_RF_MODE_INVALID;
+        if ( // 900MHz
+            cursor_x > GET_X_BOX(SELECT_OFFSET) && cursor_x < GET_X_BOX_END(SELECT_OFFSET, 3))
         {
-            Ui::display.rect(20 + 17 * 8 - 4, 16, 23, 15, 100);
-            if (tapAction)
-                expresslrs_rate_send(ExLRS_50Hz);
+            Ui::display.rect(GET_X_BOX(SELECT_OFFSET), GET_Y_BOX(LINE_DOMAIN), GET_BOX_W(3), GET_BOX_H(1), 100);
+            next_domain = ExLRS_RF_MODE_868_EU;
+        }
+        else if ( // 2.4GHz
+            cursor_x > GET_X_BOX(SELECT_OFFSET+6) && cursor_x < GET_X_BOX_END(SELECT_OFFSET+6, 4))
+        {
+            Ui::display.rect(GET_X_BOX(SELECT_OFFSET+6), GET_Y_BOX(LINE_DOMAIN), GET_BOX_W(4), GET_BOX_H(1), 100);
+            next_domain = ExLRS_RF_MODE_2400_ISM;
+        }
+        if (tapAction && next_domain != ExLRS_RF_MODE_INVALID)
+            expresslrs_domain_send(next_domain);
+    }
+    // Draw Mode box
+    else if (cursor_y > GET_Y_BOX(LINE_RATE) && cursor_y < GET_Y_BOX_END(LINE_RATE, 1))
+    {
+        uint8_t next_rate = ExLRS_RATE_INVALID;
+        if ( // 50
+            cursor_x > GET_X_BOX(SELECT_OFFSET) && cursor_x < GET_X_BOX_END(SELECT_OFFSET, 3))
+        {
+            Ui::display.rect(GET_X_BOX(SELECT_OFFSET), GET_Y_BOX(LINE_RATE), GET_BOX_W(3), GET_BOX_H(1), 100);
+            next_rate = (ExLRS_RF_MODE_2400_ISM <= region) ? (uint8_t)ExLRS_RATE_ISM_125 : (uint8_t)ExLRS_RATE_50;
         }
         else if ( // 100
-            cursor_x > (20 + 23 * 8 - 4) && cursor_x < (20 + 26 * 8 + 3))
+            cursor_x > GET_X_BOX(SELECT_OFFSET+6) && cursor_x < GET_X_BOX_END(SELECT_OFFSET+6, 3))
         {
-            Ui::display.rect(20 + 23 * 8 - 4, 16, 31, 15, 100);
-            if (tapAction)
-                expresslrs_rate_send(ExLRS_100Hz);
+            Ui::display.rect(GET_X_BOX(SELECT_OFFSET+6), GET_Y_BOX(LINE_RATE), GET_BOX_W(3), GET_BOX_H(1), 100);
+            next_rate = (ExLRS_RF_MODE_2400_ISM <= region) ? (uint8_t)ExLRS_RATE_ISM_250 : (uint8_t)ExLRS_RATE_100;
         }
         else if ( // 200
-            cursor_x > (20 + 30 * 8 - 4) && cursor_x < (20 + 33 * 8 + 3))
+            cursor_x > GET_X_BOX(SELECT_OFFSET+12) && cursor_x < GET_X_BOX_END(SELECT_OFFSET+12, 3))
         {
-            Ui::display.rect(20 + 30 * 8 - 4, 16, 31, 15, 100);
-            if (tapAction)
-                expresslrs_rate_send(ExLRS_200Hz);
+            Ui::display.rect(GET_X_BOX(SELECT_OFFSET+12), GET_Y_BOX(LINE_RATE), GET_BOX_W(3), GET_BOX_H(1), 100);
+            next_rate = (ExLRS_RF_MODE_2400_ISM <= region) ? (uint8_t)ExLRS_RATE_ISM_500 : (uint8_t)ExLRS_RATE_200;
         }
+        if (tapAction && next_rate != ExLRS_RATE_INVALID)
+            expresslrs_rate_send(next_rate);
     }
     // Draw RF Power box
-    else if (cursor_y > 36 && cursor_y < 51)
+    else if (cursor_y > GET_Y_BOX(LINE_POWER) && cursor_y < GET_Y_BOX_END(LINE_POWER, 1))
     {
         if ( // 25mW
-            cursor_x > (20 + 17 * 8 - 4) && cursor_x < (20 + 19 * 8 + 3))
+            cursor_x > GET_X_BOX(SELECT_OFFSET) && cursor_x < GET_X_BOX_END(SELECT_OFFSET, 2))
         {
-            Ui::display.rect(20 + 17 * 8 - 4, 36, 23, 15, 100);
+            Ui::display.rect(GET_X_BOX(SELECT_OFFSET), GET_Y_BOX(LINE_POWER), GET_BOX_W(2), GET_BOX_H(1), 100);
             if (tapAction)
                 expresslrs_power_send(ExLRS_PWR_25mW);
         }
         else if ( // 50mW
-            cursor_x > (20 + 23 * 8 - 4) && cursor_x < (20 + 25 * 8 + 3))
+            cursor_x > GET_X_BOX(SELECT_OFFSET+6) && cursor_x < GET_X_BOX_END(SELECT_OFFSET+6, 2))
         {
-            Ui::display.rect(20 + 23 * 8 - 4, 36, 23, 15, 100);
+            Ui::display.rect(GET_X_BOX(SELECT_OFFSET+6), GET_Y_BOX(LINE_POWER), GET_BOX_W(3), GET_BOX_H(1), 100);
             if (tapAction)
                 expresslrs_power_send(ExLRS_PWR_50mW);
         }
         else if ( // 100mW
-            cursor_x > (20 + 30 * 8 - 4) && cursor_x < (20 + 33 * 8 + 3))
+            cursor_x > GET_X_BOX(SELECT_OFFSET+12) && cursor_x < GET_X_BOX_END(SELECT_OFFSET+12, 3))
         {
-            Ui::display.rect(20 + 30 * 8 - 4, 36, 31, 15, 100);
+            Ui::display.rect(GET_X_BOX(SELECT_OFFSET+12), GET_Y_BOX(LINE_POWER), GET_BOX_W(3), GET_BOX_H(1), 100);
             if (tapAction)
                 expresslrs_power_send(ExLRS_PWR_100mW);
         }
     }
     // Draw TLM box
-    else if (cursor_y > 56 && cursor_y < 71)
+    else if (cursor_y > GET_Y_BOX(LINE_TLM) && cursor_y < GET_Y_BOX_END(LINE_TLM, 1))
     {
         if ( // On
-            cursor_x > (20 + 17 * 8 - 4) && cursor_x < (20 + 19 * 8 + 3))
+            cursor_x > GET_X_BOX(SELECT_OFFSET) && cursor_x < GET_X_BOX_END(SELECT_OFFSET, 2))
         {
-            Ui::display.rect(20 + 17 * 8 - 4, 56, 23, 15, 100);
+            Ui::display.rect(GET_X_BOX(SELECT_OFFSET), GET_Y_BOX(LINE_TLM), GET_BOX_W(2), GET_BOX_H(1), 100);
             if (tapAction)
                 expresslrs_tlm_send(ExLRS_TLM_ON);
         }
         else if ( // Off
-            cursor_x > (20 + 23 * 8 - 4) && cursor_x < (20 + 26 * 8 + 3))
+            cursor_x > GET_X_BOX(SELECT_OFFSET+6) && cursor_x < GET_X_BOX_END(SELECT_OFFSET+6, 3))
         {
-            Ui::display.rect(20 + 23 * 8 - 4, 56, 31, 15, 100);
+            Ui::display.rect(GET_X_BOX(SELECT_OFFSET+6), GET_Y_BOX(LINE_TLM), GET_BOX_W(3), GET_BOX_H(1), 100);
             if (tapAction)
                 expresslrs_tlm_send(ExLRS_TLM_OFF);
         }
     }
     // Draw VTX SEND box
-    else if (cursor_y > 76 && cursor_y < 91)
+    else if (cursor_y > GET_Y_BOX(LINE_VTX) && cursor_y < GET_Y_BOX_END(LINE_VTX, 1))
     {
-        if (cursor_x > (20 + 17 * 8 - 4) && cursor_x < (20 + 21 * 8 + 3))
+        if (cursor_x > GET_X_BOX(SELECT_OFFSET) && cursor_x < GET_X_BOX_END(SELECT_OFFSET, 4))
         {
-            Ui::display.rect((20 + 17 * 8 - 4), 76, (4 + 4 * 8 + 3), 15, 100);
+            Ui::display.rect(GET_X_BOX(SELECT_OFFSET), GET_Y_BOX(LINE_TLM), GET_BOX_W(4), GET_BOX_H(1), 100);
             if (tapAction)
                 expresslrs_vtx_freq_send(Channels::getFrequency(Receiver::activeChannel));
         }
     }
+
+
+    /*************************************/
+    // Print current settings
+    uint32_t off_y = GET_Y(LINE_CURRENT);
+
+    Ui::display.setCursor(GET_X(0), off_y);
+    Ui::display.print("== Current settings ==");
+
+#define OFFSET_KEY      GET_X(3)
+#define OFFSET_VALUE    GET_X(3+20)
+    off_y += 12;
+
+    Ui::display.setCursor(OFFSET_KEY, off_y);
+    Ui::display.print("Domain:");
+    Ui::display.setCursor(OFFSET_VALUE, off_y);
+    switch (region) {
+        case ExLRS_RF_MODE_915_AU_FCC:
+            Ui::display.print("915MHz");
+            break;
+        case ExLRS_RF_MODE_868_EU:
+            Ui::display.print("868MHz");
+            break;
+        case ExLRS_RF_MODE_433_AU_EU:
+            Ui::display.print("433MHz");
+            break;
+        case ExLRS_RF_MODE_2400_ISM:
+        case ExLRS_RF_MODE_2400_ISM_500:
+            Ui::display.print("2.4GHz");
+            break;
+        default:
+            Ui::display.print(unknown_value);
+            break;
+    };
+
+    off_y += 10;
+    Ui::display.setCursor(OFFSET_KEY, off_y);
+    Ui::display.print("Rate:");
+    Ui::display.setCursor(OFFSET_VALUE, off_y);
+    param_str = unknown_value;
+    param_value = expresslrs_params_get_rate();
+    if (ExLRS_RF_MODE_2400_ISM < region) {
+        if (param_value < ARRAY_SIZE(elrs_lookuptable_rates_2400))
+            param_str = elrs_lookuptable_rates_2400[param_value];
+    } else {
+        if (param_value <= ARRAY_SIZE(elrs_lookuptable_rates_900))
+            param_str = elrs_lookuptable_rates_900[param_value];
+    }
+    Ui::display.print(param_str);
+
+    off_y += 10;
+    Ui::display.setCursor(OFFSET_KEY, off_y);
+    Ui::display.print("Power:");
+    Ui::display.setCursor(OFFSET_VALUE, off_y);
+    param_str = unknown_value;
+    param_value = expresslrs_params_get_power();
+    if (param_value < ARRAY_SIZE(elrs_lookuptable_power))
+        param_str = elrs_lookuptable_power[param_value];
+    Ui::display.print(param_str);
+
+    off_y += 10;
+    Ui::display.setCursor(OFFSET_KEY, off_y);
+    Ui::display.print("Telemetry:");
+    Ui::display.setCursor(OFFSET_VALUE, off_y);
+    param_str = unknown_value;
+    param_value = expresslrs_params_get_tlm();
+    if (param_value < ARRAY_SIZE(elrs_lookuptable_tlm))
+        param_str = elrs_lookuptable_tlm[param_value];
+    Ui::display.print(param_str);
 }

@@ -5,3 +5,7 @@
 .vscode/ipch
 .vscode
 *.code-workspace
+user_defines.txt
+*.pyc
+__pycache__
+

@@ -6,10 +6,10 @@
 
 // ELRS specific opcodes
 #define ELRS_PARAMS_GET        0x00
-#define ELRS_PARAMS_RF_MODE    0x01
+#define ELRS_PARAMS_RF_RATE    0x01
 #define ELRS_PARAMS_TLM_RATE   0x02
 #define ELRS_PARAMS_TX_PWR     0x03
-#define ELRS_PARAMS_FREQ       0x04
+#define ELRS_PARAMS_DOMAIN     0x04
 #define ELRS_PARAMS_START_WIFI 0x05
 
 
@@ -52,7 +52,7 @@ void expresslrs_vtx_freq_send(uint16_t freq)
 
 void expresslrs_rate_send(uint8_t rate)
 {
-    expresslrs_msp_params_send(ELRS_PARAMS_RF_MODE, rate);
+    expresslrs_msp_params_send(ELRS_PARAMS_RF_RATE, rate);
 }
 
 void expresslrs_power_send(uint8_t power)
@@ -63,6 +63,12 @@ void expresslrs_power_send(uint8_t power)
 void expresslrs_tlm_send(uint8_t tlm)
 {
     expresslrs_msp_params_send(ELRS_PARAMS_TLM_RATE, tlm);
+}
+
+void expresslrs_domain_send(uint8_t domain)
+{
+    if (domain < ExLRS_RF_MODE_MAX)
+        expresslrs_msp_params_send(ELRS_PARAMS_DOMAIN, domain);
 }
 
 void expresslrs_params_get(void)

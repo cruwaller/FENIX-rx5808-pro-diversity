@@ -46,6 +46,7 @@
 #include "touchpad.h"
 #include "receiver_spi.h"
 #include "comm_espnow.h"
+#include "WebUpdater.h"
 
 #include <SPI.h>
 
@@ -87,6 +88,7 @@ void setup()
         StateMachine::switchState(StateMachine::State::HOME);
     }
 
+    WiFiConnect();
     comm_espnow_init();
 }
 
