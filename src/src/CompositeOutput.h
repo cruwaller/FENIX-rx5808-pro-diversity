@@ -262,10 +262,11 @@ class CompositeOutput
     fillValues(i, levelBlank, samplesLine / 2 - samplesSync);
   }
 
-  void sendFrameHalfResolution(char ***frame)
+  void sendFrameHalfResolution(char **frame)
   {
-    //Even Halfframe
-    int i = 0;
+    // ======== Even Halfframe ========
+    int i = 0, y;
+    char *pixels;
     fillLong(i); fillLong(i);
     sendLine(); sendLine();
     i = 0;
@@ -275,23 +276,24 @@ class CompositeOutput
     fillShort(i); fillShort(i);
     sendLine(); sendLine();
     fillBlank();
-    for(int y = 0; y < linesEvenBlankTop; y++)
+    for(y = 0; y < linesEvenBlankTop; y++)
       sendLine();
-    for(int y = 0; y < targetYresEven; y++)
+    for(y = 0; y < targetYresEven; y++)
     {
-      char *pixels = (*frame)[y];
+      pixels = (frame)[y];
       fillLine(pixels);
       sendLine();
     }
     fillBlank();
-    for(int y = 0; y < linesEvenBlankBottom; y++)
+    for(y = 0; y < linesEvenBlankBottom; y++)
       sendLine();
     i = 0;
     fillShort(i); fillShort(i);
     sendLine(); sendLine();
     i = 0;
     fillShort(i);
-    //odd half frame
+
+    // ======== odd half frame ========
     fillLong(i);
     sendLine();
     i = 0;
@@ -305,11 +307,11 @@ class CompositeOutput
     sendLine();
 
     fillBlank();
-    for(int y = 0; y < linesOddBlankTop; y++)
+    for(y = 0; y < linesOddBlankTop; y++)
       sendLine();
-    for(int y = 0; y < targetYresOdd; y++)
+    for(y = 0; y < targetYresOdd; y++)
     {
-      char *pixels = (*frame)[y];
+      pixels = (frame)[y];
       fillLine(pixels);
       sendLine();
     }

@@ -20,6 +20,9 @@ namespace Ui {
     CompositeOutput DMA_ATTR composite(CompositeOutput::VIDEO_MODE, XRES * 2, YRES * 2);
     Font<CompositeGraphics> DMA_ATTR font(8, 8, font8x8::pixels);
 
+    TaskHandle_t uitask;
+    TaskHandle_t compositeTask;
+
     void setup() {
 
         // highest clockspeed needed
@@ -37,29 +40,52 @@ namespace Ui {
         //select font
         display.setFont(font);
 
-        //running composite output pinned to first core
-        xTaskCreatePinnedToCore(compositeCore, "c", 1024, NULL, 255, NULL, 0); //increase priority to remove osd jitter with esp-now
-        //rendering the actual graphics in the main loop is done on the second core by default
+        uitask = xTaskGetCurrentTaskHandle();
 
+        //running composite output pinned to first core
+        //  rendering the actual graphics in the main loop is done on the second core by default
+        xTaskCreatePinnedToCore(compositeCore, "c",
+            1024, NULL, ((configMAX_PRIORITIES-1) | portPRIVILEGE_BIT),
+            &compositeTask, 0);
     }
 
     void deinit() {
+        if (compositeTask)
+            vTaskSuspend(compositeTask);
         composite.deinit();
         display.deinit();
     }
 
-    void update() {
+    void reset()
+    {
+        // reset OSD to black
+        display.begin(BLACK);
+    }
 
+    void update()
+    {
         drawCursor();
+    }
 
+    void draw()
+    {
+        // Wait until current buffer is fetched
+        xTaskNotifyWait(0, 0, NULL, pdMS_TO_TICKS(200));
+        //if (pdTRUE == xTaskNotifyWait(0, 0, NULL, pdMS_TO_TICKS(100)))
+        //    display.end();
     }
 
     void compositeCore(void *data)
     {
+        char ** frame = display.end();
       while (true)
       {
         //just send the graphics frontbuffer whithout any interruption
-        composite.sendFrameHalfResolution(&display.frame);
+        composite.sendFrameHalfResolution(frame);
+        // Swap ping-pong buffer
+        frame = display.end();
+        // Notify other task to draw the next buffer
+        xTaskNotify(uitask, 0, eNoAction);
       }
     }
 

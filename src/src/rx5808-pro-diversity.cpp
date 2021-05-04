@@ -137,10 +137,10 @@ void loop() {
 #ifdef USE_VOLTAGE_MONITORING
         Voltage::update();
 #endif
-        Ui::display.begin(0); // reset OSD to black
+        Ui::reset();
         StateMachine::update();
         Ui::update();
-        Ui::display.end(); // draw OSD
+        Ui::draw(); // draw OSD
 
         if (Ui::UiTimeOut.hasTicked() &&
             StateMachine::currentState != StateMachine::State::SETTINGS_RSSI )

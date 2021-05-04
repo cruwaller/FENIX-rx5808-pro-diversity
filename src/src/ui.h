@@ -55,7 +55,10 @@ namespace Ui {
     void setup();
     void deinit();
 //    void sdToTtvout();
+
+    void reset();
     void update();
+    void draw();
 
     void tvOn();
     void tvOff();

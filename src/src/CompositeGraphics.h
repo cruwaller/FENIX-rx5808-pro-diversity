@@ -5,8 +5,8 @@
 class CompositeGraphics
 {
   public:
-  const int xres;
-  const int yres;
+  int xres;
+  int yres;
   char **frame;
   char **backbuffer;
   char **zbuffer;
@@ -20,9 +20,9 @@ class CompositeGraphics
   int triangleCount;
 
   CompositeGraphics(int w, int h, int initialTrinagleBufferSize = 0)
-    :xres(w),
-    yres(h)
   {
+    xres = w;
+    yres = h;
     font = 0;
     cursorX = cursorY = cursorBaseX = 0;
     trinagleBufferSize = initialTrinagleBufferSize;
@@ -55,6 +55,10 @@ class CompositeGraphics
 
   void deinit()
   {
+    if (triangleBuffer) {
+      free(triangleBuffer);
+      triangleBuffer = NULL;
+    }
     for(int y = 0; y < yres; y++)
     {
       if (backbuffer[y]) {
@@ -360,11 +364,13 @@ class CompositeGraphics
       triangleRoot->draw(*this);
   }
 
-  inline void end()
+  inline char** end()
   {
+    /* Swap the buffer and return the ready frame */
     char **b = backbuffer;
     backbuffer = frame;
     frame = b;
+    return b;
   }
 
   void fillRect(int x, int y, int w, int h, int color)
