@@ -53,6 +53,7 @@ namespace Ui {
     extern Timer DMA_ATTR UiTimeOut;
 
     void setup();
+    void deinit();
 //    void sdToTtvout();
     void update();
 

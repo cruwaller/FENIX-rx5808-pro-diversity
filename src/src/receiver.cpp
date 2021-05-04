@@ -10,6 +10,8 @@
 
 #include "timer.h"
 
+#include <esp32-hal-adc.h>
+
 #define RSSI_READS 4 // 3;
 
 #define RSSI_MIN 0
@@ -124,8 +126,7 @@ namespace Receiver {
         uint8_t iter;
         adcAttachPin(pin);
         for (iter = 0; iter < oversample; iter++) {
-            adcStart(pin);
-            _rssiARaw += adcEnd(pin);
+            _rssiARaw += analogRead(pin);
         }
         _rssiARaw /= oversample;
         return _rssiARaw;

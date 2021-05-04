@@ -1,18 +1,24 @@
 #include "WebUpdater.h"
 #include "settings.h"
 #include "comm_espnow.h"
+#include "ui.h"
+
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <WebServer.h>
 #include <ESPmDNS.h>
 #include <Update.h>
 #include <esp_wifi.h>
+#include <esp_task_wdt.h>
+#include <esp_heap_caps_init.h>
+
 
 #ifndef HTTP_SERVER_PORT
 #define HTTP_SERVER_PORT 80
 #endif
 
-const char *host = "fenix";
+
+#define MDNS_HOST "fenix"
 
 WebServer server(HTTP_SERVER_PORT);
 const char* serverIndex = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
@@ -39,89 +45,12 @@ static void handleMacAddress(void)
     server.send(200, "text/plain", message);
 }
 
-static TaskHandle_t wifi_http_task = NULL;
 
-static void httpsTask(void *pvParameters)
+static void http_setup(IPAddress &ipaddr)
 {
-#if DEBUG_ENABLED
-    Serial.println("HTTP task started...");
-#endif
-
-    server.begin();
-    for(;;) {
-        server.handleClient();
-        vTaskDelay(10);
-    }
-    wifi_http_task = NULL;
-
-#if DEBUG_ENABLED
-    Serial.println("HTTP task exit");
-#endif
-}
-
-
-uint8_t WiFiConnect(void)
-{
-#if defined(WIFI_SSID) && defined(WIFI_PSK)
-    uint32_t iter = 0, timeout;
-#if DEBUG_ENABLED
-    Serial.println("Connecting to WiFi " WIFI_SSID);
-#endif
-
-    timeout = WIFI_TIMEOUT * 2;
-    timeout /= 10;
-
-    WiFi.persistent(false);
-    WiFi.disconnect(true);
-    WiFi.mode(WIFI_OFF);
-    WiFi.mode(WIFI_STA);
-    WiFi.begin(WIFI_SSID, WIFI_PSK);
-
-    while (!WiFi.isConnected() && (iter++ < timeout)) {
-        yield();
-        vTaskDelay(100);
-        if ((iter % 10) == 0) {
-            Serial.print(".");
-        }
-    }
-
-    if (WiFi.isConnected()) {
-#if DEBUG_ENABLED
-        Serial.println("    CONNECTED!");
-#endif
-        /* Start update service only when connected */
-        BeginWebUpdate();
-        return 1;
-    }
-#if DEBUG_ENABLED
-    Serial.println("    FAILED!");
-#endif
-#endif // defined(WIFI_SSID) && defined(WIFI_PSK)
-    return 0;
-}
-
-
-void BeginWebUpdate(void)
-{
-    if (wifi_http_task != NULL) {
-#if DEBUG_ENABLED
-        Serial.println("HTTP task already started");
-#endif
-        return;
-    }
-
-    if (!WiFi.isConnected()) {
-#if DEBUG_ENABLED
-        Serial.println("Not connected! Starting AP...");
-#endif
-        comm_espnow_deinit();
-        WiFi.mode(WIFI_AP);
-        WiFi.softAP(WIFI_AP_SSID, WIFI_AP_PSK);
-    }
-
-    if (MDNS.begin(host)) {
-        MDNS.addService("http", "tcp", HTTP_SERVER_PORT);
-    }
+    WiFi.setHostname(MDNS_HOST);
+    MDNS.begin(MDNS_HOST);
+    MDNS.addService("http", "tcp", HTTP_SERVER_PORT);
 
     server.on("/", HTTP_GET, []() {
         server.sendHeader("Connection", "close");
@@ -136,7 +65,7 @@ void BeginWebUpdate(void)
         if (upload.status == UPLOAD_FILE_START) {
 #if DEBUG_ENABLED
             Serial.setDebugOutput(true);
-            Serial.printf("Update: %s\n", upload.filename.c_str());
+            Serial.printf("Update: %s\r\n", upload.filename.c_str());
 #endif
             if (!Update.begin()) { //start with max available size
 #if DEBUG_ENABLED
@@ -152,40 +81,97 @@ void BeginWebUpdate(void)
         } else if (upload.status == UPLOAD_FILE_END) {
             if (Update.end(true)) { //true to set the size to the current progress
 #if DEBUG_ENABLED
-                Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
+                Serial.printf("Update Success: %u\nRebooting...\r\n", upload.totalSize);
 #endif
+                server.send(200);
+                server.send(200);
             } else {
 #if DEBUG_ENABLED
                 Update.printError(Serial);
 #endif
+                server.send(500);
             }
 #if DEBUG_ENABLED
             Serial.setDebugOutput(false);
 #endif
         } else {
 #if DEBUG_ENABLED
-            Serial.printf("Update Failed Unexpectedly (likely broken connection): status=%d\n", upload.status);
+            Serial.printf("Update Failed Unexpectedly (likely broken connection): status=%d\r\n", upload.status);
 #endif
         }
     });
 
     server.on("/mac", handleMacAddress);
-
-    xTaskCreatePinnedToCore(
-        httpsTask,              // Function to implement the task
-        "wifiTask",             // Name of the task
-        4096,                   // Stack size in bytes
-        NULL,                   // Task input parameter
-        (tskIDLE_PRIORITY + 1), // Priority of the task
-        &wifi_http_task, 0);
+    server.begin();
 
 #if DEBUG_ENABLED
     Serial.println("HTTP task started");
-
-    Serial.printf("Open http://%s.local in your browser.\r\n", host);
+    Serial.printf("Open http://" MDNS_HOST ".local in your browser.\r\n");
+    Serial.print("My IP: ");
+    Serial.println(ipaddr);
 #endif
 }
 
+
+void WiFiConnect(void)
+{
+    IPAddress ipaddr;
+    comm_espnow_deinit();
+    Ui::deinit();
+
+    WiFi.persistent(false);
+    WiFi.disconnect(true);
+    WiFi.mode(WIFI_OFF);
+
+#if defined(WIFI_SSID) && defined(WIFI_PSK)
+    uint32_t iter = 0, timeout;
+#if DEBUG_ENABLED
+    Serial.print("Connecting to WiFi " WIFI_SSID " > ");
+#endif
+
+    timeout = WIFI_TIMEOUT * 10;
+
+    WiFi.mode(WIFI_MODE_STA);
+    WiFi.begin(WIFI_SSID, WIFI_PSK);
+
+    while (!WiFi.isConnected() && (iter++ < timeout)) {
+        esp_task_wdt_reset();
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+#if DEBUG_ENABLED
+        if ((iter % 10) == 0) {
+            Serial.print(".");
+        }
+#endif
+    }
+
+    if (WiFi.isConnected()) {
+        ipaddr = WiFi.localIP();
+#if DEBUG_ENABLED
+        Serial.println(" CONNECTED!");
+#endif
+    } else
+#endif // defined(WIFI_SSID) && defined(WIFI_PSK)
+    {
+#if DEBUG_ENABLED
+        Serial.println("WiFi: Starting AP " WIFI_AP_SSID);
+#endif
+        WiFi.mode(WIFI_AP);
+        WiFi.softAP(WIFI_AP_SSID, WIFI_AP_PSK);
+        ipaddr = WiFi.softAPIP();
+    }
+
+    http_setup(ipaddr);
+}
+
+
+void BeginWebUpdate(void)
+{
+    WiFiConnect();
+}
+
+
 void HandleWebUpdate(void)
 {
+    server.handleClient();
+    yield();
 }

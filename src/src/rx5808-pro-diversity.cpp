@@ -50,6 +50,8 @@
 
 #include <SPI.h>
 
+    #include "soc/rtc_wdt.h"
+
 void setupPins();
 
 #ifdef SPEED_TEST
@@ -59,6 +61,11 @@ uint32_t speed_test_previousTime = 0;
 
 void setup()
 {
+    rtc_wdt_protect_off();
+    rtc_wdt_disable();
+    disableCore0WDT();
+    //disableCore1WDT();
+
 #if DEBUG_ENABLED || defined(SPEED_TEST)
     Serial.begin(115200);
 #endif
@@ -88,8 +95,9 @@ void setup()
         StateMachine::switchState(StateMachine::State::HOME);
     }
 
-    WiFiConnect();
     comm_espnow_init();
+    //WiFiConnect();
+    //while(1) HandleWebUpdate();
 }
 
 void setupPins() {

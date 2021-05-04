@@ -100,15 +100,11 @@ void esp_now_send_cb(const uint8_t *mac_addr, esp_now_send_status_t status) {
 
 void comm_espnow_init(void)
 {
-    wifi_mode_t mode = WiFi.getMode();
     // Init values
     expresslrs_params_update(0xff, 0xff, 0xff, 0xff, 0xff);
     lap_times_reset();
 
-    if (mode == WIFI_MODE_NULL) {
-        WiFi.mode(WIFI_MODE_APSTA); // Start wifi
-    }
-
+    WiFi.mode(WIFI_MODE_APSTA);
 #if DEBUG_ENABLED
     // STA MAC address: D8:A0:1D:4C:72:18
 
@@ -117,7 +113,7 @@ void comm_espnow_init(void)
     Serial.printf("STA MAC Address: %s\n", WiFi.macAddress().c_str());
     Serial.printf("AP MAC Address: %s\n", WiFi.softAPmacAddress().c_str());
 #endif
-    //WiFi.disconnect();
+    WiFi.disconnect();
 
 #if DEBUG_ENABLED
     Serial.println("ESPNOW initialize...");
@@ -129,7 +125,7 @@ void comm_espnow_init(void)
         esp_now_peer_info_t peer_info = {
             .peer_addr = {0},
             .lmk = {0},
-            .channel = (uint8_t)((mode != WIFI_MODE_STA) ? ESP_NOW_CHANNEL : 0),
+            .channel = ESP_NOW_CHANNEL,
             .ifidx = ESP_IF_WIFI_STA,
             .encrypt = 0,
             .priv = NULL

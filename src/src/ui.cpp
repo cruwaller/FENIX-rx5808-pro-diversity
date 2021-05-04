@@ -23,8 +23,11 @@ namespace Ui {
     void setup() {
 
         // highest clockspeed needed
-        rtc_clk_cpu_freq_set(RTC_CPU_FREQ_240M);
-        //rtc_clk_cpu_freq_config_set();
+        //rtc_clk_cpu_freq_set(RTC_CPU_FREQ_240M);
+        rtc_cpu_freq_config_t config;
+        rtc_clk_cpu_freq_to_config(RTC_CPU_FREQ_240M, &config);
+        rtc_clk_cpu_freq_set_config(&config);
+
 
         //initializing DMA buffers and I2S
         composite.init();
@@ -38,6 +41,11 @@ namespace Ui {
         xTaskCreatePinnedToCore(compositeCore, "c", 1024, NULL, 255, NULL, 0); //increase priority to remove osd jitter with esp-now
         //rendering the actual graphics in the main loop is done on the second core by default
 
+    }
+
+    void deinit() {
+        composite.deinit();
+        display.deinit();
     }
 
     void update() {

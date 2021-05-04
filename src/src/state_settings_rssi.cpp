@@ -50,16 +50,14 @@ void StateMachine::SettingsRssiStateHandler::onUpdate()
 
     adcAttachPin(PIN_RSSI_A);
     for (iter = 0; iter < 100; iter++) {
-        adcStart(PIN_RSSI_A);
         rssiARaw = (rssiARaw * 9) / 10;
-        rssiARaw += adcEnd(PIN_RSSI_A) / 10;
+        rssiARaw += analogRead(PIN_RSSI_A) / 10;
     }
 
     adcAttachPin(PIN_RSSI_B);
     for (iter = 0; iter < 100; iter++) {
-        adcStart(PIN_RSSI_B);
         rssiBRaw = (rssiBRaw * 9) / 10;
-        rssiBRaw += adcEnd(PIN_RSSI_B) / 10;
+        rssiBRaw += analogRead(PIN_RSSI_B) / 10;
     }
 
     if (internalState == InternalState::SCANNING_LOW) {

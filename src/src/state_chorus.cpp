@@ -6,7 +6,7 @@
 #include "lap_times.h"
 #include "settings_eeprom.h"
 
-#define RETURN_WHEN_RDY 1
+#define RETURN_WHEN_RDY 0
 
 
 void StateMachine::ChorusStateHandler::onEnter()

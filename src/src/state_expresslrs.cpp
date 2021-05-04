@@ -210,7 +210,7 @@ void StateMachine::ExLRSStateHandler::onUpdateDraw(uint8_t tapAction)
     {
         if (cursor_x > GET_X_BOX(SELECT_OFFSET) && cursor_x < GET_X_BOX_END(SELECT_OFFSET, 4))
         {
-            Ui::display.rect(GET_X_BOX(SELECT_OFFSET), GET_Y_BOX(LINE_TLM), GET_BOX_W(4), GET_BOX_H(1), 100);
+            Ui::display.rect(GET_X_BOX(SELECT_OFFSET), GET_Y_BOX(LINE_VTX), GET_BOX_W(4), GET_BOX_H(1), 100);
             if (tapAction)
                 expresslrs_vtx_freq_send(Channels::getFrequency(Receiver::activeChannel));
         }

@@ -5,8 +5,8 @@
 class CompositeGraphics
 {
   public:
-  int xres;
-  int yres;
+  const int xres;
+  const int yres;
   char **frame;
   char **backbuffer;
   char **zbuffer;
@@ -51,6 +51,29 @@ class CompositeGraphics
       //zbuffer[y] = (char*)malloc(xres);
     }
     triangleBuffer = (TriangleTree<CompositeGraphics>*)malloc(sizeof(TriangleTree<CompositeGraphics>) * trinagleBufferSize);
+  }
+
+  void deinit()
+  {
+    for(int y = 0; y < yres; y++)
+    {
+      if (backbuffer[y]) {
+        free(backbuffer[y]);
+        backbuffer[y] = NULL;
+      }
+      if (frame[y]) {
+        free(frame[y]);
+        frame[y] = NULL;
+      }
+    }
+    if (backbuffer) {
+      free(backbuffer);
+      backbuffer = NULL;
+    }
+    if (frame) {
+      free(frame);
+      frame = NULL;
+    }
   }
 
   void setFont(Font<CompositeGraphics> &font)

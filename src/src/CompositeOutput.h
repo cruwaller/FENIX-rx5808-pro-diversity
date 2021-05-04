@@ -179,6 +179,15 @@ class CompositeOutput
     SET_PERI_REG_BITS(I2S_SAMPLE_RATE_CONF_REG(I2S_PORT), I2S_TX_BCK_DIV_NUM_V, 2, I2S_TX_BCK_DIV_NUM_S);
   }
 
+  void deinit()
+  {
+    stopOutput();
+    if (line) {
+      free(line);
+      line = NULL;
+    }
+  }
+
   void startOutput()
   {
     i2s_start(I2S_PORT);
