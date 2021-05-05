@@ -17,6 +17,7 @@ enum {
     ExLRS_RF_MODE_2400_ISM,
     ExLRS_RF_MODE_2400_ISM_500,
     ExLRS_RF_MODE_MAX,
+    ExLRS_RF_MODE_DUAL = 0x80,
     ExLRS_RF_MODE_INVALID = 0xff,
 };
 

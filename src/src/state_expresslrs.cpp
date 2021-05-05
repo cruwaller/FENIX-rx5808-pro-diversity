@@ -69,7 +69,10 @@ void StateMachine::ExLRSStateHandler::onUpdate(TouchPad::TouchData const &touch)
     int16_t const cursor_y = touch.cursorY;
     uint8_t const tapAction = touch.buttonPrimary;
     uint8_t region = expresslrs_params_get_region();
+    uint8_t const has_dual = (region & ExLRS_RF_MODE_DUAL);
     uint8_t param_value;
+
+    region &= ~ExLRS_RF_MODE_DUAL;
 
     if (drawHeader(cursor_x, cursor_y, tapAction))
         return;
@@ -77,10 +80,12 @@ void StateMachine::ExLRSStateHandler::onUpdate(TouchPad::TouchData const &touch)
 #define SELECT_OFFSET  17
 
     // Frequency domain
-    Ui::display.setCursor(GET_X(0), GET_Y(LINE_DOMAIN));
-    Ui::display.print("Domain:");
-    Ui::display.setCursor(GET_X(SELECT_OFFSET), GET_Y(LINE_DOMAIN));
-    Ui::display.print("900   2400");
+    if (has_dual) {
+        Ui::display.setCursor(GET_X(0), GET_Y(LINE_DOMAIN));
+        Ui::display.print("Domain:");
+        Ui::display.setCursor(GET_X(SELECT_OFFSET), GET_Y(LINE_DOMAIN));
+        Ui::display.print("900   2400");
+    }
 
     // Rate
     Ui::display.setCursor(GET_X(0), GET_Y(LINE_RATE));
@@ -110,7 +115,7 @@ void StateMachine::ExLRSStateHandler::onUpdate(TouchPad::TouchData const &touch)
     Ui::display.print("SEND");
 
     // Draw Mode box
-    if (cursor_y > GET_Y_BOX(LINE_DOMAIN) && cursor_y < GET_Y_BOX_END(LINE_DOMAIN, 1))
+    if (has_dual && cursor_y > GET_Y_BOX(LINE_DOMAIN) && cursor_y < GET_Y_BOX_END(LINE_DOMAIN, 1))
     {
         uint8_t next_domain = ExLRS_RF_MODE_INVALID;
         if ( // 900MHz
