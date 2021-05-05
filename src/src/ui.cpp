@@ -7,12 +7,14 @@
 #include "font8x8.h"
 #include "cursor.h"
 
+#include "CompositeOutput.h"
+
 #include <soc/rtc.h>
 #include <stdint.h>
 
 namespace Ui {
 
-    bool DMA_ATTR isTvOn = false;
+    bool DMA_ATTR isTvOn;
 
     Timer DMA_ATTR UiTimeOut = Timer(2000);
 
@@ -20,10 +22,26 @@ namespace Ui {
     CompositeOutput DMA_ATTR composite(CompositeOutput::VIDEO_MODE, XRES * 2, YRES * 2);
     Font<CompositeGraphics> DMA_ATTR font(8, 8, font8x8::pixels);
 
-    TaskHandle_t uitask;
-    TaskHandle_t compositeTask;
+    static TaskHandle_t uitask;
+    static TaskHandle_t compositeTask;
 
-    void setup() {
+
+    static void compositeCore(void *data)
+    {
+        char ** frame = display.get_frame();
+        while (true) {
+            //just send the graphics frontbuffer whithout any interruption
+            composite.sendFrameHalfResolution(frame);
+            frame = display.end();
+            // Notify other task to draw the next buffer
+            xTaskNotify(uitask, 0, eNoAction);
+        }
+    }
+
+
+    void setup()
+    {
+        isTvOn = false;
 
         // highest clockspeed needed
         //rtc_clk_cpu_freq_set(RTC_CPU_FREQ_240M);
@@ -62,31 +80,12 @@ namespace Ui {
         display.begin(BLACK);
     }
 
-    void update()
-    {
-        drawCursor();
-    }
-
     void draw()
     {
         // Wait until current buffer is fetched
-        xTaskNotifyWait(0, 0, NULL, pdMS_TO_TICKS(200));
-        //if (pdTRUE == xTaskNotifyWait(0, 0, NULL, pdMS_TO_TICKS(100)))
-        //    display.end();
-    }
-
-    void compositeCore(void *data)
-    {
-        char ** frame = display.end();
-      while (true)
-      {
-        //just send the graphics frontbuffer whithout any interruption
-        composite.sendFrameHalfResolution(frame);
-        // Swap ping-pong buffer
-        frame = display.end();
-        // Notify other task to draw the next buffer
-        xTaskNotify(uitask, 0, eNoAction);
-      }
+        if (pdTRUE == xTaskNotifyWait(0, 0, NULL, pdMS_TO_TICKS(200))) {
+            //display.end();
+        }
     }
 
     void tvOn() {
@@ -118,36 +117,11 @@ namespace Ui {
             for (px = 0; px < Cursor::xres; px++) {
                 pixelValue = Cursor::pixels[i++];
                 if (pixelValue == 255) {
-                    display.dot(px + cursor_x, py + cursor_y, 100);
+                    display.dot(px + cursor_x, py + cursor_y, WHITE);
                 } else if (pixelValue == 1) {
-                    display.dot(px + cursor_x, py + cursor_y, 0);
+                    display.dot(px + cursor_x, py + cursor_y, BLACK);
                 }
             }
         }
-
-    //    // For testing print the cursor location.  Helps with positioning widgits.
-    //    display.setCursor(cursor_x, cursor_y);
-    //    display.print("  [");
-    //    display.print(cursor_x);
-    //    display.print(", ");
-    //    display.print(cursor_y);
-    //    display.print("]");
-
     }
-
-//    void beep() {
-//        uint16_t freq = 5000; // frequency in Hz
-//        display.tone(freq, BEEPER_CHIRP);
-//    }
-//    void beep(uint16_t freq) {
-//        display.tone(freq, BEEPER_CHIRP);
-//    }
-
-//    void drawBullseye(const int x, const int y,const int r, const int color) {
-//      drawCircle(x, y, r-2, color, BLACK);
-//      drawFastHLine(x, y, 0, color);
-//      drawFastHLine(x-r, y, 2*r+1, color);
-//      drawFastVLine(x, y-r, 2*r+1, color);
-//    }
-
 }

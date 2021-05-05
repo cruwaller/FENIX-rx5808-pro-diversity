@@ -47,61 +47,22 @@
 #include "receiver_spi.h"
 #include "comm_espnow.h"
 #include "WebUpdater.h"
+#include "task_prios.h"
 
 #include <SPI.h>
+#include <soc/rtc_wdt.h>
 
-    #include "soc/rtc_wdt.h"
+SemaphoreHandle_t mutex_spi = NULL;
 
-void setupPins();
 
 #ifdef SPEED_TEST
 uint32_t speed_test_hz = 0;
 uint32_t speed_test_previousTime = 0;
 #endif
 
-void setup()
+
+static void setupPins()
 {
-    rtc_wdt_protect_off();
-    rtc_wdt_disable();
-    disableCore0WDT();
-    //disableCore1WDT();
-
-#if DEBUG_ENABLED || defined(SPEED_TEST)
-    Serial.begin(115200);
-#endif
-
-    EepromSettings.setup();
-    setupPins();
-
-    SPI.begin();
-    SPI.setHwCs(false);
-
-    StateMachine::setup();
-    Ui::setup();
-    TouchPad::setup();
-
-    /* Setup receivers and cofigure its registers */
-    ReceiverSpi::setup();
-
-    // Has to be last setup() otherwise channel may not be set.
-    // RX possibly not booting quick enough if setup() is called earler.
-    // delay() may be needed.
-    Receiver::setup();
-
-    if (!EepromSettings.isCalibrated) {
-        StateMachine::switchState(StateMachine::State::SETTINGS_RSSI);
-        Ui::tvOn();
-    } else {
-        StateMachine::switchState(StateMachine::State::HOME);
-    }
-
-    comm_espnow_init();
-    //WiFiConnect();
-    //while(1) HandleWebUpdate();
-}
-
-void setupPins() {
-
 #if !DEBUG_ENABLED && !defined(SPEED_TEST)
     // Rx and Tx set as input so that they are high impedance when conencted to goggles.
     pinMode(1, INPUT);
@@ -128,42 +89,92 @@ void setupPins() {
 #endif
 }
 
-void loop() {
-    Receiver::update();
-    TouchPad::update();
+
+void setup()
+{
+    rtc_wdt_protect_off();
+    rtc_wdt_disable();
+    disableCore0WDT();
+    //disableCore1WDT();
+
+#if DEBUG_ENABLED || defined(SPEED_TEST)
+    Serial.begin(115200);
+#endif
+
+    EepromSettings.setup();
+    setupPins();
+
+    mutex_spi = xSemaphoreCreateMutex();
+
+    SPI.begin();
+    SPI.setHwCs(false);
+
+    StateMachine::setup();
+    Ui::setup();
+    TouchPad::setup();
+
+    /* Setup receiver(s) and configure registers */
+    ReceiverSpi::setup();
+
+    // Has to be last setup() otherwise channel may not be set.
+    // RX possibly not booting quick enough if setup() is called earler.
+    // delay() may be needed.
+    Receiver::setup();
+
+    if (!EepromSettings.isCalibrated) {
+        StateMachine::switchState(StateMachine::State::SETTINGS_RSSI);
+        Ui::tvOn();
+    } else {
+        StateMachine::switchState(StateMachine::State::HOME);
+    }
+
+    comm_espnow_init();
+    //WiFiConnect();
+    //while(1) HandleWebUpdate();
+
+    // Set loop task priority
+    vTaskPrioritySet(NULL, TASK_PRIO_OSD);
+}
+
+
+void loop()
+{
+    //TouchPad::update();
 
     if (Ui::isTvOn) {
-
-#ifdef USE_VOLTAGE_MONITORING
-        Voltage::update();
-#endif
-        Ui::reset();
-        StateMachine::update();
-        Ui::update();
-        Ui::draw(); // draw OSD
-
         if (Ui::UiTimeOut.hasTicked() &&
-            StateMachine::currentState != StateMachine::State::SETTINGS_RSSI )
-        {
+                (StateMachine::currentState != StateMachine::State::SETTINGS_RSSI)) {
+            //Serial.println("off");
             Ui::tvOff();
             EepromSettings.update();
+        } else {
+            //Serial.println("update");
+#ifdef USE_VOLTAGE_MONITORING
+            Voltage::update();
+#endif
+            Ui::reset();
+            StateMachine::update();
+            Ui::drawCursor();
+            TouchPad::clearTouchData();
+            Ui::draw(); // draw OSD
         }
-    }
-    else if (TouchPad::touchData.buttonPrimary) // TV is off, check if touch has happened
-    {
+    } else if (TouchPad::touchData.buttonPrimary) {
+        // Start TV, touch has happened
+        //Serial.println("on");
         Ui::tvOn();
+        TouchPad::clearTouchData();
+    } else {
+        vTaskDelay(10 / portTICK_PERIOD_MS);
     }
-
-    TouchPad::clearTouchData();
 
 #ifdef SPEED_TEST
-        speed_test_hz++;
-        uint32_t nowTime = millis();
-        if (1000u <= (nowTime - speed_test_previousTime)) {
-            Serial.print(speed_test_hz);
-            Serial.println(" Hz");
-            speed_test_previousTime = nowTime;
-            speed_test_hz = 0;
-        }
+    speed_test_hz++;
+    uint32_t nowTime = millis();
+    if (1000u <= (nowTime - speed_test_previousTime)) {
+        Serial.print(speed_test_hz);
+        Serial.println(" Hz");
+        speed_test_previousTime = nowTime;
+        speed_test_hz = 0;
+    }
 #endif // SPEED_TEST
 }

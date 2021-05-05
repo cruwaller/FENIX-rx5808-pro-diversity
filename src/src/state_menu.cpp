@@ -2,6 +2,7 @@
 #include "ui.h"
 #include "touchpad.h"
 #include "CompositeGraphics.h"
+#include "Image.h"
 #include "settings_eeprom.h"
 #include "settings.h"
 

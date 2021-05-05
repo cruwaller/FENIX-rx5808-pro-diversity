@@ -1,9 +1,16 @@
 #include "channels.h"
 #include "settings.h"
 #include "receiver.h"
-#include <Arduino.h>
 #include "ui.h"
 #include "settings_eeprom.h"
+#include <Arduino.h>
+//#include <esp_attr.h>
+
+
+#if (CHANNELS_SIZE != 48) && (CHANNELS_SIZE != 72)
+    #error "Invalid CHANNELS_SIZE"
+#endif
+
 
 // Channels with their Mhz Values
 static const uint16_t DMA_ATTR channelFreqTable[] = {
@@ -276,24 +283,14 @@ static const uint8_t DMA_ATTR channelIndexToOrderedIndex[] = {
 #endif
 
 namespace Channels {
-    const uint16_t IRAM_ATTR getFrequency(uint8_t index) {
+    const uint16_t IRAM_ATTR getFrequency(uint8_t const index) {
         return channelFreqTable[index];
     }
 
     // Returns channel name as a string.
-    char bandNames[] = {
-        65,    // A  https://www.arduino.cc/en/Reference/ASCIIchart
-        66,    // B
-        69,    // E
-        70,    // F
-        82,    // R
-        76,    // L
-        85,    // U
-        79,    // O
-        72     // H
-        };
-    char nameBuffer[2];
-    char * IRAM_ATTR getName(uint8_t index) {
+    void IRAM_ATTR getName(uint8_t const index, char * const nameBuffer) {
+        const char bandNames[] = {
+            'A', 'B', 'E', 'F', 'R', 'L', 'U', 'O', 'H',};
         uint8_t band = index / 8;
         uint8_t channel = 48 + (index % 8) + 1;   // https://www.arduino.cc/en/Reference/ASCIIchart
         if (band < sizeof(bandNames))
@@ -301,8 +298,6 @@ namespace Channels {
         else
             nameBuffer[0] = '_';
         nameBuffer[1] = channel;
-
-        return nameBuffer;
     }
 
     const uint8_t IRAM_ATTR getOrderedIndex(uint8_t index) {
@@ -317,7 +312,7 @@ namespace Channels {
         return channelIndexToOrderedIndex[index];
     }
 
-    const uint16_t IRAM_ATTR getCenterFreq(uint16_t freq) {
+    const uint16_t IRAM_ATTR getCenterFreq(uint16_t const freq) {
         uint16_t upperFreq = freq;
         uint16_t lowerFreq = freq;
         uint16_t rssi = 1000;
@@ -325,10 +320,9 @@ namespace Channels {
         while (rssi > EepromSettings.rssiSeekTreshold) {
           upperFreq = upperFreq + 1;
           Receiver::setChannelByFreq(upperFreq);
-          while (!Receiver::isRssiStable()) {
+          while (!Receiver::isRssiStableAndUpdated()) {
             delay(1);
           }
-          Receiver::updateRssi();
           rssi = (Receiver::rssiA + Receiver::rssiB)/2;
         }
 
@@ -336,17 +330,16 @@ namespace Channels {
         while (rssi > EepromSettings.rssiSeekTreshold) {
           lowerFreq = lowerFreq - 1;
           Receiver::setChannelByFreq(lowerFreq);
-          while (!Receiver::isRssiStable()) {
+          while (!Receiver::isRssiStableAndUpdated()) {
             delay(1);
           }
-          Receiver::updateRssi();
           rssi = (Receiver::rssiA + Receiver::rssiB)/2;
         }
 
         return (lowerFreq + upperFreq) / 2;
     }
 
-    const uint8_t IRAM_ATTR getClosestChannel(uint16_t freq) {
+    const uint8_t IRAM_ATTR getClosestChannel(uint16_t const freq) {
 
         uint8_t closestChannel = 0;
         for (int j=0; j<CHANNELS_SIZE; j++) {

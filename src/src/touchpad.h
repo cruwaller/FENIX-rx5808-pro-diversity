@@ -12,19 +12,16 @@ namespace TouchPad {
 
     typedef struct _relData
     {
-      bool buttonPrimary;
-      bool buttonSecondary;
-      bool buttonAuxiliary;
-      int8_t xDelta;
-      int8_t yDelta;
-      bool xSign;
-      bool ySign;
       int16_t cursorX;
       int16_t cursorY;
-
-      int32_t timeLastButtonPress;
-      bool buttonOrderChecked;
-      bool switchButtonOrder;
+      int8_t xDelta;
+      int8_t yDelta;
+      //bool xSign;
+      //bool ySign;
+      bool buttonPrimary;
+      //bool buttonSecondary;
+      //bool buttonAuxiliary;
+      bool dataUpdated;
     } relData_t;
 
     extern relData_t DMA_ATTR touchData;
@@ -38,8 +35,8 @@ namespace TouchPad {
     };
 
     void setup();
-    void IRAM_ATTR update();
-    void IRAM_ATTR clearTouchData();
+    void update();
+    void clearTouchData();
 }
 
 #endif

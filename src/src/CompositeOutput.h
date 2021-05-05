@@ -203,12 +203,12 @@ class CompositeOutput
     esp_err_t error = ESP_OK;
     size_t bytes_written = 0;
     size_t bytes_to_write = samplesLine * sizeof(unsigned short);
-    size_t cursor = 0;
-    while (error == ESP_OK && bytes_to_write > 0)
+    const char * snd_ptr = (const char *)line;
+    while (error == ESP_OK && 0 < bytes_to_write)
     {
-      error = i2s_write(I2S_PORT, (const char *)line + cursor, bytes_to_write, &bytes_written, portMAX_DELAY);
+      error = i2s_write(I2S_PORT, snd_ptr, bytes_to_write, &bytes_written, portMAX_DELAY);
       bytes_to_write -= bytes_written;
-      cursor += bytes_written;
+      snd_ptr += bytes_written;
     }
   }
 
@@ -218,7 +218,7 @@ class CompositeOutput
       line[i++^1] = value << 8;
   }
 
-  void fillLine(char *pixels)
+  void fillLine(char const * const pixels)
   {
     int i = 0;
     fillValues(i, levelSync, samplesSync);
@@ -262,11 +262,10 @@ class CompositeOutput
     fillValues(i, levelBlank, samplesLine / 2 - samplesSync);
   }
 
-  void sendFrameHalfResolution(char **frame)
+  void sendFrameHalfResolution(char const *const *const frame)
   {
     // ======== Even Halfframe ========
     int i = 0, y;
-    char *pixels;
     fillLong(i); fillLong(i);
     sendLine(); sendLine();
     i = 0;
@@ -280,8 +279,7 @@ class CompositeOutput
       sendLine();
     for(y = 0; y < targetYresEven; y++)
     {
-      pixels = (frame)[y];
-      fillLine(pixels);
+      fillLine((frame)[y]);
       sendLine();
     }
     fillBlank();
@@ -311,8 +309,7 @@ class CompositeOutput
       sendLine();
     for(y = 0; y < targetYresOdd; y++)
     {
-      pixels = (frame)[y];
-      fillLine(pixels);
+      fillLine((frame)[y]);
       sendLine();
     }
     fillBlank();

@@ -42,13 +42,10 @@ namespace Receiver {
 
     void IRAM_ATTR setChannel(uint8_t channel, ReceiverId rcvr_id=ReceiverId::ALL);
     void IRAM_ATTR setChannelByFreq(uint16_t freq);
-    void IRAM_ATTR updateRssi();
-    uint32_t IRAM_ATTR updateRssiPin(uint8_t pin, uint8_t oversample=1);
 
     bool IRAM_ATTR isRssiStable();
     bool IRAM_ATTR isRssiStableAndUpdated();
 
     void setup();
-    void IRAM_ATTR update();
 }
 #endif

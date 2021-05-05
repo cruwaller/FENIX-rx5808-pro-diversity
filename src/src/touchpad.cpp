@@ -7,9 +7,9 @@
 #include "settings.h"
 #include "settings_eeprom.h"
 #include "touchpad.h"
+#include "task_prios.h"
 
 #define DEBUG_TOUCHPAD 0
-#define USE_ISR 0
 
 // Masks for Cirque Register Access Protocol (RAP)
 #define TOUCHPAD_WRITE_MASK  0x80
@@ -17,16 +17,17 @@
 
 #define GESTURE_ARRAY_SIZE 8
 
+
+extern SemaphoreHandle_t mutex_spi;
+
+static TaskHandle_t task_handle;
+
+
 namespace TouchPad
 {
-    void IRAM_ATTR Pinnacle_Init();
     void IRAM_ATTR Pinnacle_getRelative(relData_t * result);
-    void IRAM_ATTR Pinnacle_ClearFlags();
     void IRAM_ATTR RAP_ReadBytes(uint8_t address, uint8_t * data, uint8_t count);
     void IRAM_ATTR RAP_Write(uint8_t address, uint8_t data);
-    void IRAM_ATTR Assert_SS();
-    void IRAM_ATTR DeAssert_SS();
-    bool IRAM_ATTR isDataAvailable();
 
 #if GESTURES_ENABLED
     Gesture isGesture();
@@ -43,157 +44,188 @@ namespace TouchPad
 
     SPISettings DMA_ATTR spi_settings(10000000, MSBFIRST, SPI_MODE1);
 
-#if USE_ISR
-    static volatile uint8_t DMA_ATTR _data_ready_state = LOW;
-    static void IRAM_ATTR _data_ready_isr_handler(void)
+
+    static void IRAM_ATTR _data_ready_isr_handler()
     {
-      Pinnacle_getRelative(&touchData);
-      _data_ready_state = HIGH;
-    }
-#endif
-
-    void setup() {
-
-        Pinnacle_Init();
-
-        pinMode(PIN_TOUCHPAD_DATA_READY, INPUT);
-#if USE_ISR
-        attachInterrupt(digitalPinToInterrupt(PIN_TOUCHPAD_DATA_READY),
-                        _data_ready_isr_handler, RISING);
-#endif
-        touchData.cursorX = 200;
-        touchData.cursorY = 100;
-        touchData.timeLastButtonPress = 0;
-        touchData.switchButtonOrder = false;
-        touchData.switchButtonOrder = false;
+        BaseType_t pxHigherPriorityTaskWoken = pdFALSE;;
+        if (task_handle)
+            xTaskNotifyFromISR(task_handle, 0, eNoAction, &pxHigherPriorityTaskWoken);
+        if (pxHigherPriorityTaskWoken)
+            portYIELD_FROM_ISR();
     }
 
-    void IRAM_ATTR update() {
+    static inline void Assert_SS()
+    {
+        digitalWrite(PIN_TOUCHPAD_SLAVE_SELECT, LOW);
+    }
 
-        if (isDataAvailable()) {
+    static inline void DeAssert_SS()
+    {
+        digitalWrite(PIN_TOUCHPAD_SLAVE_SELECT, HIGH);
+    }
 
-#if DEBUG_ENABLED && DEBUG_TOUCHPAD
-            Serial.println("Touchpad data ready!");
-#endif
-#if !USE_ISR
-            Pinnacle_getRelative(&touchData);
-#endif
-            Ui::UiTimeOut.reset(); // reset since touch is active
+    static inline bool isDataAvailable()
+    {
+        return digitalRead(PIN_TOUCHPAD_DATA_READY);
+    }
 
-            if (Ui::isTvOn) {
-                touchData.cursorX += touchData.xDelta;
-                touchData.cursorY -= touchData.yDelta;
-//                touchData.cursorX -= touchData.xDelta;
-//                touchData.cursorY += touchData.yDelta;
+    static void touchpad_task(void*)
+    {
+        while(1) {
+            if (pdTRUE == xTaskNotifyWait(0, 0, NULL, pdMS_TO_TICKS(50))) {
+                //Serial.println("touch");
+                Pinnacle_getRelative(&touchData);
+                //if (touchData.buttonPrimary)
+                //    Serial.println("touch");
 
-                if (touchData.cursorX < 1) {
-                    touchData.cursorX = 1;
-                }
-                if (touchData.cursorX > Ui::XRES - 1) {
-                    touchData.cursorX = Ui::XRES - 1;
-                }
-                if (touchData.cursorY < 1) {
-                    touchData.cursorY = 1;
-                }
-                if (touchData.cursorY > Ui::YRES - 1) {
-                    touchData.cursorY = Ui::YRES - 1;
-                }
+                Ui::UiTimeOut.reset(); // reset since touch is active
+
 #if GESTURES_ENABLED
-            } else {
-                Gesture currentGesture = isGesture();
-                if (currentGesture != Gesture::Nope) {
-                    doGesture(currentGesture);
+                if (Ui::isTvOn) {
+#endif // GESTURES_ENABLED
+                    int16_t cursorX = touchData.cursorX;
+                    int16_t cursorY = touchData.cursorY;
+                    cursorX += touchData.xDelta;
+                    cursorY -= touchData.yDelta;
+                    //cursorX -= touchData.xDelta;
+                    //cursorY += touchData.yDelta;
+
+                    if (cursorX < 1) {
+                        cursorX = 1;
+                    } else if (cursorX > Ui::XRES - 1) {
+                        cursorX = Ui::XRES - 1;
+                    }
+                    if (cursorY < 1) {
+                        cursorY = 1;
+                    } else if (cursorY > Ui::YRES - 1) {
+                        cursorY = Ui::YRES - 1;
+                    }
+                    touchData.cursorX = cursorX;
+                    touchData.cursorY = cursorY;
+#if GESTURES_ENABLED
+                } else {
+                    Gesture currentGesture = isGesture();
+                    if (currentGesture != Gesture::Nope) {
+                        doGesture(currentGesture);
+                    }
                 }
 #endif // GESTURES_ENABLED
             }
 
-//            if (touchData.buttonPrimary) {
-////                Ui::beep();
-//            }
+#if 0
+            if (isDataAvailable()) {
+                Pinnacle_getRelative(&touchData);
 
-//            Serial.print(touchData.buttonPrimary);
-//            Serial.print('\t');
-//            Serial.print(touchData.buttonSecondary);
-//            Serial.print('\t');
-//            Serial.print(touchData.buttonAuxiliary);
-//            Serial.print('\t');
-//            Serial.print(touchData.xDelta);
-//            Serial.print('\t');
-//            Serial.print(touchData.yDelta);
-//            Serial.print('\t');
-//            Serial.print(touchData.xSign);
-//            Serial.print('\t');
-//            Serial.println(touchData.ySign);
+                Ui::UiTimeOut.reset(); // reset since touch is active
 
+#if GESTURES_ENABLED
+                if (Ui::isTvOn) {
+#endif // GESTURES_ENABLED
+                    int16_t cursorX = touchData.cursorX;
+                    int16_t cursorY = touchData.cursorY;
+                    cursorX += touchData.xDelta;
+                    cursorY -= touchData.yDelta;
+                    //cursorX -= touchData.xDelta;
+                    //cursorY += touchData.yDelta;
+
+                    if (cursorX < 1) {
+                        cursorX = 1;
+                    } else if (cursorX > Ui::XRES - 1) {
+                        cursorX = Ui::XRES - 1;
+                    }
+                    if (cursorY < 1) {
+                        cursorY = 1;
+                    } else if (cursorY > Ui::YRES - 1) {
+                        cursorY = Ui::YRES - 1;
+                    }
+                    touchData.cursorX = cursorX;
+                    touchData.cursorY = cursorY;
+#if GESTURES_ENABLED
+                } else {
+                    Gesture currentGesture = isGesture();
+                    if (currentGesture != Gesture::Nope) {
+                        doGesture(currentGesture);
+                    }
+                }
+#endif // GESTURES_ENABLED
+
+            } else {
+                vTaskDelay(5 / portTICK_PERIOD_MS);
+            }
+#endif
         }
-
+        vTaskDelete(NULL);
+        task_handle = NULL;
     }
 
-    void IRAM_ATTR clearTouchData() {
+
+    // Clears Status1 register flags (SW_CC and SW_DR)
+    static inline void Pinnacle_ClearFlags()
+    {
+        RAP_Write(0x02, 0x00);
+        delayMicroseconds(50);
+    }
+
+
+    void setup()
+    {
+        // Host clears SW_CC flag
+        Pinnacle_ClearFlags();
+        // Feed Enable
+        RAP_Write(0x04, 0b00000001);
+
+        pinMode(PIN_TOUCHPAD_DATA_READY, INPUT);
+        attachInterrupt(digitalPinToInterrupt(PIN_TOUCHPAD_DATA_READY),
+                        _data_ready_isr_handler, RISING);
+
+        touchData.cursorX = 200;
+        touchData.cursorY = 100;
+        touchData.dataUpdated = false;
+
+        xTaskCreatePinnedToCore(touchpad_task, "touch",
+            1024, NULL, TASK_PRIO_RSSI, &task_handle, 1);
+    }
+
+
+    void IRAM_ATTR update()
+    {
+    }
+
+
+    void IRAM_ATTR clearTouchData()
+    {
         touchData.buttonPrimary = 0;
-        touchData.buttonSecondary = 0;
-        touchData.buttonAuxiliary = 0;
+        //touchData.buttonSecondary = 0;
+        //touchData.buttonAuxiliary = 0;
         touchData.xDelta = 0;
         touchData.yDelta = 0;
-        touchData.xSign = 0;
-        touchData.ySign = 0;
+        //touchData.xSign = 0;
+        //touchData.ySign = 0;
+        touchData.dataUpdated = false;
     }
 
-    /*  Pinnacle-based TM0XX0XX Functions  */
-    void IRAM_ATTR Pinnacle_Init() {
-
-      // Host clears SW_CC flag
-      Pinnacle_ClearFlags();
-
-      // Feed Enable
-      RAP_Write(0x04, 0b00000001);
-
-    }
 
     // Reads X, Y, and Scroll-Wheel deltas from Pinnacle, as well as button states
     // NOTE: this function should be called immediately after DR is asserted (HIGH)
-    void IRAM_ATTR Pinnacle_getRelative(relData_t * result) {
+    void IRAM_ATTR Pinnacle_getRelative(relData_t * result)
+    {
+        uint8_t data[3] = { 0,0,0 };
 
-      uint8_t data[3] = { 0,0,0 };
+        RAP_ReadBytes(0x12, data, sizeof(data));
 
-      RAP_ReadBytes(0x12, data, 3);
+        Pinnacle_ClearFlags();
 
-      Pinnacle_ClearFlags();
-
-      //bool switchButtonOrder;
-
-      result->buttonPrimary = data[0] & 0b00000001;
-      result->buttonSecondary = data[0] & 0b00000010;
-
-        // // Some touch pads reverse the primary/secondard order.
-        // // Hacky fix to detect rapis button pressing and reverse order.
-        // if(!switchButtonOrder && (millis() - result->timeLastButtonPress < 10))
-        // {
-        //   switchButtonOrder = true;
-        //   result->timeLastButtonPress = millis();
-        // }
-        // if(switchButtonOrder)
-        // {
-        //   result->buttonPrimary = data[0] & 0b00000010;
-        //   result->buttonSecondary = data[0] & 0b00000001;
-        // }
-        // ///////////////////////////////////////////////////////////////
-
-      result->buttonAuxiliary = data[0] & 0b00000100;
-      result->xDelta = (int8_t)data[2];
-      result->yDelta = (int8_t)data[1];
-      result->xSign = data[0] & 0b00010000;
-      result->ySign = data[0] & 0b00100000;
-
-    }
-
-    // Clears Status1 register flags (SW_CC and SW_DR)
-    void IRAM_ATTR Pinnacle_ClearFlags() {
-
-      RAP_Write(0x02, 0x00);
-
-      delayMicroseconds(50); // TODO: needed??
-
+        if (!result->dataUpdated)
+        {
+            result->buttonPrimary   = !!(data[0] & 0b00000001);
+            //result->buttonSecondary = !!(data[0] & 0b00000010);
+            //result->buttonAuxiliary = !!(data[0] & 0b00000100);
+            result->dataUpdated     = true;
+        }
+        //result->xSign           = !!(data[0] & 0b00010000);
+        //result->ySign           = !!(data[0] & 0b00100000);
+        result->xDelta          = (int8_t)data[2];
+        result->yDelta          = (int8_t)data[1];
     }
 
     /*  RAP Functions */
@@ -201,53 +233,32 @@ namespace TouchPad
     //void RAP_ReadBytes(byte address, byte * data, byte count)
     void IRAM_ATTR RAP_ReadBytes(uint8_t address, uint8_t * data, uint8_t count) {
         byte cmdByte = TOUCHPAD_READ_MASK | address;   // Form the READ command byte
+        uint8_t buff[3 + count];
+        memset(buff, 0xFC, sizeof(buff));
+        buff[0] = cmdByte; // Signal a RAP-read operation starting at <address>
 
+        xSemaphoreTake(mutex_spi, portMAX_DELAY);
         SPI.beginTransaction(spi_settings);
-
         Assert_SS();
-        SPI.transfer(cmdByte);  // Signal a RAP-read operation starting at <address>
-        SPI.transfer(0xFC);     // Filler byte
-        SPI.transfer(0xFC);     // Filler byte
-        for(byte i = 0; i < count; i++)
-        {
-          data[i] =  SPI.transfer(0xFC);  // Each subsequent SPI transfer gets another register's contents
-        }
+        SPI.transferBytes(buff, buff, sizeof(buff));
         DeAssert_SS();
-
         SPI.endTransaction();
+        xSemaphoreGive(mutex_spi);
+
+        memcpy(data, &buff[3], count);
     }
 
     // Writes single-byte <data> to <address>
-    void IRAM_ATTR RAP_Write(uint8_t address, uint8_t data) {
-        byte cmdByte = TOUCHPAD_WRITE_MASK | address;  // Form the WRITE command byte
-
+    void IRAM_ATTR RAP_Write(uint8_t address, uint8_t data)
+    {
+        uint8_t buff[] = {(uint8_t)(TOUCHPAD_WRITE_MASK | address), data};
+        xSemaphoreTake(mutex_spi, portMAX_DELAY);
         SPI.beginTransaction(spi_settings);
-
         Assert_SS();
-        SPI.transfer(cmdByte);  // Signal a write to register at <address>
-        SPI.transfer(data);    // Send <value> to be written to register
+        SPI.transferBytes(buff, buff, sizeof(buff));
         DeAssert_SS();
-
         SPI.endTransaction();
-    }
-
-    void IRAM_ATTR Assert_SS()
-    {
-      digitalWrite(PIN_TOUCHPAD_SLAVE_SELECT, LOW);
-    }
-
-    void IRAM_ATTR DeAssert_SS()
-    {
-      digitalWrite(PIN_TOUCHPAD_SLAVE_SELECT, HIGH);
-    }
-
-    bool IRAM_ATTR isDataAvailable()
-    {
-#if USE_ISR
-      return _data_ready_state;
-#else
-      return digitalRead(PIN_TOUCHPAD_DATA_READY);
-#endif
+        xSemaphoreGive(mutex_spi);
     }
 
 #if GESTURES_ENABLED

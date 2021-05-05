@@ -373,6 +373,11 @@ class CompositeGraphics
     return b;
   }
 
+  inline char** get_frame()
+  {
+    return frame;
+  }
+
   void fillRect(int x, int y, int w, int h, int color)
   {
     if(x < 0)

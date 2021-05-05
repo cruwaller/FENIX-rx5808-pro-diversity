@@ -86,10 +86,12 @@ void StateMachine::SettingsRssiStateHandler::onUpdate()
     Receiver::setChannel((Receiver::activeChannel + 1) % CHANNELS_SIZE);
 
     if (internalState == InternalState::SCANNING_LOW || internalState == InternalState::SCANNING_HIGH) {
+        char nameBuffer[2];
+        Channels::getName(Receiver::activeChannel, nameBuffer);
 
         Ui::display.setTextColor(WHITE);
         Ui::display.setCursor( 100, 80);
-        Ui::display.printLarge(Channels::getName(Receiver::activeChannel), 6, 6);
+        Ui::display.printLarge(nameBuffer, 6, 6);
 
         uint8_t progressBar = (Ui::XRES-100-2) * (currentSweep * CHANNELS_SIZE + Receiver::activeChannel) / (RSSI_SETUP_RUN * CHANNELS_SIZE);
         Ui::display.fillRect(52, 152, progressBar, 20, WHITE);

@@ -1,5 +1,5 @@
 #include <Arduino.h>
-
+#include "task_prios.h"
 #include "settings.h"
 #include "settings_eeprom.h"
 #include "receiver.h"
@@ -42,19 +42,20 @@ namespace Receiver {
 
     static bool DMA_ATTR hasRssiUpdated = false;
 
-    void IRAM_ATTR setChannel(uint8_t channel, ReceiverId rcvr_id)
-    {
-        ReceiverSpi::setSynthRegisterB(Channels::getFrequency(channel), rcvr_id);
+    static TaskHandle_t rssi_task;
 
-        rssiStableTimer.reset();
-        activeChannel = channel;
-        hasRssiUpdated = false;
+    static uint32_t IRAM_ATTR updateRssiPin(uint8_t const pin, uint8_t const oversample)
+    {
+        uint32_t _rssiARaw = 0;
+        uint8_t iter;
+        adcAttachPin(pin);
+        for (iter = 0; iter < oversample; iter++) {
+            _rssiARaw += analogRead(pin);
+        }
+        _rssiARaw /= oversample;
+        return _rssiARaw;
     }
 
-    void IRAM_ATTR setChannelByFreq(uint16_t freq)
-    {
-        setChannel(Channels::getClosestChannel(freq));
-    }
 
     static void IRAM_ATTR setActiveReceiverSwitch(ReceiverId receiver)
     {
@@ -77,62 +78,7 @@ namespace Receiver {
         activeReceiver = receiver;
     }
 
-    void IRAM_ATTR setDiversityMode(DiversityMode mode)
-    {
-        EepromSettings.diversityMode = mode;
-        ReceiverId receiver = activeReceiver;
-
-#if POWER_OFF_RX
-        ReceiverSpi::rxStandby(Receiver::ReceiverId::ALL);
-#endif
-
-        switch (mode) {
-            case Receiver::DiversityMode::ANTENNA_A:
-                receiver = ReceiverId::A;
-                break;
-
-            case Receiver::DiversityMode::ANTENNA_B:
-                receiver = ReceiverId::B;
-                break;
-            case Receiver::DiversityMode::DIVERSITY:
-            default:
-                receiver = ReceiverId::ALL;
-                break;
-        }
-
-#if POWER_OFF_RX
-        ReceiverSpi::rxWakeup(receiver);
-#endif // POWER_OFF_RX
-
-        setChannel(activeChannel, receiver);
-
-        if (receiver != ReceiverId::ALL)
-            setActiveReceiverSwitch(receiver);
-    }
-
-    bool IRAM_ATTR isRssiStable()
-    {
-        return rssiStableTimer.hasTicked();
-    }
-
-    bool IRAM_ATTR isRssiStableAndUpdated()
-    {
-        return isRssiStable() && hasRssiUpdated;
-    }
-
-    uint32_t IRAM_ATTR updateRssiPin(uint8_t const pin, uint8_t const oversample)
-    {
-        uint32_t _rssiARaw = 0;
-        uint8_t iter;
-        adcAttachPin(pin);
-        for (iter = 0; iter < oversample; iter++) {
-            _rssiARaw += analogRead(pin);
-        }
-        _rssiARaw /= oversample;
-        return _rssiARaw;
-    }
-
-    void IRAM_ATTR updateRssi()
+    static void updateRssiValues(void)
     {
         DiversityMode mode = EepromSettings.diversityMode;
 
@@ -229,26 +175,89 @@ namespace Receiver {
         previousSwitchTime = _sec_now;
     }
 
+
+    void IRAM_ATTR setChannel(uint8_t channel, ReceiverId rcvr_id)
+    {
+        ReceiverSpi::setSynthRegisterB(Channels::getFrequency(channel), rcvr_id);
+
+        rssiStableTimer.reset();
+        activeChannel = channel;
+        hasRssiUpdated = false;
+    }
+
+    void IRAM_ATTR setChannelByFreq(uint16_t freq)
+    {
+        setChannel(Channels::getClosestChannel(freq));
+    }
+
+    void IRAM_ATTR setDiversityMode(DiversityMode mode)
+    {
+        EepromSettings.diversityMode = mode;
+        ReceiverId receiver = activeReceiver;
+
+#if POWER_OFF_RX
+        ReceiverSpi::rxStandby(Receiver::ReceiverId::ALL);
+#endif
+
+        switch (mode) {
+            case Receiver::DiversityMode::ANTENNA_A:
+                receiver = ReceiverId::A;
+                break;
+
+            case Receiver::DiversityMode::ANTENNA_B:
+                receiver = ReceiverId::B;
+                break;
+            case Receiver::DiversityMode::DIVERSITY:
+            default:
+                receiver = ReceiverId::ALL;
+                break;
+        }
+
+#if POWER_OFF_RX
+        ReceiverSpi::rxWakeup(receiver);
+#endif // POWER_OFF_RX
+
+        setChannel(activeChannel, receiver);
+
+        if (receiver != ReceiverId::ALL)
+            setActiveReceiverSwitch(receiver);
+    }
+
+    bool IRAM_ATTR isRssiStable()
+    {
+        return rssiStableTimer.hasTicked();
+    }
+
+    bool IRAM_ATTR isRssiStableAndUpdated()
+    {
+        return isRssiStable() && hasRssiUpdated;
+    }
+
+    void updateRssiTask(void*)
+    {
+        while(1) {
+            vTaskDelay(EepromSettings.rssiMinTuneTime / portTICK_PERIOD_MS);
+            if (isRssiStable()) {
+                updateAntenaOnTime();
+                updateRssiValues();
+                /* Switch only if mode is selected */
+                if (EepromSettings.diversityMode == Receiver::DiversityMode::DIVERSITY)
+                    switchDiversity();
+            }
+        }
+        vTaskDelete(NULL);
+        rssi_task = NULL;
+    }
+
     void setup()
     {
         diversityHysteresisTimer = Timer(EepromSettings.rssiHysteresisPeriod);
         rssiStableTimer = Timer(EepromSettings.rssiMinTuneTime);
         activeChannel = EepromSettings.startChannel;
         setDiversityMode(EepromSettings.diversityMode);
-    }
 
-    void IRAM_ATTR update()
-    {
-        if (isRssiStable()) {
-
-            updateAntenaOnTime();
-
-            updateRssi();
-
-            /* Switch only if mode is selected */
-            if (EepromSettings.diversityMode == Receiver::DiversityMode::DIVERSITY)
-                switchDiversity();
-        }
-
+        if (!rssi_task)
+            xTaskCreatePinnedToCore(updateRssiTask, "rssi",
+                1024, NULL, TASK_PRIO_RSSI, &rssi_task, 1);
     }
 }

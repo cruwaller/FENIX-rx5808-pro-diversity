@@ -50,6 +50,7 @@ void HomeStateHandler::onUpdateDraw(uint8_t tapAction)
     uint32_t x_off, y_off;
     int16_t cursor_x = TouchPad::touchData.cursorX, cursor_y = TouchPad::touchData.cursorY;
     uint8_t iter;
+    char nameBuffer[2];
 
     if (isInBandScanRegion()) {
         bandScanUpdate();
@@ -87,8 +88,9 @@ void HomeStateHandler::onUpdateDraw(uint8_t tapAction)
     }
 
     // Display Band and Channel
+    Channels::getName(displayActiveChannel, nameBuffer);
     Ui::display.setCursor( 2, 15);
-    Ui::display.printLarge(Channels::getName(displayActiveChannel), 8, 12);
+    Ui::display.printLarge(nameBuffer, 8, 12);
 
     // Display Frequency
     Ui::display.setCursor( 0, 105);
@@ -236,10 +238,12 @@ void HomeStateHandler::onUpdateDraw(uint8_t tapAction)
                 cursor_x -= (4 * Ui::CHAR_W);
             cursor_y -= (2 * Ui::CHAR_H);
 
+            Channels::getName(markerX, nameBuffer);
+
             Ui::display.fillRect((cursor_x - 2), (cursor_y - 2),
                                  (4 * Ui::CHAR_W + 4), (2 * Ui::CHAR_H + 4), 10);
             Ui::display.setCursor(cursor_x, cursor_y);
-            Ui::display.print(Channels::getName(markerX));
+            Ui::display.print(nameBuffer);
             cursor_y += Ui::CHAR_H;
             Ui::display.setCursor(cursor_x, cursor_y);
             Ui::display.print(Channels::getFrequency(markerX));
