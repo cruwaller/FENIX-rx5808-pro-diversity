@@ -128,6 +128,10 @@ void setup()
         StateMachine::switchState(StateMachine::State::HOME);
     }
 
+#ifdef USE_VOLTAGE_MONITORING
+    Voltage::setup();
+#endif
+
     comm_espnow_init();
     //WiFiConnect();
     //while(1) HandleWebUpdate();
@@ -139,33 +143,25 @@ void setup()
 
 void loop()
 {
-    //TouchPad::update();
-
     if (Ui::isTvOn) {
         if (Ui::UiTimeOut.hasTicked() &&
                 (StateMachine::currentState != StateMachine::State::SETTINGS_RSSI)) {
-            //Serial.println("off");
             Ui::tvOff();
             EepromSettings.update();
         } else {
-            //Serial.println("update");
-#ifdef USE_VOLTAGE_MONITORING
-            Voltage::update();
-#endif
-            Ui::reset();
             StateMachine::update();
-            Ui::drawCursor();
-            TouchPad::clearTouchData();
-            Ui::draw(); // draw OSD
         }
-    } else if (TouchPad::touchData.buttonPrimary) {
-        // Start TV, touch has happened
-        //Serial.println("on");
-        Ui::tvOn();
-        TouchPad::clearTouchData();
-    } else {
-        vTaskDelay(10 / portTICK_PERIOD_MS);
+        return;
     }
+
+    TouchPad::TouchData const touch = TouchPad::get();
+    if (touch.buttonPrimary) {
+        // Start TV, touch has happened
+        Ui::tvOn();
+        return;
+    }
+
+    vTaskDelay(10 / portTICK_PERIOD_MS);
 
 #ifdef SPEED_TEST
     speed_test_hz++;

@@ -2,29 +2,19 @@
 #define TOUCHPAD_H
 
 #include <stdint.h>
-#include <esp_attr.h>
-#include <esp8266-compat.h>
 
 
 #define GESTURES_ENABLED 0
 
 namespace TouchPad {
 
-    typedef struct _relData
-    {
+    typedef struct _TouchData {
       int16_t cursorX;
       int16_t cursorY;
-      int8_t xDelta;
-      int8_t yDelta;
-      //bool xSign;
-      //bool ySign;
-      bool buttonPrimary;
-      //bool buttonSecondary;
-      //bool buttonAuxiliary;
-      bool dataUpdated;
-    } relData_t;
-
-    extern relData_t DMA_ATTR touchData;
+      uint8_t buttonPrimary   :1,
+              buttonSecondary :1,
+              buttonAuxiliary :1;
+    } TouchData;
 
     enum class Gesture : uint8_t {
         Up,
@@ -35,8 +25,8 @@ namespace TouchPad {
     };
 
     void setup();
-    void update();
     void clearTouchData();
+    TouchData get();
 }
 
 #endif

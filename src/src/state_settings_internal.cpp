@@ -4,7 +4,6 @@
 
 #include "state.h"
 #include "ui.h"
-#include "voltage.h"
 
 int8_t selectedInternalMenuItem = 0;
 bool showChangeInternalMenuOptions = false;
@@ -22,22 +21,15 @@ const char* settingsInternalMenu[]={
     "rssiHysteresisPeriod",
     };
 
-void StateMachine::SettingsInternalStateHandler::onEnter() {
+void StateMachine::SettingsInternalStateHandler::onEnter()
+{
     selectedInternalMenuItem = 0;
     factoryReset = 0;
     showChangeInternalMenuOptions = false;
-    //this->onUpdateDraw(false);
 }
 
-void StateMachine::SettingsInternalStateHandler::onExit() {
-}
-
-void StateMachine::SettingsInternalStateHandler::onUpdate() {
-    this->onUpdateDraw(false);
-}
-
-void StateMachine::SettingsInternalStateHandler::onUpdateDraw(uint8_t tapAction) {
-
+void StateMachine::SettingsInternalStateHandler::onUpdate(TouchPad::TouchData const &touch)
+{
 
     if (!showChangeInternalMenuOptions) {
 

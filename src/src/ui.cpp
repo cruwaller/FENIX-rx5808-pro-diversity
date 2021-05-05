@@ -5,7 +5,6 @@
 #include "receiver.h"
 #include "touchpad.h"
 #include "font8x8.h"
-#include "cursor.h"
 
 #include "CompositeOutput.h"
 
@@ -26,7 +25,7 @@ namespace Ui {
     static TaskHandle_t compositeTask;
 
 
-    static void compositeCore(void *data)
+    static void IRAM_ATTR compositeCore(void *data)
     {
         char ** frame = display.get_frame();
         while (true) {
@@ -80,7 +79,7 @@ namespace Ui {
         display.begin(BLACK);
     }
 
-    void draw()
+    void IRAM_ATTR draw()
     {
         // Wait until current buffer is fetched
         if (pdTRUE == xTaskNotifyWait(0, 0, NULL, pdMS_TO_TICKS(200))) {
@@ -106,22 +105,5 @@ namespace Ui {
         composite.stopOutput();
 
         isTvOn = false;
-    }
-
-    void drawCursor() {
-
-        uint8_t i = 0, py, px, pixelValue;
-        int16_t cursor_x = TouchPad::touchData.cursorX, cursor_y = TouchPad::touchData.cursorY;
-
-        for (py = 0; py < Cursor::yres; py++) {
-            for (px = 0; px < Cursor::xres; px++) {
-                pixelValue = Cursor::pixels[i++];
-                if (pixelValue == 255) {
-                    display.dot(px + cursor_x, py + cursor_y, WHITE);
-                } else if (pixelValue == 1) {
-                    display.dot(px + cursor_x, py + cursor_y, BLACK);
-                }
-            }
-        }
     }
 }

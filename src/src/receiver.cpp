@@ -44,6 +44,7 @@ namespace Receiver {
 
     static TaskHandle_t rssi_task;
 
+
     static uint32_t IRAM_ATTR updateRssiPin(uint8_t const pin, uint8_t const oversample)
     {
         uint32_t _rssiARaw = 0;
@@ -80,12 +81,14 @@ namespace Receiver {
 
     static void updateRssiValues(void)
     {
-        DiversityMode mode = EepromSettings.diversityMode;
+        DiversityMode const mode = EepromSettings.diversityMode;
+        uint8_t const not_rssi_state =
+            StateMachine::currentState != StateMachine::State::SETTINGS_RSSI;
 
         if (mode == Receiver::DiversityMode::ANTENNA_A ||
             mode == Receiver::DiversityMode::DIVERSITY) {
             rssiARaw = updateRssiPin(PIN_RSSI_A, RSSI_READS);
-            if (StateMachine::currentState != StateMachine::State::SETTINGS_RSSI)
+            if (not_rssi_state)
                 rssiA = constrain(
                     map(
                         rssiARaw,
@@ -101,7 +104,7 @@ namespace Receiver {
         if (mode == Receiver::DiversityMode::ANTENNA_B ||
             mode == Receiver::DiversityMode::DIVERSITY) {
             rssiBRaw = updateRssiPin(PIN_RSSI_B, RSSI_READS);
-            if (StateMachine::currentState != StateMachine::State::SETTINGS_RSSI)
+            if (not_rssi_state)
                 rssiB = constrain(
                     map(
                         rssiBRaw,
@@ -134,7 +137,7 @@ namespace Receiver {
     {
         ReceiverId nextReceiver = activeReceiver;
         ReceiverId currentBestReceiver = activeReceiver;
-        int32_t rssiDiff = (int32_t)(rssiA - rssiB);
+        int32_t const rssiDiff = (int32_t)(rssiA - rssiB);
 
         if (abs(rssiDiff) >= EepromSettings.rssiHysteresis) {
             if (rssiDiff > 0) {
@@ -160,8 +163,8 @@ namespace Receiver {
 
     static void IRAM_ATTR updateAntenaOnTime()
     {
-        uint32_t _sec_now = (millis() / 1000);
-        uint32_t secs = _sec_now - previousSwitchTime;
+        uint32_t const _sec_now = (millis() / 1000);
+        uint32_t const secs = _sec_now - previousSwitchTime;
         switch (activeReceiver) {
             case ReceiverId::A:
                 antennaAOnTime += secs;
@@ -176,7 +179,7 @@ namespace Receiver {
     }
 
 
-    void IRAM_ATTR setChannel(uint8_t channel, ReceiverId rcvr_id)
+    void IRAM_ATTR setChannel(uint8_t const channel, ReceiverId const rcvr_id)
     {
         ReceiverSpi::setSynthRegisterB(Channels::getFrequency(channel), rcvr_id);
 
@@ -185,12 +188,12 @@ namespace Receiver {
         hasRssiUpdated = false;
     }
 
-    void IRAM_ATTR setChannelByFreq(uint16_t freq)
+    void IRAM_ATTR setChannelByFreq(uint16_t const freq)
     {
         setChannel(Channels::getClosestChannel(freq));
     }
 
-    void IRAM_ATTR setDiversityMode(DiversityMode mode)
+    void IRAM_ATTR setDiversityMode(DiversityMode const mode)
     {
         EepromSettings.diversityMode = mode;
         ReceiverId receiver = activeReceiver;

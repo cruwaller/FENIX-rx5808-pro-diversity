@@ -9,11 +9,11 @@
 namespace StateMachine {
     class HomeStateHandler : public StateMachine::StateHandler {
         private:
-            void onUpdateDraw(uint8_t tapAction);
-
             uint8_t displayActiveChannel = 0;
             bool wasInBandScanRegion = false;
-            bool isInBandScanRegion();
+            bool isInBandScanRegion(int16_t const posy) const {
+                return (130 < posy);
+            }
             void bandScanUpdate();
 
             void setChannel(int channelIncrement, int setChannel = -1);
@@ -25,7 +25,7 @@ namespace StateMachine {
 
         public:
             void onEnter();
-            void onUpdate();
+            void onUpdate(TouchPad::TouchData const &touch);
     };
 }
 

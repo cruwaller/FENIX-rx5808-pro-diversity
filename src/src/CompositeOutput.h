@@ -198,7 +198,7 @@ class CompositeOutput
     i2s_stop(I2S_PORT);
   }
 
-  void sendLine()
+  void IRAM_ATTR sendLine()
   {
     esp_err_t error = ESP_OK;
     size_t bytes_written = 0;
@@ -212,41 +212,41 @@ class CompositeOutput
     }
   }
 
-  inline void fillValues(int &i, unsigned char value, int count)
+  inline void fillValues(int &i, unsigned char const value, int count)
   {
-    for(int j = 0; j < count; j++)
+    while (count--)
       line[i++^1] = value << 8;
   }
 
-  void fillLine(char const * const pixels)
+  void IRAM_ATTR fillLine(char const * const pixels)
   {
     int i = 0;
     fillValues(i, levelSync, samplesSync);
     fillValues(i, levelBlank, samplesBlank);
     fillValues(i, levelBlack, samplesBlackLeft);
-    for(int x = 0; x < targetXres / 2; x++)
+    for (int x = 0; x < targetXres / 2; x++)
     {
       short pix = (levelBlack + pixels[x]) << 8;
       line[i++^1] = pix;
-      line[i++^1]   = pix;
+      line[i++^1] = pix;
     }
     fillValues(i, levelBlack, samplesBlackRight);
     fillValues(i, levelBlank, samplesBack);
   }
 
-  void fillLong(int &i)
+  void IRAM_ATTR fillLong(int &i)
   {
-    fillValues(i, levelSync, samplesLine / 2 - samplesVSyncShort);
+    fillValues(i, levelSync, (samplesLine / 2) - samplesVSyncShort);
     fillValues(i, levelBlank, samplesVSyncShort);
   }
 
-  void fillShort(int &i)
+  void IRAM_ATTR fillShort(int &i)
   {
     fillValues(i, levelSync, samplesVSyncShort);
-    fillValues(i, levelBlank, samplesLine / 2 - samplesVSyncShort);
+    fillValues(i, levelBlank, (samplesLine / 2) - samplesVSyncShort);
   }
 
-  void fillBlank()
+  void IRAM_ATTR fillBlank()
   {
     int i = 0;
     fillValues(i, levelSync, samplesSync);
@@ -255,14 +255,14 @@ class CompositeOutput
     fillValues(i, levelBlank, samplesBack);
   }
 
-  void fillHalfBlank()
+  void IRAM_ATTR fillHalfBlank()
   {
     int i = 0;
     fillValues(i, levelSync, samplesSync);
     fillValues(i, levelBlank, samplesLine / 2 - samplesSync);
   }
 
-  void sendFrameHalfResolution(char const *const *const frame)
+  void IRAM_ATTR sendFrameHalfResolution(char const *const *const frame)
   {
     // ======== Even Halfframe ========
     int i = 0, y;

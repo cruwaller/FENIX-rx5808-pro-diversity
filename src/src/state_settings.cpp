@@ -5,7 +5,6 @@
 
 #include "state.h"
 #include "ui.h"
-#include "voltage.h"
 
 int8_t selectedMenuItem = 0;
 bool showChangeMenuOptions = false;
@@ -32,18 +31,12 @@ void StateMachine::SettingsStateHandler::onEnter()
 {
     selectedMenuItem = 0;
     showChangeMenuOptions = false;
-    //this->onUpdateDraw(false);
 }
 
 
-void StateMachine::SettingsStateHandler::onUpdate()
+void StateMachine::SettingsStateHandler::onUpdate(TouchPad::TouchData const &touch)
 {
-    this->onUpdateDraw(TouchPad::touchData.buttonPrimary);
-}
 
-
-void StateMachine::SettingsStateHandler::onUpdateDraw(uint8_t tapAction)
-{
     if (!showChangeMenuOptions) {
 
         int8_t index;

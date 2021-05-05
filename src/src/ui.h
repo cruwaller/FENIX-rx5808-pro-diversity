@@ -50,7 +50,6 @@ namespace Ui {
 
     void reset();
     void draw();
-    void drawCursor();
 
     void tvOn();
     void tvOff();

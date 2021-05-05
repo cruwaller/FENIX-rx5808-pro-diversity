@@ -9,6 +9,9 @@
 #include "touchpad.h"
 #include "task_prios.h"
 
+#include <esp_attr.h>
+#include <esp8266-compat.h>
+
 #define DEBUG_TOUCHPAD 0
 
 // Masks for Cirque Register Access Protocol (RAP)
@@ -18,6 +21,18 @@
 #define GESTURE_ARRAY_SIZE 8
 
 
+struct touchdata
+{
+    int8_t  xDelta;
+    int8_t  yDelta;
+    bool    xSign;
+    bool    ySign;
+    bool    buttonPrimary;
+    bool    buttonSecondary;
+    bool    buttonAuxiliary;
+};
+
+
 extern SemaphoreHandle_t mutex_spi;
 
 static TaskHandle_t task_handle;
@@ -25,12 +40,12 @@ static TaskHandle_t task_handle;
 
 namespace TouchPad
 {
-    void IRAM_ATTR Pinnacle_getRelative(relData_t * result);
+    void IRAM_ATTR Pinnacle_getRelative(struct touchdata * const result);
     void IRAM_ATTR RAP_ReadBytes(uint8_t address, uint8_t * data, uint8_t count);
     void IRAM_ATTR RAP_Write(uint8_t address, uint8_t data);
 
 #if GESTURES_ENABLED
-    Gesture isGesture();
+    Gesture isGesture(struct touchdata const * const result);
     void doGesture(Gesture currentGesture);
     void setChannel(int channelIncrement);
 
@@ -40,7 +55,7 @@ namespace TouchPad
     int DMA_ATTR ySwipeThreshold = 200;
 #endif // GESTURES_ENABLED
 
-    relData_t DMA_ATTR touchData;
+    TouchData DMA_ATTR touchData;
 
     SPISettings DMA_ATTR spi_settings(10000000, MSBFIRST, SPI_MODE1);
 
@@ -71,24 +86,27 @@ namespace TouchPad
 
     static void touchpad_task(void*)
     {
+        struct touchdata data;
+
         while(1) {
-            if (pdTRUE == xTaskNotifyWait(0, 0, NULL, pdMS_TO_TICKS(50))) {
-                //Serial.println("touch");
-                Pinnacle_getRelative(&touchData);
-                //if (touchData.buttonPrimary)
-                //    Serial.println("touch");
+            if (pdTRUE == xTaskNotifyWait(0, 0, NULL, portMAX_DELAY)) {
+                Pinnacle_getRelative(&data);
 
                 Ui::UiTimeOut.reset(); // reset since touch is active
+
+                touchData.buttonPrimary = data.buttonPrimary;
+                touchData.buttonSecondary = data.buttonSecondary;
+                touchData.buttonAuxiliary = data.buttonAuxiliary;
 
 #if GESTURES_ENABLED
                 if (Ui::isTvOn) {
 #endif // GESTURES_ENABLED
                     int16_t cursorX = touchData.cursorX;
                     int16_t cursorY = touchData.cursorY;
-                    cursorX += touchData.xDelta;
-                    cursorY -= touchData.yDelta;
-                    //cursorX -= touchData.xDelta;
-                    //cursorY += touchData.yDelta;
+                    cursorX += data.xDelta;
+                    cursorY -= data.yDelta;
+                    //cursorX -= data.xDelta;
+                    //cursorY += data.yDelta;
 
                     if (cursorX < 1) {
                         cursorX = 1;
@@ -104,55 +122,13 @@ namespace TouchPad
                     touchData.cursorY = cursorY;
 #if GESTURES_ENABLED
                 } else {
-                    Gesture currentGesture = isGesture();
+                    Gesture currentGesture = isGesture(&data);
                     if (currentGesture != Gesture::Nope) {
                         doGesture(currentGesture);
                     }
                 }
 #endif // GESTURES_ENABLED
             }
-
-#if 0
-            if (isDataAvailable()) {
-                Pinnacle_getRelative(&touchData);
-
-                Ui::UiTimeOut.reset(); // reset since touch is active
-
-#if GESTURES_ENABLED
-                if (Ui::isTvOn) {
-#endif // GESTURES_ENABLED
-                    int16_t cursorX = touchData.cursorX;
-                    int16_t cursorY = touchData.cursorY;
-                    cursorX += touchData.xDelta;
-                    cursorY -= touchData.yDelta;
-                    //cursorX -= touchData.xDelta;
-                    //cursorY += touchData.yDelta;
-
-                    if (cursorX < 1) {
-                        cursorX = 1;
-                    } else if (cursorX > Ui::XRES - 1) {
-                        cursorX = Ui::XRES - 1;
-                    }
-                    if (cursorY < 1) {
-                        cursorY = 1;
-                    } else if (cursorY > Ui::YRES - 1) {
-                        cursorY = Ui::YRES - 1;
-                    }
-                    touchData.cursorX = cursorX;
-                    touchData.cursorY = cursorY;
-#if GESTURES_ENABLED
-                } else {
-                    Gesture currentGesture = isGesture();
-                    if (currentGesture != Gesture::Nope) {
-                        doGesture(currentGesture);
-                    }
-                }
-#endif // GESTURES_ENABLED
-
-            } else {
-                vTaskDelay(5 / portTICK_PERIOD_MS);
-            }
-#endif
         }
         vTaskDelete(NULL);
         task_handle = NULL;
@@ -178,36 +154,34 @@ namespace TouchPad
         attachInterrupt(digitalPinToInterrupt(PIN_TOUCHPAD_DATA_READY),
                         _data_ready_isr_handler, RISING);
 
+        clearTouchData();
         touchData.cursorX = 200;
         touchData.cursorY = 100;
-        touchData.dataUpdated = false;
 
         xTaskCreatePinnedToCore(touchpad_task, "touch",
             1024, NULL, TASK_PRIO_RSSI, &task_handle, 1);
     }
 
 
-    void IRAM_ATTR update()
+    void IRAM_ATTR clearTouchData()
     {
+        touchData.buttonPrimary = false;
+        touchData.buttonSecondary = false;
+        touchData.buttonAuxiliary = false;
     }
 
 
-    void IRAM_ATTR clearTouchData()
+    TouchData IRAM_ATTR get()
     {
-        touchData.buttonPrimary = 0;
-        //touchData.buttonSecondary = 0;
-        //touchData.buttonAuxiliary = 0;
-        touchData.xDelta = 0;
-        touchData.yDelta = 0;
-        //touchData.xSign = 0;
-        //touchData.ySign = 0;
-        touchData.dataUpdated = false;
+        TouchData copy = touchData;
+        clearTouchData();
+        return copy;
     }
 
 
     // Reads X, Y, and Scroll-Wheel deltas from Pinnacle, as well as button states
     // NOTE: this function should be called immediately after DR is asserted (HIGH)
-    void IRAM_ATTR Pinnacle_getRelative(relData_t * result)
+    void IRAM_ATTR Pinnacle_getRelative(struct touchdata * const result)
     {
         uint8_t data[3] = { 0,0,0 };
 
@@ -215,18 +189,15 @@ namespace TouchPad
 
         Pinnacle_ClearFlags();
 
-        if (!result->dataUpdated)
-        {
-            result->buttonPrimary   = !!(data[0] & 0b00000001);
-            //result->buttonSecondary = !!(data[0] & 0b00000010);
-            //result->buttonAuxiliary = !!(data[0] & 0b00000100);
-            result->dataUpdated     = true;
-        }
-        //result->xSign           = !!(data[0] & 0b00010000);
-        //result->ySign           = !!(data[0] & 0b00100000);
+        result->buttonPrimary   = !!(data[0] & 0b00000001);
+        result->buttonSecondary = !!(data[0] & 0b00000010);
+        result->buttonAuxiliary = !!(data[0] & 0b00000100);
+        result->xSign           = !!(data[0] & 0b00010000);
+        result->ySign           = !!(data[0] & 0b00100000);
         result->xDelta          = (int8_t)data[2];
         result->yDelta          = (int8_t)data[1];
     }
+
 
     /*  RAP Functions */
     // Reads <count> Pinnacle registers starting at <address>
@@ -262,14 +233,14 @@ namespace TouchPad
     }
 
 #if GESTURES_ENABLED
-    Gesture isGesture() {
+    Gesture isGesture(struct touchdata const * const result) {
 
         for (int i = 0; i < GESTURE_ARRAY_SIZE - 1; i++) {
             xGestureArray[GESTURE_ARRAY_SIZE-1-i] = xGestureArray[GESTURE_ARRAY_SIZE-2-i];
             yGestureArray[GESTURE_ARRAY_SIZE-1-i] = yGestureArray[GESTURE_ARRAY_SIZE-2-i];
         }
-        xGestureArray[0] = TouchPad::touchData.xDelta;
-        yGestureArray[0] = TouchPad::touchData.yDelta;
+        xGestureArray[0] = result->xDelta;
+        yGestureArray[0] = result->yDelta;
 
         int xSumArray = 0;
         int ySumArray = 0;

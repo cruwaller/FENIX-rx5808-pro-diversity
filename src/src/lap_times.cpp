@@ -21,7 +21,7 @@ static uint16_t  DRAM_ATTR _last_lap_idx;
 static int8_t  DRAM_ATTR _error;
 
 
-static lap_time_t convert_ms_time(uint32_t lap_time)
+static lap_time_t IRAM_ATTR convert_ms_time(uint32_t lap_time)
 {
     uint32_t secs = lap_time / 1000;
     uint16_t ms = lap_time % 1000;
@@ -193,7 +193,7 @@ void lap_times_handle(esp_now_send_lap_s * lap_info)
     }
 }
 
-uint8_t lapt_time_race_num_laps(void)
+uint8_t IRAM_ATTR lapt_time_race_num_laps(void)
 {
     if (_last_lap_idx == 0)
         return 0;
@@ -201,7 +201,7 @@ uint8_t lapt_time_race_num_laps(void)
     return _last_lap_idx;
 }
 
-lap_time_t lapt_time_laptime_get(uint8_t lap, uint8_t &fastest)
+lap_time_t IRAM_ATTR lapt_time_laptime_get(uint8_t lap, uint8_t &fastest)
 {
     fastest = (lap == _best_lap_idx);
     if (MAX_LAP_TIMES <= lap) // range check
@@ -209,7 +209,7 @@ lap_time_t lapt_time_laptime_get(uint8_t lap, uint8_t &fastest)
     return _lap_times[lap].time;
 }
 
-lap_time_t lapt_time_best_consecutives_get(uint8_t const consecutives, uint8_t &first)
+lap_time_t IRAM_ATTR  lapt_time_best_consecutives_get(uint8_t const consecutives, uint8_t &first)
 {
     uint32_t jter, sum_avg = 0, best = UINT32_MAX;
     int32_t iter, num_laps = (int32_t)lapt_time_race_num_laps() - consecutives;
@@ -223,5 +223,7 @@ lap_time_t lapt_time_best_consecutives_get(uint8_t const consecutives, uint8_t &
             first = iter;
         }
     }
-    return convert_ms_time(best);
+    if (best < UINT32_MAX)
+        return convert_ms_time(best);
+    return (lap_time_t){.ms = 0, .s = 0, .m = 0};
 }

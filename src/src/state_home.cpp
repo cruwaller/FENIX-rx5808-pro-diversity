@@ -12,7 +12,6 @@
 #include "state.h"
 #include "ui.h"
 #include "temperature.h"
-#include "voltage.h"
 #include "touchpad.h"
 #include "protocol_ExpressLRS.h"
 #include "protocol_chorus.h"
@@ -34,25 +33,20 @@ using StateMachine::HomeStateHandler;
 void HomeStateHandler::onEnter()
 {
     displayActiveChannel = Receiver::activeChannel;
-    //this->onUpdateDraw(false);
 }
 
 
-void HomeStateHandler::onUpdate()
-{
-    this->onUpdateDraw(TouchPad::touchData.buttonPrimary);
-}
-
-
-void HomeStateHandler::onUpdateDraw(uint8_t tapAction)
+void HomeStateHandler::onUpdate(TouchPad::TouchData const &touch)
 {
     uint32_t sec_now;
     uint32_t x_off, y_off;
-    int16_t cursor_x = TouchPad::touchData.cursorX, cursor_y = TouchPad::touchData.cursorY;
+    int16_t cursor_x = touch.cursorX;
+    int16_t cursor_y = touch.cursorY;
+    uint8_t const tapAction = touch.buttonPrimary;
     uint8_t iter;
-    char nameBuffer[2];
+    char nameBuffer[Channels::getnamesize];
 
-    if (isInBandScanRegion()) {
+    if (isInBandScanRegion(cursor_y)) {
         bandScanUpdate();
         wasInBandScanRegion = true;
     } else {
@@ -63,7 +57,7 @@ void HomeStateHandler::onUpdateDraw(uint8_t tapAction)
         wasInBandScanRegion = false;
     }
 
-    if (drawHeader())
+    if (drawHeader(cursor_x, cursor_y, tapAction))
         return;
 
     /*************************************************/
@@ -105,12 +99,10 @@ void HomeStateHandler::onUpdateDraw(uint8_t tapAction)
 
     // Channel selected square
     x_off -= 2;
-    //y_off = 10 + 3 + 28 * (Receiver::activeReceiver == Receiver::ReceiverId::B) ? 2 : 0;
-    //Ui::display.rect(x_off, y_off, 19, 19, WHITE);
     if (Receiver::activeReceiver == Receiver::ReceiverId::A) {
-        Ui::display.rect(128, (10 + 28*0 + 3), 19, 19, 100);
+        Ui::display.rect(128, (10 + 28*0 + 3), 19, 19, WHITE);
     } else if (Receiver::activeReceiver == Receiver::ReceiverId::B) {
-        Ui::display.rect(128, (10 + 28*2 + 3), 18, 18, 100);
+        Ui::display.rect(128, (10 + 28*2 + 3), 18, 18, WHITE);
     }
 
     // On percentage
@@ -223,7 +215,7 @@ void HomeStateHandler::onUpdateDraw(uint8_t tapAction)
     Ui::display.setCursor( 290, (Ui::YRES - 9)); // Y=215
     Ui::display.print(Channels::getFrequency(Channels::getOrderedIndex(CHANNELS_SIZE-1)));
     // Freq based on cursor position
-    if (HomeStateHandler::isInBandScanRegion()) {
+    if (isInBandScanRegion(cursor_y)) {
         // Marker
         uint16_t markerX = Channels::getOrderedIndexFromIndex(Receiver::activeChannel);
         markerX *= CHANNELS_SIZE_DIVIDER;
@@ -303,20 +295,11 @@ void HomeStateHandler::setChannel(int channelIncrement, int setChannel)
 // centre of these 2 frequencies.
 void HomeStateHandler::centreFrequency()
 {
-    uint16_t activeChannelFreq = Channels::getFrequency(Receiver::activeChannel);
-    uint16_t centerFreq = Channels::getCenterFreq(activeChannelFreq);
+    uint16_t const activeChannelFreq = Channels::getFrequency(Receiver::activeChannel);
+    uint16_t const centerFreq = Channels::getCenterFreq(activeChannelFreq);
     Receiver::setChannel(Channels::getClosestChannel(centerFreq));
 
     wasInBandScanRegion = false;
-}
-
-bool HomeStateHandler::isInBandScanRegion()
-{
-    if (TouchPad::touchData.cursorY > 130 ) {
-        return true;
-    } else {
-        return false;
-    }
 }
 
 void HomeStateHandler::bandScanUpdate()

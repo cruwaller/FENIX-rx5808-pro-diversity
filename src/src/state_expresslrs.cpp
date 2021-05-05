@@ -61,26 +61,17 @@ enum {
 };
 
 
-void StateMachine::ExLRSStateHandler::onEnter()
-{
-    //onUpdateDraw(false);
-}
 
-
-void StateMachine::ExLRSStateHandler::onUpdate()
-{
-    onUpdateDraw(TouchPad::touchData.buttonPrimary);
-}
-
-
-void StateMachine::ExLRSStateHandler::onUpdateDraw(uint8_t tapAction)
+void StateMachine::ExLRSStateHandler::onUpdate(TouchPad::TouchData const &touch)
 {
     const char * param_str;
-    int16_t cursor_x = TouchPad::touchData.cursorX, cursor_y = TouchPad::touchData.cursorY;
+    int16_t const cursor_x = touch.cursorX;
+    int16_t const cursor_y = touch.cursorY;
+    uint8_t const tapAction = touch.buttonPrimary;
     uint8_t region = expresslrs_params_get_region();
     uint8_t param_value;
 
-    if (drawHeader())
+    if (drawHeader(cursor_x, cursor_y, tapAction))
         return;
 
 #define SELECT_OFFSET  17

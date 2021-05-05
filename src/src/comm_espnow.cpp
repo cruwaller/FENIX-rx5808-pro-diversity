@@ -138,7 +138,7 @@ void comm_espnow_init(void)
             esp_err_t err = esp_now_add_peer(&peer_info);
             if (ESP_OK != err) {
 #if DEBUG_ENABLED
-                Serial.printf("Failed to add ELRS peer[%u], error: %d\n", iter, (int)err);
+                Serial.printf("Failed to add ELRS peer[%u], error: %d\r\\n", iter, (int)err);
 #endif
             }
         }
@@ -148,7 +148,7 @@ void comm_espnow_init(void)
             esp_err_t err = esp_now_add_peer(&peer_info);
             if (ESP_OK != err) {
 #if DEBUG_ENABLED
-                Serial.printf("Failed to add Chorus peer[%u], error: %d\n", iter, (int)err);
+                Serial.printf("Failed to add Chorus peer[%u], error: %d\r\\n", iter, (int)err);
 #endif
             }
         }
@@ -165,6 +165,21 @@ void comm_espnow_init(void)
 
 void comm_espnow_deinit(void)
 {
+    uint8_t iter;
+    for (iter = 0; iter < ELRS_PEERS_CNT; iter++) {
+        if (ESP_OK != esp_now_del_peer(elrs_peers[iter])) {
+#if DEBUG_ENABLED
+            Serial.printf("Failed to remove ELRS peer[%u], error: %d\r\n", iter);
+#endif
+        }
+    }
+    for (iter = 0; iter < CHORUS_PEERS_CNT; iter++) {
+        if (ESP_OK != esp_now_del_peer(chorus_peers[iter])) {
+#if DEBUG_ENABLED
+            Serial.printf("Failed to remove Chorus peer[%u], error: %d\r\n", iter);
+#endif
+        }
+    }
     if (ESP_OK != esp_now_deinit()) {
 #if DEBUG_ENABLED
         Serial.printf("ESPNOW deinit failed\n");

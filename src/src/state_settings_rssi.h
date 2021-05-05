@@ -26,7 +26,7 @@ namespace StateMachine {
 
         public:
             void onEnter();
-            void onUpdate();
+            void onUpdate(TouchPad::TouchData const &touch);
             void onExit();
     };
 }

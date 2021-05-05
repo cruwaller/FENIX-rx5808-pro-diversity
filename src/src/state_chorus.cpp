@@ -9,25 +9,15 @@
 #define RETURN_WHEN_RDY 0
 
 
-void StateMachine::ChorusStateHandler::onEnter()
+void StateMachine::ChorusStateHandler::onUpdate(TouchPad::TouchData const &touch)
 {
-    //onUpdateDraw(false);
-}
-
-
-void StateMachine::ChorusStateHandler::onUpdate()
-{
-    onUpdateDraw(TouchPad::touchData.buttonPrimary);
-}
-
-
-void StateMachine::ChorusStateHandler::onUpdateDraw(uint8_t tapAction)
-{
-    int16_t cursor_x = TouchPad::touchData.cursorX, cursor_y = TouchPad::touchData.cursorY;
+    int16_t const cursor_x = touch.cursorX;
+    int16_t const cursor_y = touch.cursorY;
+    uint8_t const tapAction = touch.buttonPrimary;
     uint8_t iter, range_valid_node, range_valid_lap, range_valid_consec;
     uint8_t consecutives = EepromSettings.consecutives;
 
-    if (drawHeader())
+    if (drawHeader(cursor_x, cursor_y, tapAction))
         return;
 
     Ui::display.setCursor(UI_GET_MID_X(31), 12);

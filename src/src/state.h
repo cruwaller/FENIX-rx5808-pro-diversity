@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <esp_attr.h>
+#include "touchpad.h"
 
 
 namespace StateMachine {
@@ -21,10 +22,10 @@ namespace StateMachine {
     class StateHandler {
         public:
             virtual void onEnter() {};
-            virtual void onUpdate() {};
+            virtual void onUpdate(TouchPad::TouchData const &touch) {};
             virtual void onExit() {};
         protected:
-            uint8_t drawHeader(void);
+            uint8_t drawHeader(int16_t cursorX, int16_t cursorY, uint8_t tap);
     };
 
     extern State DMA_ATTR currentState;

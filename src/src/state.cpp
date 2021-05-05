@@ -13,9 +13,9 @@
 #include "ui.h"
 #include "settings_eeprom.h"
 #include "timer.h"
-#include "touchpad.h"
 #include "temperature.h"
 #include "voltage.h"
+#include "cursor.h"
 
 //void *operator new(size_t size, void *ptr){
 //  return ptr;
@@ -36,6 +36,7 @@
 namespace StateMachine {
 
     static StateHandler *getStateHandler(State stateType);
+    static void drawCursor(TouchPad::TouchData const &touch);
 
     static uint8_t DMA_ATTR stateBuffer[STATE_BUFFER_SIZE];
     static StateHandler* DMA_ATTR currentHandler = nullptr;
@@ -47,14 +48,18 @@ namespace StateMachine {
     {
     }
 
-    void update()
+    void IRAM_ATTR update()
     {
+        TouchPad::TouchData const touch = TouchPad::get();
+        Ui::reset();
         if (currentHandler != nullptr) {
-            currentHandler->onUpdate();
+            currentHandler->onUpdate(touch);
         }
+        drawCursor(touch);
+        Ui::draw(); // draw OSD
     }
 
-    void switchState(State newState)
+    void IRAM_ATTR switchState(State newState)
     {
         if (currentHandler != nullptr) {
             currentHandler->onExit();
@@ -92,9 +97,25 @@ namespace StateMachine {
         #undef STATE_FACTORY
     }
 
-    uint8_t StateHandler::drawHeader(void)
+    static void IRAM_ATTR drawCursor(TouchPad::TouchData const &touch)
+    {
+        uint8_t i = 0, py, px, pixelValue;
+        for (py = 0; py < Cursor::yres; py++) {
+            for (px = 0; px < Cursor::xres; px++) {
+                pixelValue = Cursor::pixels[i++];
+                if (pixelValue == 255) {
+                    Ui::display.dot(px + touch.cursorX, py + touch.cursorY, WHITE);
+                } else if (pixelValue == 1) {
+                    Ui::display.dot(px + touch.cursorX, py + touch.cursorY, BLACK);
+                }
+            }
+        }
+    }
+
+    uint8_t IRAM_ATTR StateHandler::drawHeader(int16_t const cursorX, int16_t const cursorY, uint8_t const tap)
     {
         uint32_t x_off = Ui::CHAR_W;
+
         /*************************************************/
         /*********     PRINT HEADER     ******************/
 
@@ -123,12 +144,13 @@ namespace StateMachine {
 
         // Voltage
 #ifdef USE_VOLTAGE_MONITORING
-        if (Voltage::voltage <= 9)
+        uint8_t voltage = Voltage::get();
+        if (voltage <= 9)
             x_off += Ui::CHAR_W;
         Ui::display.setCursor(x_off, 0);
-        Ui::display.print(Voltage::voltage);
+        Ui::display.print(voltage);
         Ui::display.print(".");
-        Ui::display.print(Voltage::voltageDec);
+        Ui::display.print(Voltage::get_dec());
         Ui::display.print("V");
 #endif
         x_off += 6 * Ui::CHAR_W;
@@ -170,8 +192,8 @@ namespace StateMachine {
         Ui::display.line( 0, 9, Ui::XRES, 9, WHITE);
 
         // Check touch
-        if (TouchPad::touchData.buttonPrimary && TouchPad::touchData.cursorY < 8) {
-            if (TouchPad::touchData.cursorX > 314) {
+        if (tap && cursorY < 8) {
+            if (cursorX > 314) {
                 // Menu
                 if (StateMachine::currentState == StateMachine::State::MENU)
                     StateMachine::switchState(StateMachine::State::HOME);
@@ -179,7 +201,7 @@ namespace StateMachine {
                     StateMachine::switchState(StateMachine::State::MENU);
                 return 1;
 
-            } else if (TouchPad::touchData.cursorX < 130) {
+            } else if (cursorX < 130) {
                 // Change mode
                 switch ( EepromSettings.diversityMode )
                 {

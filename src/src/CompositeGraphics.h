@@ -31,7 +31,7 @@ class CompositeGraphics
     backColor = -1;
   }
 
-  void setTextColor(int front, int back = -1)
+  inline void setTextColor(int front, int back = -1)
   {
     //-1 = transparent back;
     frontColor = front;
@@ -80,18 +80,18 @@ class CompositeGraphics
     }
   }
 
-  void setFont(Font<CompositeGraphics> &font)
+  inline void setFont(Font<CompositeGraphics> &font)
   {
     this->font = &font;
   }
 
-  void setCursor(int x, int y)
+  inline void setCursor(int x, int y)
   {
     cursorX = cursorBaseX = x;
     cursorY = y;
   }
 
-  void print(const char *str, bool invert=false) // drawCharLarge(Graphics &g, int x, int y, char ch, int frontColor, int backColor, int xMultiplier, int yMultiplier)
+  void IRAM_ATTR print(const char *str, bool invert=false) // drawCharLarge(Graphics &g, int x, int y, char ch, int frontColor, int backColor, int xMultiplier, int yMultiplier)
   {
     if(!font) return;
     while(*str)
@@ -112,7 +112,7 @@ class CompositeGraphics
     }
   }
 
-  void printLarge(const char *str, int xMultiplier, int yMultiplier)
+  void IRAM_ATTR printLarge(const char *str, int xMultiplier, int yMultiplier)
   {
     if(!font) return;
     while(*str)
@@ -129,7 +129,7 @@ class CompositeGraphics
     }
   }
 
-  void print(int number, int base = 10, int minCharacters = 1, bool invert=false)
+  void IRAM_ATTR print(int number, int base = 10, int minCharacters = 1, bool invert=false)
   {
     bool sign = number < 0;
     if(sign) number = -number;
@@ -149,7 +149,7 @@ class CompositeGraphics
     print(&temp[i + 1], invert);
   }
 
-  void printLarge(int number, int xMultiplier, int yMultiplier, int base = 10, int minCharacters = 1)
+  void IRAM_ATTR printLarge(int number, int xMultiplier, int yMultiplier, int base = 10, int minCharacters = 1)
   {
     bool sign = number < 0;
     if(sign) number = -number;
@@ -203,7 +203,7 @@ class CompositeGraphics
     return 0;
   }
 
-  inline void xLine(int x0, int x1, int y, char color)
+  void IRAM_ATTR xLine(int x0, int x1, int y, char color)
   {
     if(x0 > x1)
     {
@@ -217,7 +217,7 @@ class CompositeGraphics
       dotFast(x, y, color);
   }
 
-  void enqueueTriangle(short *v0, short *v1, short *v2, char color)
+  void IRAM_ATTR enqueueTriangle(short *v0, short *v1, short *v2, char color)
   {
     if(triangleCount >= trinagleBufferSize) return;
     TriangleTree<CompositeGraphics> &t = triangleBuffer[triangleCount++];
@@ -228,7 +228,7 @@ class CompositeGraphics
       triangleRoot = &t;
   }
 
-  void triangle(short *v0, short *v1, short *v2, char color)
+  void IRAM_ATTR triangle(short *v0, short *v1, short *v2, char color)
   {
     short *v[3] = {v0, v1, v2};
     if(v[1][1] < v[0][1])
@@ -273,7 +273,7 @@ class CompositeGraphics
     }
   }
 
-  void line(int x1, int y1, int x2, int y2, char color)
+  void IRAM_ATTR line(int x1, int y1, int x2, int y2, char color)
   {
     int x, y, xe, ye;
     int dx = x2 - x1;
@@ -378,7 +378,7 @@ class CompositeGraphics
     return frame;
   }
 
-  void fillRect(int x, int y, int w, int h, int color)
+  void IRAM_ATTR fillRect(int x, int y, int w, int h, int color)
   {
     if(x < 0)
     {
@@ -399,7 +399,7 @@ class CompositeGraphics
         dotFast(i, j, color);
   }
 
-  void rect(int x, int y, int w, int h, int color)
+  inline void rect(int x, int y, int w, int h, int color)
   {
     fillRect(x, y, w, 1, color);
     fillRect(x, y, 1, h, color);

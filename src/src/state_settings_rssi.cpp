@@ -21,8 +21,6 @@ void StateMachine::SettingsRssiStateHandler::onEnter()
     EepromSettings.diversityMode = Receiver::DiversityMode::DIVERSITY;
     // Init internal state
     internalState = InternalState::WAIT_FOR_LOW;
-    // Draw initial view
-    //onUpdateDraw();
 }
 
 void StateMachine::SettingsRssiStateHandler::onExit()
@@ -31,14 +29,13 @@ void StateMachine::SettingsRssiStateHandler::onExit()
     EepromSettings.diversityMode = start_mode;
 }
 
-void StateMachine::SettingsRssiStateHandler::onUpdate()
+void StateMachine::SettingsRssiStateHandler::onUpdate(TouchPad::TouchData const &touch)
 {
     uint32_t rssiARaw = 0, rssiBRaw = 0, iter;
 
     onUpdateDraw();
 
-    if (TouchPad::touchData.buttonPrimary && internalState != InternalState::SCANNING_LOW) {
-        TouchPad::touchData.buttonPrimary = false;
+    if (touch.buttonPrimary && internalState != InternalState::SCANNING_LOW) {
         doTapAction();
     }
 
@@ -86,7 +83,7 @@ void StateMachine::SettingsRssiStateHandler::onUpdate()
     Receiver::setChannel((Receiver::activeChannel + 1) % CHANNELS_SIZE);
 
     if (internalState == InternalState::SCANNING_LOW || internalState == InternalState::SCANNING_HIGH) {
-        char nameBuffer[2];
+        char nameBuffer[Channels::getnamesize];
         Channels::getName(Receiver::activeChannel, nameBuffer);
 
         Ui::display.setTextColor(WHITE);

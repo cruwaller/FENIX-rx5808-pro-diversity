@@ -290,14 +290,12 @@ namespace Channels {
     // Returns channel name as a string.
     void IRAM_ATTR getName(uint8_t const index, char * const nameBuffer) {
         const char bandNames[] = {
-            'A', 'B', 'E', 'F', 'R', 'L', 'U', 'O', 'H',};
-        uint8_t band = index / 8;
-        uint8_t channel = 48 + (index % 8) + 1;   // https://www.arduino.cc/en/Reference/ASCIIchart
-        if (band < sizeof(bandNames))
-            nameBuffer[0] = bandNames[band];
-        else
-            nameBuffer[0] = '_';
+            'A', 'B', 'E', 'F', 'R', 'L', 'U', 'O', 'H'};
+        uint8_t const band = index / 8;
+        uint8_t const channel = 48 + (index % 8) + 1;   // https://www.arduino.cc/en/Reference/ASCIIchart
+        nameBuffer[0] = (band < sizeof(bandNames)) ? bandNames[band] : '_';
         nameBuffer[1] = channel;
+        nameBuffer[2] = '\0';
     }
 
     const uint8_t IRAM_ATTR getOrderedIndex(uint8_t index) {

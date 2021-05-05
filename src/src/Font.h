@@ -7,7 +7,7 @@ class Font
   int xres;
   int yres;
   const unsigned char *pixels;
-  
+
   Font(int charWidth, int charHeight, const unsigned char *pixels_)
     :xres(charWidth),
     yres(charHeight),
@@ -15,7 +15,7 @@ class Font
   {
   }
 
-  void drawChar(Graphics &g, int x, int y, char ch, int frontColor, int backColor)
+  void IRAM_ATTR drawChar(Graphics &g, int x, int y, char ch, int frontColor, int backColor)
   {
     const unsigned char *pix = &pixels[xres * yres * (ch - 32)];
     for(int py = 0; py < yres; py++)
@@ -27,7 +27,7 @@ class Font
           g.dot(px + x, py + y, backColor);
   }
 
-  void drawCharLarge(Graphics &g, int x, int y, char ch, int frontColor, int backColor, int xMultiplier, int yMultiplier)
+  void IRAM_ATTR drawCharLarge(Graphics &g, int x, int y, char ch, int frontColor, int backColor, int xMultiplier, int yMultiplier)
   {
     const unsigned char *pix = &pixels[xres * yres * (ch - 32)];
     for(int py = 0; py < yres; py++)
