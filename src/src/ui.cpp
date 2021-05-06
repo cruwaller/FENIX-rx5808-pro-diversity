@@ -32,12 +32,9 @@ namespace Ui {
     static void IRAM_ATTR compositeCore(void *data)
     {
 #if !NUM_OSD_BUFF
-        char ** frame;// = display.get_frame();
         while (true) {
-            frame = display.get_frame();
             //just send the graphics frontbuffer whithout any interruption
-            composite.sendFrameHalfResolution(frame);
-            //frame = display.end();
+            composite.sendFrameHalfResolution(display.get_frame());
             // Notify other task to draw the next buffer
             xTaskNotify(uitask, 0, eNoAction);
         }
@@ -93,7 +90,7 @@ namespace Ui {
         display.deinit();
     }
 
-    void reset()
+    void IRAM_ATTR reset()
     {
 #if NUM_OSD_BUFF
         char ** buff = NULL;
