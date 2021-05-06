@@ -90,7 +90,7 @@ namespace Ui {
         display.deinit();
     }
 
-    void IRAM_ATTR reset()
+    void /*IRAM_ATTR*/ reset()
     {
 #if NUM_OSD_BUFF
         char ** buff = NULL;
