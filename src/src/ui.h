@@ -30,9 +30,14 @@
 
 namespace Ui {
 
+    /*
+     * PAL:  half 324x268, full 648x536
+     * NTSC: half 324x224, full 648x448
+     */
+
 #if VIDEO_MODE == PAL
     constexpr int XRES = 324;
-    constexpr int YRES = 269; // 576 are visible
+    constexpr int YRES = 268; // 576 are visible
 #else
     constexpr int XRES = 324;
     constexpr int YRES = 224; // 486 are visible

@@ -2,14 +2,20 @@
 #include "Font.h"
 #include "TriangleTree.h"
 
+#define NUM_OSD_BUFF 2
+
+
 class CompositeGraphics
 {
   public:
-  int xres;
-  int yres;
-  char **frame;
+  const int xres;
+  const int yres;
   char **backbuffer;
-  char **zbuffer;
+#if !NUM_OSD_BUFF
+  char **frame;
+#else
+  char **osdBuffers[NUM_OSD_BUFF];
+#endif
   int cursorX, cursorY, cursorBaseX;
   int frontColor, backColor;
   Font<CompositeGraphics> *font;
@@ -20,9 +26,8 @@ class CompositeGraphics
   int triangleCount;
 
   CompositeGraphics(int w, int h, int initialTrinagleBufferSize = 0)
+    : xres(w), yres(h)
   {
-    xres = w;
-    yres = h;
     font = 0;
     cursorX = cursorY = cursorBaseX = 0;
     trinagleBufferSize = initialTrinagleBufferSize;
@@ -40,16 +45,25 @@ class CompositeGraphics
 
   void init()
   {
+#if !NUM_OSD_BUFF
     frame = (char**)malloc(yres * sizeof(char*));
     backbuffer = (char**)malloc(yres * sizeof(char*));
-    //not enough memory for z-buffer implementation
-    //zbuffer = (char**)malloc(yres * sizeof(char*));
     for(int y = 0; y < yres; y++)
     {
       frame[y] = (char*)malloc(xres);
       backbuffer[y] = (char*)malloc(xres);
-      //zbuffer[y] = (char*)malloc(xres);
     }
+#else
+    for (int x = 0; x < NUM_OSD_BUFF; x++) {
+      osdBuffers[x] = (char**)malloc(yres * sizeof(char*));
+      for(int y = 0; y < yres; y++)
+      {
+        osdBuffers[x][y] = (char*)malloc(xres);
+      }
+    }
+    backbuffer = osdBuffers[0];
+#endif
+
     triangleBuffer = (TriangleTree<CompositeGraphics>*)malloc(sizeof(TriangleTree<CompositeGraphics>) * trinagleBufferSize);
   }
 
@@ -59,6 +73,7 @@ class CompositeGraphics
       free(triangleBuffer);
       triangleBuffer = NULL;
     }
+#if !NUM_OSD_BUFF
     for(int y = 0; y < yres; y++)
     {
       if (backbuffer[y]) {
@@ -78,7 +93,39 @@ class CompositeGraphics
       free(frame);
       frame = NULL;
     }
+#else
+    for (int x = 0; x < NUM_OSD_BUFF; x++) {
+      for(int y = 0; y < yres; y++) {
+        if (osdBuffers[x][y]) {
+          free(osdBuffers[x][y]);
+          osdBuffers[x][y] = NULL;
+        }
+       }
+      free(osdBuffers[x]);
+      osdBuffers[x] = NULL;
+    }
+    backbuffer = NULL;
+#endif
   }
+
+#if NUM_OSD_BUFF
+  void get_frames(QueueHandle_t queue_free)
+  {
+    for (int x = 0; x < NUM_OSD_BUFF; x++)
+    {
+      xQueueSend(queue_free, &osdBuffers[x], portMAX_DELAY);
+    }
+  }
+
+  inline void set_backbuff(char** buff)
+  {
+    backbuffer = buff;
+  }
+  inline char** get_backbuff(void)
+  {
+    return backbuffer;
+  }
+#endif
 
   inline void setFont(Font<CompositeGraphics> &font)
   {
@@ -169,12 +216,14 @@ class CompositeGraphics
     printLarge(&temp[i + 1], xMultiplier, yMultiplier);
   }
 
-  inline void begin(int clear = -1, bool clearZ = true)
+  inline void begin(int clear = -1)
   {
-    if(clear > -1)
+    if (clear > -1) {
       for(int y = 0; y < yres; y++)
+        //memset(backbuffer[y], clear, xres);
         for(int x = 0; x < xres; x++)
           backbuffer[y][x] = clear;
+    }
     triangleCount = 0;
     triangleRoot = 0;
   }
@@ -364,6 +413,7 @@ class CompositeGraphics
       triangleRoot->draw(*this);
   }
 
+#if !NUM_OSD_BUFF
   inline char** end()
   {
     /* Swap the buffer and return the ready frame */
@@ -377,6 +427,7 @@ class CompositeGraphics
   {
     return frame;
   }
+#endif
 
   void IRAM_ATTR fillRect(int x, int y, int w, int h, int color)
   {

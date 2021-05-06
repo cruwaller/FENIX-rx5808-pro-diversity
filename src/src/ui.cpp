@@ -24,19 +24,33 @@ namespace Ui {
     static TaskHandle_t uitask;
     static TaskHandle_t compositeTask;
 
+#if NUM_OSD_BUFF
+    QueueHandle_t queue_free;
+    QueueHandle_t queue_ready;
+#endif
 
     static void IRAM_ATTR compositeCore(void *data)
     {
-        char ** frame = display.get_frame();
+#if !NUM_OSD_BUFF
+        char ** frame;// = display.get_frame();
         while (true) {
+            frame = display.get_frame();
             //just send the graphics frontbuffer whithout any interruption
             composite.sendFrameHalfResolution(frame);
-            frame = display.end();
+            //frame = display.end();
             // Notify other task to draw the next buffer
             xTaskNotify(uitask, 0, eNoAction);
         }
+#else
+        char ** frame;
+        while (true) {
+            xQueueReceive(queue_ready, &frame, portMAX_DELAY);
+            //just send the graphics frontbuffer whithout any interruption
+            composite.sendFrameHalfResolution(frame);
+            xQueueSend(queue_free, &frame, portMAX_DELAY);
+        }
+#endif
     }
-
 
     void setup()
     {
@@ -57,6 +71,12 @@ namespace Ui {
         //select font
         display.setFont(font);
 
+#if NUM_OSD_BUFF
+        queue_free = xQueueCreate(NUM_OSD_BUFF, sizeof(char**));
+        queue_ready = xQueueCreate(NUM_OSD_BUFF, sizeof(char**));
+        display.get_frames(queue_free);
+#endif
+
         uitask = xTaskGetCurrentTaskHandle();
 
         //running composite output pinned to first core
@@ -75,16 +95,29 @@ namespace Ui {
 
     void reset()
     {
+#if NUM_OSD_BUFF
+        char ** buff = NULL;
+        do {
+            xQueueReceive(queue_free, &buff, portMAX_DELAY);
+        } while(buff == NULL);
+        display.set_backbuff(buff);
+#endif
         // reset OSD to black
         display.begin(BLACK);
     }
 
     void IRAM_ATTR draw()
     {
+#if NUM_OSD_BUFF
+        char ** buff = display.get_backbuff();
+        xQueueSend(queue_ready, &buff, portMAX_DELAY);
+#else
+        display.end();
         // Wait until current buffer is fetched
         if (pdTRUE == xTaskNotifyWait(0, 0, NULL, pdMS_TO_TICKS(200))) {
             //display.end();
         }
+#endif
     }
 
     void tvOn() {
