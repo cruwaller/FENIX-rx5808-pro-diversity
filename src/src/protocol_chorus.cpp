@@ -136,6 +136,7 @@ void chorus_race_lap_time_min_change(int val)
 
 int chorus_command_handle(uint8_t const * buff, uint8_t const len)
 {
+    int res = -1;
     uint8_t extended = (buff[0] == 'E' && buff[1] == 'S');
     uint8_t temp8;
     if (extended) {
@@ -158,22 +159,24 @@ int chorus_command_handle(uint8_t const * buff, uint8_t const len)
 #else
                 (void)temp8;
 #endif
+                res = 0;
                 break;
             }
 
             // ==== Normal commands ====
             case RESPONSE_MIN_LAP_TIME: {
                 min_lap_time = HEX_TO_BYTE(buff[3], buff[4]);
+                res = 0;
                 break;
             }
             default: {
                 // just ignore
-                return -1;
+                break;
             }
         }
     }
 
-    return 0; // Command handled
+    return res;
 }
 
 void chorus_nodeidx_set(uint8_t nodeidx)
