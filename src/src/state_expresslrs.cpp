@@ -8,9 +8,6 @@
 #include "protocol_ExpressLRS.h"
 
 
-#define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
-
-
 static const char* unknown_value = "---";
 
 static const char* elrs_lookuptable_rates_900[ExLRS_RATE_MAX] = {

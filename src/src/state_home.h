@@ -9,7 +9,6 @@
 namespace StateMachine {
     class HomeStateHandler : public StateMachine::StateHandler {
         private:
-            uint8_t displayActiveChannel = 0;
             bool wasInBandScanRegion = false;
             bool isInBandScanRegion(int16_t const posy) const {
                 return (130 < posy);

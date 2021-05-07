@@ -3,6 +3,10 @@
 #include "settings.h"
 #include "protocol_ExpressLRS.h"
 #include "protocol_chorus.h"
+#include "channels.h"
+#include "receiver.h"
+#include "settings_eeprom.h"
+#include "msptypes.h"
 #include <esp_now.h>
 #include <WiFi.h>
 
@@ -66,6 +70,18 @@ static void esp_now_recv_cb(const uint8_t *mac_addr, const uint8_t *data, int da
                     break;
                 }
             };
+        } else if (msp_in.type == MSP_PACKET_V2_COMMAND) {
+            switch (msp_in.function) {
+                case MSP_SET_VTX_CONFIG: {
+                    uint16_t freq = msp_in.payload[1];
+                    freq <<= 8;
+                    freq += msp_in.payload[0];
+                    Receiver::setChannelByFreq(freq);
+                    EepromSettings.startChannel = Receiver::activeChannel;
+                    EepromSettings.markDirty();
+                    break;
+                }
+            }
         }
 
     // Check if string command sent by Chorus

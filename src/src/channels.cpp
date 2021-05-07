@@ -287,6 +287,15 @@ namespace Channels {
         return channelFreqTable[index];
     }
 
+    const int8_t IRAM_ATTR getIndexByFrequency(uint16_t const freq) {
+        for (int iter = 0; iter < ARRAY_SIZE(channelFreqTable); iter++) {
+            if (channelFreqTable[iter] == freq) {
+                return iter;
+            }
+        }
+        return -1;
+    }
+
     // Returns channel name as a string.
     void IRAM_ATTR getName(uint8_t const index, char * const nameBuffer) {
         const char bandNames[] = {

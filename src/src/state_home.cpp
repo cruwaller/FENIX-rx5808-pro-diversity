@@ -32,7 +32,6 @@ using StateMachine::HomeStateHandler;
 
 void HomeStateHandler::onEnter()
 {
-    displayActiveChannel = Receiver::activeChannel;
 }
 
 
@@ -43,6 +42,7 @@ void HomeStateHandler::onUpdate(TouchPad::TouchData const &touch)
     int16_t cursor_x = touch.cursorX;
     int16_t cursor_y = touch.cursorY;
     uint8_t const tapAction = touch.buttonPrimary;
+    uint8_t const displayChannel = EepromSettings.startChannel;
     uint8_t iter;
     char nameBuffer[Channels::getnamesize];
 
@@ -51,9 +51,8 @@ void HomeStateHandler::onUpdate(TouchPad::TouchData const &touch)
         wasInBandScanRegion = true;
     } else {
         if (wasInBandScanRegion) {
-            Receiver::setChannel(displayActiveChannel);
+            Receiver::setChannel(displayChannel);
         }
-        displayActiveChannel = Receiver::activeChannel;
         wasInBandScanRegion = false;
     }
 
@@ -82,13 +81,13 @@ void HomeStateHandler::onUpdate(TouchPad::TouchData const &touch)
     }
 
     // Display Band and Channel
-    Channels::getName(displayActiveChannel, nameBuffer);
+    Channels::getName(displayChannel, nameBuffer);
     Ui::display.setCursor( 2, 15);
     Ui::display.printLarge(nameBuffer, 8, 12);
 
     // Display Frequency
     Ui::display.setCursor( 0, 105);
-    Ui::display.printLarge(Channels::getFrequency(displayActiveChannel), 4, 3);
+    Ui::display.printLarge(Channels::getFrequency(displayChannel), 4, 3);
 
     // Channel labels
     x_off = 130;
@@ -285,8 +284,6 @@ void HomeStateHandler::setChannel(int channelIncrement, int setChannel)
     EepromSettings.startChannel = newChannelIndex;
     EepromSettings.markDirty();
     centred = false;
-
-    displayActiveChannel = Receiver::activeChannel;
 }
 
 // Frequency 'Centring' function.
@@ -307,7 +304,9 @@ void HomeStateHandler::bandScanUpdate()
     Ui::UiTimeOut.reset();
 
     if (!wasInBandScanRegion) {
-        orderedChanelIndex = Channels::getOrderedIndexFromIndex(displayActiveChannel); // Start from currently selected channel to prevent initial spike artifact.
+        // Start from currently selected channel to prevent initial spike artifact.
+        orderedChanelIndex =
+            Channels::getOrderedIndexFromIndex(Receiver::activeChannel);
     }
 
     if (Receiver::isRssiStableAndUpdated()) {

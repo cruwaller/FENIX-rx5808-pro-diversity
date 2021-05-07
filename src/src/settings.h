@@ -116,4 +116,7 @@ SOFTWARE.
 #define WIFI_TIMEOUT 60
 #endif
 
+
+#define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
+
 #endif // file_defined
