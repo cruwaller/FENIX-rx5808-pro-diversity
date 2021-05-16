@@ -79,7 +79,7 @@ void chorus_race_state_set(uint8_t state)
         lap_times_reset();
     } else {
         // end, get lap times
-        chorus_race_laps_get();
+        //chorus_race_laps_get();
     }
 }
 
