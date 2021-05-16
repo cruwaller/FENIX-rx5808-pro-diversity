@@ -224,7 +224,7 @@ lap_time_t IRAM_ATTR  lapt_time_best_consecutives_get(uint8_t const consecutives
 {
     uint32_t jter, sum_avg, best = UINT32_MAX;
     int32_t iter, num_laps = (int32_t)lapt_time_race_num_laps() - consecutives;
-    for (iter = 2; iter <= num_laps; iter++) {
+    for (iter = FIRST_LAP_IDX; iter <= num_laps; iter++) {
         sum_avg = 0;
         for (jter = 0; jter < consecutives; jter++) {
             sum_avg += _lap_times[iter + jter].ms;
@@ -232,7 +232,7 @@ lap_time_t IRAM_ATTR  lapt_time_best_consecutives_get(uint8_t const consecutives
         sum_avg /= consecutives;
         if (0 < sum_avg && sum_avg < best) {
             best = sum_avg;
-            first = iter;
+            first = iter-1;
         }
     }
     if (best < UINT32_MAX)
