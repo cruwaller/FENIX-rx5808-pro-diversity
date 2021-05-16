@@ -313,10 +313,7 @@ void HomeStateHandler::bandScanUpdate()
 
         rssiBandScanData[orderedChanelIndex] = max(Receiver::rssiA, Receiver::rssiB);
 
-        orderedChanelIndex = orderedChanelIndex + 1;
-        if (orderedChanelIndex == CHANNELS_SIZE) {
-            orderedChanelIndex = 0;
-        }
+        orderedChanelIndex = (orderedChanelIndex + 1) % ARRAY_SIZE(rssiBandScanData);
         Receiver::setChannel(Channels::getOrderedIndex(orderedChanelIndex));
     }
 }

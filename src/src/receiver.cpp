@@ -44,6 +44,8 @@ namespace Receiver {
 
     static TaskHandle_t rssi_task;
 
+    static QueueHandle_t set_ch_queue;
+
 
     static uint32_t IRAM_ATTR updateRssiPin(uint8_t const pin, uint8_t const oversample)
     {
@@ -181,11 +183,8 @@ namespace Receiver {
 
     void IRAM_ATTR setChannel(uint8_t const channel, ReceiverId const rcvr_id)
     {
-        ReceiverSpi::setSynthRegisterB(Channels::getFrequency(channel), rcvr_id);
-
-        rssiStableTimer.reset();
-        activeChannel = channel;
         hasRssiUpdated = false;
+        xQueueSend(set_ch_queue, &channel, portMAX_DELAY);
     }
 
     void IRAM_ATTR setChannelByFreq(uint16_t const freq)
@@ -238,8 +237,17 @@ namespace Receiver {
 
     void updateRssiTask(void*)
     {
+        uint8_t next_ch;
         while(1) {
-            vTaskDelay(EepromSettings.rssiMinTuneTime / portTICK_PERIOD_MS);
+            if (pdTRUE == xQueueReceive(set_ch_queue, &next_ch, EepromSettings.rssiMinTuneTime / portTICK_PERIOD_MS)) {
+                activeChannel = next_ch;
+                hasRssiUpdated = false;
+                ReceiverSpi::setSynthRegisterB(Channels::getFrequency(next_ch), ReceiverId::ALL);
+                rssiStableTimer.reset();
+                rssiLogTimer.reset();
+                continue;
+            }
+            //vTaskDelay(EepromSettings.rssiMinTuneTime / portTICK_PERIOD_MS);
             if (isRssiStable()) {
                 updateAntenaOnTime();
                 updateRssiValues();
@@ -254,6 +262,7 @@ namespace Receiver {
 
     void setup()
     {
+        set_ch_queue = xQueueCreate(8, sizeof(uint8_t));
         diversityHysteresisTimer = Timer(EepromSettings.rssiHysteresisPeriod);
         rssiStableTimer = Timer(EepromSettings.rssiMinTuneTime);
         activeChannel = EepromSettings.startChannel;
