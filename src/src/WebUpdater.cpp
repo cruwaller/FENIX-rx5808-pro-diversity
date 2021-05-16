@@ -119,9 +119,9 @@ void WiFiConnect(void)
     comm_espnow_deinit();
     Ui::deinit();
 
-    WiFi.persistent(false);
-    WiFi.disconnect(true);
-    WiFi.mode(WIFI_OFF);
+    IPAddress local_IP(192, 168, 4, 1);
+    IPAddress gateway(192, 168, 4, 1);
+    IPAddress subnet(255, 255, 255, 0);
 
 #if defined(WIFI_SSID) && defined(WIFI_PSK)
     uint32_t iter = 0, timeout;
@@ -155,7 +155,11 @@ void WiFiConnect(void)
 #if DEBUG_ENABLED
         Serial.println("WiFi: Starting AP " WIFI_AP_SSID);
 #endif
+        // WiFi not connected, Start access point
+        WiFi.setAutoReconnect(false);
+        WiFi.disconnect(true);
         WiFi.mode(WIFI_AP);
+        WiFi.softAPConfig(local_IP, gateway, subnet);
         WiFi.softAP(WIFI_AP_SSID, WIFI_AP_PSK);
         ipaddr = WiFi.softAPIP();
     }

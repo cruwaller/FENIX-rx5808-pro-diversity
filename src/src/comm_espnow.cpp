@@ -9,6 +9,7 @@
 #include "msptypes.h"
 #include <esp_now.h>
 #include <WiFi.h>
+#include <esp_wifi.h>
 
 #ifndef ESP_NOW_CHANNEL
 #define ESP_NOW_CHANNEL 1
@@ -120,7 +121,19 @@ void comm_espnow_init(void)
     expresslrs_params_update(0xff, 0xff, 0xff, 0xff, 0xff);
     lap_times_reset();
 
-    WiFi.mode(WIFI_MODE_APSTA);
+    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+    esp_wifi_init(&cfg); //initiate and allocate wifi resources (does not matter if connection fails)
+
+    WiFi.setAutoConnect(false);
+    WiFi.setAutoReconnect(false);
+    WiFi.persistent(false);
+    WiFi.enableSTA(false);
+    WiFi.enableAP(false);
+    WiFi.disconnect(true, true);
+    delay(1000);
+
+    //WiFi.mode(WIFI_MODE_APSTA);
+    WiFi.mode(WIFI_MODE_STA);
 #if DEBUG_ENABLED
     // STA MAC address: D8:A0:1D:4C:72:18
 
@@ -129,7 +142,6 @@ void comm_espnow_init(void)
     Serial.printf("STA MAC Address: %s\n", WiFi.macAddress().c_str());
     Serial.printf("AP MAC Address: %s\n", WiFi.softAPmacAddress().c_str());
 #endif
-    WiFi.disconnect();
 
 #if DEBUG_ENABLED
     Serial.println("ESPNOW initialize...");
