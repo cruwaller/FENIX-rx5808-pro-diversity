@@ -16,9 +16,12 @@ enum {
     ExLRS_RF_MODE_433_AU_EU,
     ExLRS_RF_MODE_2400_ISM,
     ExLRS_RF_MODE_2400_ISM_500,
+    ExLRS_RF_MODE_2400_ISM_FLRC,
     ExLRS_RF_MODE_MAX,
-    ExLRS_RF_MODE_DUAL = 0x80,
-    ExLRS_RF_MODE_INVALID = 0xff,
+    ExLRS_RF_MODE_HANDSET   = 0x40,
+    ExLRS_RF_MODE_DUAL      = 0x80,
+    ExLRS_RF_MODE_MASK      = 0x3F,
+    ExLRS_RF_MODE_INVALID   = 0xff,
 };
 
 // RC rate

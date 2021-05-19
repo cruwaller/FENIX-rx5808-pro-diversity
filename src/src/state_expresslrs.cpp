@@ -16,6 +16,9 @@ static const char* elrs_lookuptable_rates_900[ExLRS_RATE_MAX] = {
 static const char* elrs_lookuptable_rates_2400[ExLRS_RATE_ISM_MAX] = {
     "500Hz", "250Hz", "125Hz", "50Hz",
 };
+static const char* elrs_lookuptable_rates_2400_FLRC[1] = {
+    "500Hz",
+};
 static const char* elrs_lookuptable_power[ExLRS_PWR_MAX] = {
     "dynamic", "10mW", "25mW", "50mW", "100mW", "250mW", "500mW", "1000mW", "2000mW",
 };
@@ -46,6 +49,7 @@ static const char* elrs_lookuptable_tlm[ExLRS_TLM_RATIO_MAX] = {
 #define GET_BOX_W(c)    (((c) * Ui::CHAR_W) + BOX_OFFSET)
 #define GET_BOX_H(c)    (((c) * Ui::CHAR_H) + BOX_OFFSET)
 
+
 // Lines
 enum {
     LINE_DOMAIN = 0,
@@ -58,7 +62,6 @@ enum {
 };
 
 
-
 void StateMachine::ExLRSStateHandler::onUpdate(TouchPad::TouchData const &touch)
 {
     const char * param_str;
@@ -69,7 +72,7 @@ void StateMachine::ExLRSStateHandler::onUpdate(TouchPad::TouchData const &touch)
     uint8_t const has_dual = (region & ExLRS_RF_MODE_DUAL);
     uint8_t param_value;
 
-    region &= ~ExLRS_RF_MODE_DUAL;
+    region &= ExLRS_RF_MODE_MASK;
 
     if (drawHeader(cursor_x, cursor_y, tapAction))
         return;
@@ -81,17 +84,19 @@ void StateMachine::ExLRSStateHandler::onUpdate(TouchPad::TouchData const &touch)
         Ui::display.setCursor(GET_X(0), GET_Y(LINE_DOMAIN));
         Ui::display.print("Domain:");
         Ui::display.setCursor(GET_X(SELECT_OFFSET), GET_Y(LINE_DOMAIN));
-        Ui::display.print("900   2400");
+        Ui::display.print("900   2400  FLRC");
     }
 
     // Rate
     Ui::display.setCursor(GET_X(0), GET_Y(LINE_RATE));
     Ui::display.print("Rate (Hz):");
     Ui::display.setCursor(GET_X(SELECT_OFFSET), GET_Y(LINE_RATE));
-    if (ExLRS_RF_MODE_2400_ISM <= region)
-        Ui::display.print("125   250   500");
+    if (ExLRS_RF_MODE_2400_ISM_FLRC == region)
+        Ui::display.print("500");
+    else if (ExLRS_RF_MODE_2400_ISM <= region)
+        Ui::display.print("500   250   125");
     else
-        Ui::display.print(" 50   100   200");
+        Ui::display.print("200   100   50");
 
     // RF Power
     Ui::display.setCursor(GET_X(0), GET_Y(LINE_POWER));
@@ -121,11 +126,17 @@ void StateMachine::ExLRSStateHandler::onUpdate(TouchPad::TouchData const &touch)
             Ui::display.rect(GET_X_BOX(SELECT_OFFSET), GET_Y_BOX(LINE_DOMAIN), GET_BOX_W(3), GET_BOX_H(1), 100);
             next_domain = ExLRS_RF_MODE_868_EU;
         }
-        else if ( // 2.4GHz
+        else if ( // 2.4GHz LoRa
             cursor_x > GET_X_BOX(SELECT_OFFSET+6) && cursor_x < GET_X_BOX_END(SELECT_OFFSET+6, 4))
         {
             Ui::display.rect(GET_X_BOX(SELECT_OFFSET+6), GET_Y_BOX(LINE_DOMAIN), GET_BOX_W(4), GET_BOX_H(1), 100);
-            next_domain = ExLRS_RF_MODE_2400_ISM;
+            next_domain = ExLRS_RF_MODE_2400_ISM_500;
+        }
+        else if ( // 2.4GHz FLRC
+            cursor_x > GET_X_BOX(SELECT_OFFSET+12) && cursor_x < GET_X_BOX_END(SELECT_OFFSET+12, 4))
+        {
+            Ui::display.rect(GET_X_BOX(SELECT_OFFSET+12), GET_Y_BOX(LINE_DOMAIN), GET_BOX_W(4), GET_BOX_H(1), 100);
+            next_domain = ExLRS_RF_MODE_2400_ISM_FLRC;
         }
         if (tapAction && next_domain != ExLRS_RF_MODE_INVALID)
             expresslrs_domain_send(next_domain);
@@ -134,23 +145,23 @@ void StateMachine::ExLRSStateHandler::onUpdate(TouchPad::TouchData const &touch)
     else if (cursor_y > GET_Y_BOX(LINE_RATE) && cursor_y < GET_Y_BOX_END(LINE_RATE, 1))
     {
         uint8_t next_rate = ExLRS_RATE_INVALID;
-        if ( // 50
-            cursor_x > GET_X_BOX(SELECT_OFFSET) && cursor_x < GET_X_BOX_END(SELECT_OFFSET, 3))
+        if (cursor_x > GET_X_BOX(SELECT_OFFSET) && cursor_x < GET_X_BOX_END(SELECT_OFFSET, 3))
         {
             Ui::display.rect(GET_X_BOX(SELECT_OFFSET), GET_Y_BOX(LINE_RATE), GET_BOX_W(3), GET_BOX_H(1), 100);
-            next_rate = (ExLRS_RF_MODE_2400_ISM <= region) ? (uint8_t)ExLRS_RATE_ISM_125 : (uint8_t)ExLRS_RATE_50;
-        }
-        else if ( // 100
-            cursor_x > GET_X_BOX(SELECT_OFFSET+6) && cursor_x < GET_X_BOX_END(SELECT_OFFSET+6, 3))
-        {
-            Ui::display.rect(GET_X_BOX(SELECT_OFFSET+6), GET_Y_BOX(LINE_RATE), GET_BOX_W(3), GET_BOX_H(1), 100);
-            next_rate = (ExLRS_RF_MODE_2400_ISM <= region) ? (uint8_t)ExLRS_RATE_ISM_250 : (uint8_t)ExLRS_RATE_100;
-        }
-        else if ( // 200
-            cursor_x > GET_X_BOX(SELECT_OFFSET+12) && cursor_x < GET_X_BOX_END(SELECT_OFFSET+12, 3))
-        {
-            Ui::display.rect(GET_X_BOX(SELECT_OFFSET+12), GET_Y_BOX(LINE_RATE), GET_BOX_W(3), GET_BOX_H(1), 100);
             next_rate = (ExLRS_RF_MODE_2400_ISM <= region) ? (uint8_t)ExLRS_RATE_ISM_500 : (uint8_t)ExLRS_RATE_200;
+        }
+        else if (region <= ExLRS_RF_MODE_2400_ISM_500)
+        {
+            if (cursor_x > GET_X_BOX(SELECT_OFFSET+6) && cursor_x < GET_X_BOX_END(SELECT_OFFSET+6, 3))
+            {
+                Ui::display.rect(GET_X_BOX(SELECT_OFFSET+6), GET_Y_BOX(LINE_RATE), GET_BOX_W(3), GET_BOX_H(1), 100);
+                next_rate = (ExLRS_RF_MODE_2400_ISM <= region) ? (uint8_t)ExLRS_RATE_ISM_250 : (uint8_t)ExLRS_RATE_100;
+            }
+            else if (cursor_x > GET_X_BOX(SELECT_OFFSET+12) && cursor_x < GET_X_BOX_END(SELECT_OFFSET+12, 3))
+            {
+                Ui::display.rect(GET_X_BOX(SELECT_OFFSET+12), GET_Y_BOX(LINE_RATE), GET_BOX_W(3), GET_BOX_H(1), 100);
+                next_rate = (ExLRS_RF_MODE_2400_ISM <= region) ? (uint8_t)ExLRS_RATE_ISM_125 : (uint8_t)ExLRS_RATE_50;
+            }
         }
         if (tapAction && next_rate != ExLRS_RATE_INVALID)
             expresslrs_rate_send(next_rate);
@@ -226,17 +237,20 @@ void StateMachine::ExLRSStateHandler::onUpdate(TouchPad::TouchData const &touch)
     Ui::display.setCursor(OFFSET_VALUE, off_y);
     switch (region) {
         case ExLRS_RF_MODE_915_AU_FCC:
-            Ui::display.print("915MHz");
+            Ui::display.print("915MHz LoRa");
             break;
         case ExLRS_RF_MODE_868_EU:
-            Ui::display.print("868MHz");
+            Ui::display.print("868MHz LoRa");
             break;
         case ExLRS_RF_MODE_433_AU_EU:
-            Ui::display.print("433MHz");
+            Ui::display.print("433MHz LoRa");
             break;
         case ExLRS_RF_MODE_2400_ISM:
         case ExLRS_RF_MODE_2400_ISM_500:
-            Ui::display.print("2.4GHz");
+            Ui::display.print("2.4GHz LoRa");
+            break;
+        case ExLRS_RF_MODE_2400_ISM_FLRC:
+            Ui::display.print("2.4GHz FLRC");
             break;
         default:
             Ui::display.print(unknown_value);
@@ -249,7 +263,11 @@ void StateMachine::ExLRSStateHandler::onUpdate(TouchPad::TouchData const &touch)
     Ui::display.setCursor(OFFSET_VALUE, off_y);
     param_str = unknown_value;
     param_value = expresslrs_params_get_rate();
-    if (ExLRS_RF_MODE_2400_ISM < region) {
+
+    if (ExLRS_RF_MODE_2400_ISM_FLRC == region) {
+        if (param_value < ARRAY_SIZE(elrs_lookuptable_rates_2400_FLRC))
+            param_str = elrs_lookuptable_rates_2400_FLRC[param_value];
+    } else if (ExLRS_RF_MODE_2400_ISM < region) {
         if (param_value < ARRAY_SIZE(elrs_lookuptable_rates_2400))
             param_str = elrs_lookuptable_rates_2400[param_value];
     } else {
