@@ -18,9 +18,10 @@ enum {
     ExLRS_RF_MODE_2400_ISM_500,
     ExLRS_RF_MODE_2400_ISM_FLRC,
     ExLRS_RF_MODE_MAX,
+    ExLRS_RF_MODE_FLRC      = 0x20,
     ExLRS_RF_MODE_HANDSET   = 0x40,
     ExLRS_RF_MODE_DUAL      = 0x80,
-    ExLRS_RF_MODE_MASK      = 0x3F,
+    ExLRS_RF_MODE_MASK      = 0x1F,
     ExLRS_RF_MODE_INVALID   = 0xff,
 };
 
@@ -80,7 +81,7 @@ void expresslrs_params_update(uint8_t rate, uint8_t tlm, uint8_t pwr, uint8_t pw
 void expresslrs_params_get(void);
 uint8_t expresslrs_params_get_rate(void);
 uint8_t expresslrs_params_get_tlm(void);
-uint8_t expresslrs_params_get_power(void);
+uint8_t expresslrs_params_get_power(uint8_t *max=0);
 uint8_t expresslrs_params_get_region(void);
 
 #endif

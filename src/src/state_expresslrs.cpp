@@ -71,6 +71,7 @@ void StateMachine::ExLRSStateHandler::onUpdate(TouchPad::TouchData const &touch)
     uint8_t region = expresslrs_params_get_region();
     uint8_t const has_dual = (region & ExLRS_RF_MODE_DUAL);
     uint8_t param_value;
+    uint8_t max_pwr = ExLRS_PWR_100mW;
 
     region &= ExLRS_RF_MODE_MASK;
 
@@ -99,10 +100,13 @@ void StateMachine::ExLRSStateHandler::onUpdate(TouchPad::TouchData const &touch)
         Ui::display.print("200   100   50");
 
     // RF Power
+    (void)expresslrs_params_get_power(&max_pwr); // get just max
     Ui::display.setCursor(GET_X(0), GET_Y(LINE_POWER));
     Ui::display.print("Power (mW):");
     Ui::display.setCursor(GET_X(SELECT_OFFSET), GET_Y(LINE_POWER));
-    Ui::display.print("25    50    100");
+    Ui::display.print("10    25    50");
+    if (ExLRS_PWR_50mW < max_pwr)
+        Ui::display.print("    100");
 
     // TLM Rate
     Ui::display.setCursor(GET_X(0), GET_Y(LINE_TLM));
@@ -169,24 +173,32 @@ void StateMachine::ExLRSStateHandler::onUpdate(TouchPad::TouchData const &touch)
     // Draw RF Power box
     else if (cursor_y > GET_Y_BOX(LINE_POWER) && cursor_y < GET_Y_BOX_END(LINE_POWER, 1))
     {
-        if ( // 25mW
+        if ( // 10mW
             cursor_x > GET_X_BOX(SELECT_OFFSET) && cursor_x < GET_X_BOX_END(SELECT_OFFSET, 2))
         {
             Ui::display.rect(GET_X_BOX(SELECT_OFFSET), GET_Y_BOX(LINE_POWER), GET_BOX_W(2), GET_BOX_H(1), 100);
             if (tapAction)
+                expresslrs_power_send(ExLRS_PWR_10mW);
+        }
+        else if ( // 25mW
+            cursor_x > GET_X_BOX(SELECT_OFFSET+6) && cursor_x < GET_X_BOX_END(SELECT_OFFSET+6, 2))
+        {
+            Ui::display.rect(GET_X_BOX(SELECT_OFFSET+6), GET_Y_BOX(LINE_POWER), GET_BOX_W(2), GET_BOX_H(1), 100);
+            if (tapAction)
                 expresslrs_power_send(ExLRS_PWR_25mW);
         }
         else if ( // 50mW
-            cursor_x > GET_X_BOX(SELECT_OFFSET+6) && cursor_x < GET_X_BOX_END(SELECT_OFFSET+6, 2))
+            cursor_x > GET_X_BOX(SELECT_OFFSET+12) && cursor_x < GET_X_BOX_END(SELECT_OFFSET+12, 2))
         {
-            Ui::display.rect(GET_X_BOX(SELECT_OFFSET+6), GET_Y_BOX(LINE_POWER), GET_BOX_W(3), GET_BOX_H(1), 100);
+            Ui::display.rect(GET_X_BOX(SELECT_OFFSET+12), GET_Y_BOX(LINE_POWER), GET_BOX_W(2), GET_BOX_H(1), 100);
             if (tapAction)
                 expresslrs_power_send(ExLRS_PWR_50mW);
         }
         else if ( // 100mW
-            cursor_x > GET_X_BOX(SELECT_OFFSET+12) && cursor_x < GET_X_BOX_END(SELECT_OFFSET+12, 3))
+            ExLRS_PWR_50mW < max_pwr &&
+            cursor_x > GET_X_BOX(SELECT_OFFSET+18) && cursor_x < GET_X_BOX_END(SELECT_OFFSET+18, 3))
         {
-            Ui::display.rect(GET_X_BOX(SELECT_OFFSET+12), GET_Y_BOX(LINE_POWER), GET_BOX_W(3), GET_BOX_H(1), 100);
+            Ui::display.rect(GET_X_BOX(SELECT_OFFSET+18), GET_Y_BOX(LINE_POWER), GET_BOX_W(3), GET_BOX_H(1), 100);
             if (tapAction)
                 expresslrs_power_send(ExLRS_PWR_100mW);
         }
@@ -281,7 +293,7 @@ void StateMachine::ExLRSStateHandler::onUpdate(TouchPad::TouchData const &touch)
     Ui::display.print("Power:");
     Ui::display.setCursor(OFFSET_VALUE, off_y);
     param_str = unknown_value;
-    param_value = expresslrs_params_get_power();
+    param_value = expresslrs_params_get_power(NULL);
     if (param_value < ARRAY_SIZE(elrs_lookuptable_power))
         param_str = elrs_lookuptable_power[param_value];
     Ui::display.print(param_str);

@@ -96,8 +96,10 @@ uint8_t expresslrs_params_get_tlm(void)
 }
 
 
-uint8_t expresslrs_params_get_power(void)
+uint8_t expresslrs_params_get_power(uint8_t *max)
 {
+    if (max && elrs_params.pwr_max < *max)
+        *max = elrs_params.pwr_max + 1;
     return elrs_params.pwr;
 }
 
