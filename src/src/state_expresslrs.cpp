@@ -85,7 +85,7 @@ void StateMachine::ExLRSStateHandler::onUpdate(TouchPad::TouchData const &touch)
         Ui::display.setCursor(GET_X(0), GET_Y(LINE_DOMAIN));
         Ui::display.print("Domain:");
         Ui::display.setCursor(GET_X(SELECT_OFFSET), GET_Y(LINE_DOMAIN));
-        Ui::display.print("900   2400  FLRC");
+        Ui::display.print("900  2400 FLRC");
     }
 
     // Rate
@@ -95,24 +95,24 @@ void StateMachine::ExLRSStateHandler::onUpdate(TouchPad::TouchData const &touch)
     if (ExLRS_RF_MODE_2400_ISM_FLRC == region)
         Ui::display.print("500");
     else if (ExLRS_RF_MODE_2400_ISM <= region)
-        Ui::display.print("500   250   125");
+        Ui::display.print("500  250  125");
     else
-        Ui::display.print("200   100   50");
+        Ui::display.print("200  100  50");
 
     // RF Power
     (void)expresslrs_params_get_power(&max_pwr); // get just max
     Ui::display.setCursor(GET_X(0), GET_Y(LINE_POWER));
     Ui::display.print("Power (mW):");
     Ui::display.setCursor(GET_X(SELECT_OFFSET), GET_Y(LINE_POWER));
-    Ui::display.print("10    25    50");
+    Ui::display.print("10   25   50");
     if (ExLRS_PWR_50mW < max_pwr)
-        Ui::display.print("    100");
+        Ui::display.print("   100");
 
     // TLM Rate
     Ui::display.setCursor(GET_X(0), GET_Y(LINE_TLM));
     Ui::display.print("Telemetry:");
     Ui::display.setCursor(GET_X(SELECT_OFFSET), GET_Y(LINE_TLM));
-    Ui::display.print("On    Off");
+    Ui::display.print("On   Off");
 
     // Set VTX channel
     Ui::display.setCursor(GET_X(0), GET_Y(LINE_VTX));
@@ -131,15 +131,15 @@ void StateMachine::ExLRSStateHandler::onUpdate(TouchPad::TouchData const &touch)
             next_domain = ExLRS_RF_MODE_868_EU;
         }
         else if ( // 2.4GHz LoRa
-            cursor_x > GET_X_BOX(SELECT_OFFSET+6) && cursor_x < GET_X_BOX_END(SELECT_OFFSET+6, 4))
+            cursor_x > GET_X_BOX(SELECT_OFFSET+5) && cursor_x < GET_X_BOX_END(SELECT_OFFSET+5, 4))
         {
-            Ui::display.rect(GET_X_BOX(SELECT_OFFSET+6), GET_Y_BOX(LINE_DOMAIN), GET_BOX_W(4), GET_BOX_H(1), 100);
+            Ui::display.rect(GET_X_BOX(SELECT_OFFSET+5), GET_Y_BOX(LINE_DOMAIN), GET_BOX_W(4), GET_BOX_H(1), 100);
             next_domain = ExLRS_RF_MODE_2400_ISM_500;
         }
         else if ( // 2.4GHz FLRC
-            cursor_x > GET_X_BOX(SELECT_OFFSET+12) && cursor_x < GET_X_BOX_END(SELECT_OFFSET+12, 4))
+            cursor_x > GET_X_BOX(SELECT_OFFSET+10) && cursor_x < GET_X_BOX_END(SELECT_OFFSET+10, 4))
         {
-            Ui::display.rect(GET_X_BOX(SELECT_OFFSET+12), GET_Y_BOX(LINE_DOMAIN), GET_BOX_W(4), GET_BOX_H(1), 100);
+            Ui::display.rect(GET_X_BOX(SELECT_OFFSET+10), GET_Y_BOX(LINE_DOMAIN), GET_BOX_W(4), GET_BOX_H(1), 100);
             next_domain = ExLRS_RF_MODE_2400_ISM_FLRC;
         }
         if (tapAction && next_domain != ExLRS_RF_MODE_INVALID)
@@ -156,14 +156,14 @@ void StateMachine::ExLRSStateHandler::onUpdate(TouchPad::TouchData const &touch)
         }
         else if (region <= ExLRS_RF_MODE_2400_ISM_500)
         {
-            if (cursor_x > GET_X_BOX(SELECT_OFFSET+6) && cursor_x < GET_X_BOX_END(SELECT_OFFSET+6, 3))
+            if (cursor_x > GET_X_BOX(SELECT_OFFSET+5) && cursor_x < GET_X_BOX_END(SELECT_OFFSET+5, 3))
             {
-                Ui::display.rect(GET_X_BOX(SELECT_OFFSET+6), GET_Y_BOX(LINE_RATE), GET_BOX_W(3), GET_BOX_H(1), 100);
+                Ui::display.rect(GET_X_BOX(SELECT_OFFSET+5), GET_Y_BOX(LINE_RATE), GET_BOX_W(3), GET_BOX_H(1), 100);
                 next_rate = (ExLRS_RF_MODE_2400_ISM <= region) ? (uint8_t)ExLRS_RATE_ISM_250 : (uint8_t)ExLRS_RATE_100;
             }
-            else if (cursor_x > GET_X_BOX(SELECT_OFFSET+12) && cursor_x < GET_X_BOX_END(SELECT_OFFSET+12, 3))
+            else if (cursor_x > GET_X_BOX(SELECT_OFFSET+10) && cursor_x < GET_X_BOX_END(SELECT_OFFSET+10, 3))
             {
-                Ui::display.rect(GET_X_BOX(SELECT_OFFSET+12), GET_Y_BOX(LINE_RATE), GET_BOX_W(3), GET_BOX_H(1), 100);
+                Ui::display.rect(GET_X_BOX(SELECT_OFFSET+10), GET_Y_BOX(LINE_RATE), GET_BOX_W(3), GET_BOX_H(1), 100);
                 next_rate = (ExLRS_RF_MODE_2400_ISM <= region) ? (uint8_t)ExLRS_RATE_ISM_125 : (uint8_t)ExLRS_RATE_50;
             }
         }
@@ -181,24 +181,24 @@ void StateMachine::ExLRSStateHandler::onUpdate(TouchPad::TouchData const &touch)
                 expresslrs_power_send(ExLRS_PWR_10mW);
         }
         else if ( // 25mW
-            cursor_x > GET_X_BOX(SELECT_OFFSET+6) && cursor_x < GET_X_BOX_END(SELECT_OFFSET+6, 2))
+            cursor_x > GET_X_BOX(SELECT_OFFSET+5) && cursor_x < GET_X_BOX_END(SELECT_OFFSET+5, 2))
         {
-            Ui::display.rect(GET_X_BOX(SELECT_OFFSET+6), GET_Y_BOX(LINE_POWER), GET_BOX_W(2), GET_BOX_H(1), 100);
+            Ui::display.rect(GET_X_BOX(SELECT_OFFSET+5), GET_Y_BOX(LINE_POWER), GET_BOX_W(2), GET_BOX_H(1), 100);
             if (tapAction)
                 expresslrs_power_send(ExLRS_PWR_25mW);
         }
         else if ( // 50mW
-            cursor_x > GET_X_BOX(SELECT_OFFSET+12) && cursor_x < GET_X_BOX_END(SELECT_OFFSET+12, 2))
+            cursor_x > GET_X_BOX(SELECT_OFFSET+10) && cursor_x < GET_X_BOX_END(SELECT_OFFSET+10, 2))
         {
-            Ui::display.rect(GET_X_BOX(SELECT_OFFSET+12), GET_Y_BOX(LINE_POWER), GET_BOX_W(2), GET_BOX_H(1), 100);
+            Ui::display.rect(GET_X_BOX(SELECT_OFFSET+10), GET_Y_BOX(LINE_POWER), GET_BOX_W(2), GET_BOX_H(1), 100);
             if (tapAction)
                 expresslrs_power_send(ExLRS_PWR_50mW);
         }
         else if ( // 100mW
             ExLRS_PWR_50mW < max_pwr &&
-            cursor_x > GET_X_BOX(SELECT_OFFSET+18) && cursor_x < GET_X_BOX_END(SELECT_OFFSET+18, 3))
+            cursor_x > GET_X_BOX(SELECT_OFFSET+15) && cursor_x < GET_X_BOX_END(SELECT_OFFSET+15, 3))
         {
-            Ui::display.rect(GET_X_BOX(SELECT_OFFSET+18), GET_Y_BOX(LINE_POWER), GET_BOX_W(3), GET_BOX_H(1), 100);
+            Ui::display.rect(GET_X_BOX(SELECT_OFFSET+15), GET_Y_BOX(LINE_POWER), GET_BOX_W(3), GET_BOX_H(1), 100);
             if (tapAction)
                 expresslrs_power_send(ExLRS_PWR_100mW);
         }
@@ -214,9 +214,9 @@ void StateMachine::ExLRSStateHandler::onUpdate(TouchPad::TouchData const &touch)
                 expresslrs_tlm_send(ExLRS_TLM_ON);
         }
         else if ( // Off
-            cursor_x > GET_X_BOX(SELECT_OFFSET+6) && cursor_x < GET_X_BOX_END(SELECT_OFFSET+6, 3))
+            cursor_x > GET_X_BOX(SELECT_OFFSET+5) && cursor_x < GET_X_BOX_END(SELECT_OFFSET+5, 3))
         {
-            Ui::display.rect(GET_X_BOX(SELECT_OFFSET+6), GET_Y_BOX(LINE_TLM), GET_BOX_W(3), GET_BOX_H(1), 100);
+            Ui::display.rect(GET_X_BOX(SELECT_OFFSET+5), GET_Y_BOX(LINE_TLM), GET_BOX_W(3), GET_BOX_H(1), 100);
             if (tapAction)
                 expresslrs_tlm_send(ExLRS_TLM_OFF);
         }

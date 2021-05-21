@@ -63,9 +63,14 @@ if git:
             os.path.abspath(os.path.join(os.getcwd(), os.pardir)),
             search_parent_directories=False)
         git_root = git_repo.git.rev_parse("--show-toplevel")
-        ExLRS_Repo = git.Repo(git_root)
-        hexsha = ExLRS_Repo.head.object.hexsha
-        sha = ",".join(["0x%s" % x for x in hexsha[:6]])
+        fenix_repo = git.Repo(git_root)
+        # git describe --match=NeVeRmAtCh --always --abbrev=6 --dirty
+        hexsha = fenix_repo.git.describe('--dirty', '--abbrev=7', '--always', '--match=NeVeRmAtCh')
+        print("hexsha: '%s'" % hexsha)
+        if 'dirty' in hexsha:
+            env['BUILD_FLAGS'].append("-DLATEST_COMMIT_DIRTY=1")
+        #hexsha = fenix_repo.head.object.hexsha
+        sha = ",".join(["0x%s" % x for x in hexsha[:7]])
     except git.InvalidGitRepositoryError:
         pass
 if not sha:

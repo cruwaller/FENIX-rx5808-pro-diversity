@@ -12,7 +12,7 @@
 
 #include <WiFi.h>
 
-#define INFO_TXT_Y_POS (200U)
+#define INFO_TXT_Y_POS (180U)
 
 Image<CompositeGraphics> iconHome(home::xres, home::yres, home::pixels);
 Image<CompositeGraphics> iconExLRS(exlrs::xres, exlrs::yres, exlrs::pixels);
@@ -48,120 +48,132 @@ void StateMachine::MenuStateHandler::onUpdate(TouchPad::TouchData const &touch)
     if (drawHeader(cursor_x, cursor_y, tapAction))
         return;
 
-   // 1st row
-   iconHome.draw(Ui::display, GET_X(0), GET_Y(0));    // Home
-   iconExLRS.draw(Ui::display, GET_X(1), GET_Y(0));   // ExpressLRS
-   iconChorus.draw(Ui::display, GET_X(2), GET_Y(0));  // Chorus
-   //iconBookmark.draw(Ui::display, GET_X(3), GET_Y(0));
-    // 2nd row
-   //iconBookmark.draw(Ui::display, GET_X(0), GET_Y(1));
-   //iconBookmark.draw(Ui::display, GET_X(1), GET_Y(1));
-   iconCalibrate.draw(Ui::display, GET_X(2), GET_Y(1)); // Calibration
-   iconUpdate.draw(Ui::display, GET_X(3), GET_Y(1));    // OTA update
+    // 1st row
+    iconHome.draw(Ui::display, GET_X(0), GET_Y(0));    // Home
+    iconExLRS.draw(Ui::display, GET_X(1), GET_Y(0));   // ExpressLRS
+    iconChorus.draw(Ui::display, GET_X(2), GET_Y(0));  // Chorus
+    //iconBookmark.draw(Ui::display, GET_X(3), GET_Y(0));
+        // 2nd row
+    //iconBookmark.draw(Ui::display, GET_X(0), GET_Y(1));
+    //iconBookmark.draw(Ui::display, GET_X(1), GET_Y(1));
+    iconCalibrate.draw(Ui::display, GET_X(2), GET_Y(1)); // Calibration
+    iconUpdate.draw(Ui::display, GET_X(3), GET_Y(1));    // OTA update
 
-   // Check 1st row
-   if (cursor_y > GET_Y(0) && cursor_y < GET_Y_END(0)) {
+    // Check 1st row
+    if (cursor_y > GET_Y(0) && cursor_y < GET_Y_END(0)) {
 
-      if ( // Home
-         cursor_x > GET_X(0)  && cursor_x < GET_X_END(0))
-      {
-         Ui::display.rect(GET_X_RECT(0), GET_Y_RECT(0), X_PIC, Y_PIC, WHITE);
-         Ui::display.setCursor(UI_GET_MID_X(11), INFO_TXT_Y_POS);
-         Ui::display.print("Home Screen");
-         if (tapAction)
-            StateMachine::switchState(StateMachine::State::HOME);
-      }
-      else if ( // ExpressLRS Settings
-         cursor_x > GET_X(1)  && cursor_x < GET_X_END(1))
-      {
-         Ui::display.rect(GET_X_RECT(1), GET_Y_RECT(0), X_PIC, Y_PIC, WHITE);
-         Ui::display.setCursor(UI_GET_MID_X(19), INFO_TXT_Y_POS);
-         Ui::display.print("ExpressLRS Settings");
-         if (tapAction)
-            StateMachine::switchState(StateMachine::State::EXPRESSLRS);
-      }
-      else if ( // Chorus settings
-         cursor_x > GET_X(2)  && cursor_x < GET_X_END(2))
-      {
-         Ui::display.rect(GET_X_RECT(2), GET_Y_RECT(0), X_PIC, Y_PIC, WHITE);
-         Ui::display.setCursor(UI_GET_MID_X(14), INFO_TXT_Y_POS);
-         Ui::display.print("Chorus control");
-         if (tapAction)
-            StateMachine::switchState(StateMachine::State::CHORUS);
-      }
+        if ( // Home
+            cursor_x > GET_X(0)  && cursor_x < GET_X_END(0))
+        {
+            Ui::display.rect(GET_X_RECT(0), GET_Y_RECT(0), X_PIC, Y_PIC, WHITE);
+            Ui::display.setCursor(UI_GET_MID_X(11), INFO_TXT_Y_POS);
+            Ui::display.print("Home Screen");
+            if (tapAction)
+                StateMachine::switchState(StateMachine::State::HOME);
+        }
+        else if ( // ExpressLRS Settings
+            cursor_x > GET_X(1)  && cursor_x < GET_X_END(1))
+        {
+            Ui::display.rect(GET_X_RECT(1), GET_Y_RECT(0), X_PIC, Y_PIC, WHITE);
+            Ui::display.setCursor(UI_GET_MID_X(19), INFO_TXT_Y_POS);
+            Ui::display.print("ExpressLRS Settings");
+            if (tapAction)
+                StateMachine::switchState(StateMachine::State::EXPRESSLRS);
+        }
+        else if ( // Chorus settings
+            cursor_x > GET_X(2)  && cursor_x < GET_X_END(2))
+        {
+            Ui::display.rect(GET_X_RECT(2), GET_Y_RECT(0), X_PIC, Y_PIC, WHITE);
+            Ui::display.setCursor(UI_GET_MID_X(14), INFO_TXT_Y_POS);
+            Ui::display.print("Chorus control");
+            if (tapAction)
+                StateMachine::switchState(StateMachine::State::CHORUS);
+        }
 #if 0
-      else if ( // item 4
-         cursor_x > GET_X(3)  && cursor_x < GET_X_END(3))
-      {
-         Ui::display.rect(GET_X_RECT(3), GET_Y_RECT(0), X_PIC, Y_PIC, WHITE);
-         Ui::display.setCursor(UI_GET_MID_X(6), INFO_TXT_Y_POS);
-         Ui::display.print("Menu 4");
-         //if (tapAction)
-         //   StateMachine::switchState(StateMachine::State::);
-      }
+        else if ( // item 4
+            cursor_x > GET_X(3)  && cursor_x < GET_X_END(3))
+        {
+            Ui::display.rect(GET_X_RECT(3), GET_Y_RECT(0), X_PIC, Y_PIC, WHITE);
+            Ui::display.setCursor(UI_GET_MID_X(6), INFO_TXT_Y_POS);
+            Ui::display.print("Menu 4");
+            //if (tapAction)
+            //   StateMachine::switchState(StateMachine::State::);
+        }
 #endif
    } else if (cursor_y > GET_Y(1) && cursor_y < GET_Y_END(1)) {
 
 #if 0
-      if ( // item 5
-         cursor_x > GET_X(0)  && cursor_x < GET_X_END(0))
-      {
-         Ui::display.rect(GET_X_RECT(0), GET_Y_RECT(1), X_PIC, Y_PIC, WHITE);
-         Ui::display.setCursor(UI_GET_MID_X(6), INFO_TXT_Y_POS);
-         Ui::display.print("Menu 5");
-         //if (tapAction)
-         //   StateMachine::switchState(StateMachine::State::);
-      }
-      else if ( // item 6
-         cursor_x > GET_X(1)  && cursor_x < GET_X_END(1))
-      {
-         Ui::display.rect(GET_X_RECT(1), GET_Y_RECT(1), X_PIC, Y_PIC, WHITE);
-         Ui::display.setCursor(UI_GET_MID_X(6), INFO_TXT_Y_POS);
-         Ui::display.print("Menu 6");
-         //if (tapAction)
-         //   StateMachine::switchState(StateMachine::State::);
-      }
-      else
+        if ( // item 5
+            cursor_x > GET_X(0)  && cursor_x < GET_X_END(0))
+        {
+            Ui::display.rect(GET_X_RECT(0), GET_Y_RECT(1), X_PIC, Y_PIC, WHITE);
+            Ui::display.setCursor(UI_GET_MID_X(6), INFO_TXT_Y_POS);
+            Ui::display.print("Menu 5");
+            //if (tapAction)
+            //   StateMachine::switchState(StateMachine::State::);
+        }
+        else if ( // item 6
+            cursor_x > GET_X(1)  && cursor_x < GET_X_END(1))
+        {
+            Ui::display.rect(GET_X_RECT(1), GET_Y_RECT(1), X_PIC, Y_PIC, WHITE);
+            Ui::display.setCursor(UI_GET_MID_X(6), INFO_TXT_Y_POS);
+            Ui::display.print("Menu 6");
+            //if (tapAction)
+            //   StateMachine::switchState(StateMachine::State::);
+        }
+        else
 #endif
-      if ( // Receiver Calibration
-         cursor_x > GET_X(2)  && cursor_x < GET_X_END(2))
-      {
-         Ui::display.rect(GET_X_RECT(2), GET_Y_RECT(1), X_PIC, Y_PIC, WHITE);
-         Ui::display.setCursor(UI_GET_MID_X(20), INFO_TXT_Y_POS);
-         Ui::display.print("Receiver Calibration");
-         if (tapAction) {
-            //EepromSettings.initDefaults();
-            EepromSettings.isCalibrated = false;
-            EepromSettings.save();
-            ESP.restart();
-         }
-      }
-      else if ( // WiFi OTA Update
-         cursor_x > GET_X(3)  && cursor_x < GET_X_END(3))
-      {
-         Ui::display.rect(GET_X_RECT(3), GET_Y_RECT(1), X_PIC, Y_PIC, WHITE);
-         Ui::display.setCursor(UI_GET_MID_X(11), (INFO_TXT_Y_POS - Ui::CHAR_H));
-         Ui::display.print("WiFi Update");
-         Ui::display.setCursor( 50, INFO_TXT_Y_POS);
-         Ui::display.print("SSID: ");
-         Ui::display.print(WIFI_AP_SSID);
-         Ui::display.setCursor( 50, (INFO_TXT_Y_POS + Ui::CHAR_H));
-         Ui::display.print("IP:   192.168.4.1");
-         if (tapAction) {
-            BeginWebUpdate(); // Start updater
-
-            uint32_t previousLEDTime = 0, now;
-            // ... and handle client requests
-            while (1) {
-               HandleWebUpdate();
-               now = millis();
-               if (100u <= (now - previousLEDTime)) {
-                     digitalWrite(PIN_RX_SWITCH, !digitalRead(PIN_RX_SWITCH));
-                     previousLEDTime = now;
-               }
-               yield();
+        if ( // Receiver Calibration
+            cursor_x > GET_X(2)  && cursor_x < GET_X_END(2))
+        {
+            Ui::display.rect(GET_X_RECT(2), GET_Y_RECT(1), X_PIC, Y_PIC, WHITE);
+            Ui::display.setCursor(UI_GET_MID_X(20), INFO_TXT_Y_POS);
+            Ui::display.print("Receiver Calibration");
+            if (tapAction) {
+                //EepromSettings.initDefaults();
+                EepromSettings.isCalibrated = false;
+                EepromSettings.save();
+                ESP.restart();
             }
-         }
-      }
-   }
+        }
+        else if ( // WiFi OTA Update
+            cursor_x > GET_X(3)  && cursor_x < GET_X_END(3))
+        {
+            Ui::display.rect(GET_X_RECT(3), GET_Y_RECT(1), X_PIC, Y_PIC, WHITE);
+            Ui::display.setCursor(UI_GET_MID_X(11), (INFO_TXT_Y_POS - Ui::CHAR_H));
+            Ui::display.print("WiFi Update");
+            Ui::display.setCursor( 50, INFO_TXT_Y_POS + Ui::CHAR_H);
+            Ui::display.print("SSID: ");
+            Ui::display.print(WIFI_AP_SSID);
+            Ui::display.setCursor( 50, (INFO_TXT_Y_POS + Ui::CHAR_H * 2));
+            Ui::display.print("IP:   192.168.4.1");
+
+#if defined(LATEST_COMMIT)
+            Ui::display.setCursor( 50, (INFO_TXT_Y_POS + Ui::CHAR_H * 3));
+            Ui::display.print("SHA:  ");
+            uint8_t commit_sha[] = {LATEST_COMMIT};
+            for (uint8_t iter = 0; iter < sizeof(commit_sha); iter++) {
+                Ui::display.print(commit_sha[iter], HEX);
+            }
+#if LATEST_COMMIT_DIRTY
+            Ui::display.print("-dirty");
+#endif
+#endif /* LATEST_COMMIT */
+            if (tapAction) {
+                BeginWebUpdate(); // Start updater
+
+                uint32_t previousLEDTime = 0, now;
+                // ... and handle client requests
+                while (1) {
+                    HandleWebUpdate();
+                    now = millis();
+                    if (100u <= (now - previousLEDTime)) {
+                        digitalWrite(PIN_RX_SWITCH, !digitalRead(PIN_RX_SWITCH));
+                        previousLEDTime = now;
+                    }
+                    yield();
+                }
+            }
+        }
+    }
 }
