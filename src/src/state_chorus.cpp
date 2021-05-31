@@ -230,6 +230,7 @@ void StateMachine::ChorusStateHandler::onUpdate(TouchPad::TouchData const &touch
     // 'AVG : 00:00:1234'   = 16 chars
     // 'LAPS: 00...99'      = 13 chars
     if (1 < consecutives) {
+        fastest = 0; // reused for consecutive start
         // fastest is reused for start lap index
         lap_time = lapt_time_best_consecutives_get(consecutives, fastest);
 
@@ -237,14 +238,22 @@ void StateMachine::ChorusStateHandler::onUpdate(TouchPad::TouchData const &touch
         Ui::display.print("= = =  BEST  = = ="); // 18 chars
         Ui::display.setCursor(BEST_AVG_X2, BEST_AVG_Y1);
         Ui::display.print("LAPS: ");
-        snprintf(tmp_buff, sizeof(tmp_buff), "%2u...%2u\n",
-                 fastest, (fastest + consecutives - 1));
-        Ui::display.print(tmp_buff);
+        if (fastest) {
+            snprintf(tmp_buff, sizeof(tmp_buff), "%2u...%2u\n",
+                     fastest, (fastest + consecutives - 1));
+            Ui::display.print(tmp_buff);
+        } else {
+            Ui::display.print("--");
+        }
         Ui::display.setCursor(BEST_AVG_X2, BEST_AVG_Y2);
         Ui::display.print("AVG : ");
-        snprintf(tmp_buff, sizeof(tmp_buff), "%02u:%02u.%03u\n",
-                 lap_time.m, lap_time.s, lap_time.ms);
-        Ui::display.print(tmp_buff);
+        if (*((uint32_t*)&lap_time) != 0) {
+            snprintf(tmp_buff, sizeof(tmp_buff), "%02u:%02u.%03u\n",
+                     lap_time.m, lap_time.s, lap_time.ms);
+            Ui::display.print(tmp_buff);
+        } else {
+            Ui::display.print("--");
+        }
     }
 
     /**************** TOUCHES *****************/

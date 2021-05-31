@@ -120,8 +120,9 @@ void lap_times_reset(void)
     _lap_times[12].time.ms = 12;
 
 #elif 0
+#define NUM_TEST 5
     uint8_t iter;
-    for (iter = 0; iter < 16; iter++) {
+    for (iter = 0; iter < (NUM_TEST + FIRST_LAP_IDX); iter++) {
         lap_times_store_t * ptr = &_lap_times[iter];
         // first should be skipped
         ptr->time.m = (iter+1);
@@ -129,8 +130,8 @@ void lap_times_reset(void)
         ptr->time.ms = (iter+1);
         ptr->ms = convert_time_to_ms(ptr->time);
     }
-    _last_lap_idx = iter;
-    _best_lap_idx = 6;
+    _last_lap_idx = iter - SKIP_INIT;
+    _best_lap_idx = FIRST_LAP_IDX + NUM_TEST - 1;
 #endif
 }
 
@@ -208,7 +209,6 @@ uint8_t IRAM_ATTR lapt_time_race_num_laps(void)
 {
     if (_last_lap_idx == 0)
         return 0;
-    //return (_last_lap_idx + 1);
     return _last_lap_idx;
 }
 
@@ -223,8 +223,8 @@ lap_time_t IRAM_ATTR lapt_time_laptime_get(uint8_t lap, uint8_t &fastest)
 lap_time_t IRAM_ATTR  lapt_time_best_consecutives_get(uint8_t const consecutives, uint8_t &first)
 {
     uint32_t jter, sum_avg, best = UINT32_MAX;
-    int32_t iter, num_laps = (int32_t)lapt_time_race_num_laps() - consecutives;
-    for (iter = FIRST_LAP_IDX; iter <= num_laps; iter++) {
+    int32_t iter, last_laps_start_idx = (int32_t)lapt_time_race_num_laps() - consecutives + 1;
+    for (iter = FIRST_LAP_IDX; iter <= last_laps_start_idx; iter++) {
         sum_avg = 0;
         for (jter = 0; jter < consecutives; jter++) {
             sum_avg += _lap_times[iter + jter].ms;
